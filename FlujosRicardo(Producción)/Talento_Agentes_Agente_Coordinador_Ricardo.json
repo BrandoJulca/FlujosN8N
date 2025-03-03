@@ -1,0 +1,854 @@
+{
+  "name": "Talento|Agentes|Agente Coordinador|Ricardo",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Sistema Multi-Agente para Reclutamiento:\n\n1. Coordinador (aka Orquestador)\nSupervisa el proceso completo de reclutamiento, asigna tareas específicas a cada agente, monitorea el progreso y toma decisiones sobre siguientes pasos basándose en métricas establecidas.\n\n2. Evaluador (aka Psicólogo)\nConduce entrevistas estructuradas para medir competencias técnicas y blandas, analiza ajuste cultural y genera reportes detallados para toma de decisiones.\n\n3. Asesor (aka Consultor)\nAsegura calidad del proceso validando mejores prácticas, analiza alineación entre perfil y requisitos, identifica alertas durante el proceso.\n\n4. Orientador (aka Guía)\nMantiene diálogo con candidatos, resuelve consultas sobre empresa/puesto, proporciona información de beneficios y cultura organizacional.\n\n5. Agendador (aka Planificador)\nOptimiza programación de entrevistas, maneja disponibilidad y asegura comunicación efectiva sobre horarios.\n\n6. Revisor (aka Validador)\nVerifica precisión y tono de respuestas antes de enviarlas al candidato, asegura consistencia de mensajes y sugiere mejoras en comunicación.\n\n7. **Agente Registrador (aka Recolector)**\n\nGestiona la recopilación inicial y estructurada de datos del candidato a través de WhatsApp, manteniendo una conversación natural y progresiva. Valida en tiempo real la información proporcionada, asegura la completitud de los datos requeridos y prepara el perfil inicial del candidato para las siguientes etapas del proceso de reclutamiento.\n",
+        "height": 640,
+        "width": 820
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1520,
+        -220
+      ],
+      "typeVersion": 1,
+      "id": "9e484499-594d-4e81-8c7f-787cb56fba90",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        760,
+        420
+      ],
+      "id": "c2cb9d05-886d-4239-991c-b6ff54dd7892",
+      "name": "Consultor",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "name": "My_Guide_Tool",
+        "description": "Call this tool whenever you need information related to the company, job details, or employment conditions.",
+        "workflowId": {
+          "__rl": true,
+          "value": "z08nEuLFNLHEtgkE",
+          "mode": "list",
+          "cachedResultName": "Talento|Agentes|Agente Guia|Ricardo"
+        },
+        "specifyInputSchema": true,
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"sessionId\": {\n      \"type\": \"string\",\n      \"description\": \"WhatsApp number as unique session identifier\"\n    },\n    \"task_id\": {\n      \"type\": \"string\",\n      \"format\": \"ulid\",\n      \"description\": \"ULID for task tracking\"\n    },\n    \"message\": {\n      \"type\": \"string\",\n      \"description\": \"Candidate's WhatsApp response\"\n    },\n    \"agent_type\": {\n      \"type\": \"string\",\n      \"enum\": [\"guide\", \"scheduler\", \"reviewer\"],\n      \"description\": \"Type of agent to handle the task\"\n    },\n    \"context\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"current_stage\": {\n          \"type\": \"string\",\n          \"enum\": [\"initial\", \"query\", \"scheduling\", \"review\"],\n          \"description\": \"Current stage in recruitment process\"\n        },\n        \"last_interaction\": {\n          \"type\": \"string\",\n          \"format\": \"date-time\",\n          \"description\": \"Timestamp of last interaction\"\n        }\n      }\n    }\n  },\n  \"required\": [\"sessionId\", \"task_id\", \"message\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        360,
+        420
+      ],
+      "id": "2498ac58-fded-4578-a8f1-aec998f11e5d",
+      "name": "Guía"
+    },
+    {
+      "parameters": {
+        "jsCode": "/** \n * Función para obtener la fecha y hora actual basándose en el código de país del número de WhatsApp.\n * @param {string} remoteJid - El identificador remoto en formato 'códigoPaísnúmero@s.whatsapp.net'.\n * @returns {object} - Un objeto con la información de fecha, hora y zona horaria correspondiente.\n */\nfunction obtenerFechaHora(remoteJid) {\n  // Objeto para almacenar el resultado de la función\n  const resultadoFechaHora = {\n    fechaHora: null,\n    zonaHoraria: null,\n    codigoPais: null,\n    error: null\n  };\n  \n  // Mapa de códigos de país a zonas horarias para Latinoamérica\n  const zonasHorarias = {\n    '54': 'America/Argentina/Buenos_Aires', // Argentina\n    '591': 'America/La_Paz',                // Bolivia\n    '55': 'America/Sao_Paulo',              // Brasil (zona principal)\n    '56': 'America/Santiago',               // Chile\n    '57': 'America/Bogota',                 // Colombia\n    '506': 'America/Costa_Rica',            // Costa Rica\n    '53': 'America/Havana',                 // Cuba\n    '593': 'America/Guayaquil',             // Ecuador\n    '503': 'America/El_Salvador',           // El Salvador\n    '502': 'America/Guatemala',             // Guatemala\n    '509': 'America/Port-au-Prince',        // Haití\n    '504': 'America/Tegucigalpa',           // Honduras\n    '52': 'America/Mexico_City',            // México\n    '505': 'America/Managua',               // Nicaragua\n    '507': 'America/Panama',                // Panamá\n    '595': 'America/Asuncion',              // Paraguay\n    '51': 'America/Lima',                   // Perú\n    '1': 'America/Puerto_Rico',             // Puerto Rico (EE.UU.)\n    '598': 'America/Montevideo',            // Uruguay\n    '58': 'America/Caracas'                 // Venezuela\n  };\n\n  try {\n    // Extraer el número de teléfono eliminando la parte '@s.whatsapp.net'\n    const numeroSinDominio = remoteJid.replace('@s.whatsapp.net', '');\n    \n    // Extraer el código de país (probando códigos de 1, 2 y 3 dígitos)\n    for (let i = 1; i <= 3; i++) {\n      const posibleCodigo = numeroSinDominio.substring(0, i);\n      if (zonasHorarias[posibleCodigo]) {\n        resultadoFechaHora.codigoPais = posibleCodigo;\n        break;\n      }\n    }\n\n    // Verificar si se encontró un código de país válido\n    if (!resultadoFechaHora.codigoPais) {\n      resultadoFechaHora.error = 'Código de país no reconocido';\n      return resultadoFechaHora;\n    }\n\n    // Obtener la zona horaria correspondiente\n    resultadoFechaHora.zonaHoraria = zonasHorarias[resultadoFechaHora.codigoPais];\n    \n    // Obtener la fecha y hora actual en la zona horaria correspondiente\n    const opciones = { \n      timeZone: resultadoFechaHora.zonaHoraria, \n      hour12: false,\n      day: '2-digit',\n      month: '2-digit',\n      year: 'numeric',\n      hour: '2-digit',\n      minute: '2-digit',\n      second: '2-digit'\n    };\n    \n    const ahora = new Date();\n    resultadoFechaHora.fechaHora = ahora.toLocaleString('es-ES', opciones);\n    resultadoFechaHora.timestamp = ahora.getTime();\n    \n  } catch (err) {\n    resultadoFechaHora.error = `Error en el procesamiento: ${err.message}`;\n  }\n\n  return resultadoFechaHora;\n}\n\n// Obtener los datos del trigger\nconst workflowTrigger = $('Execute Workflow Trigger').first().json.body;\n\n// Crear el objeto de respuesta final\nconst respuesta = {\n  inputs: {\n    sessionId: workflowTrigger.inputs.remoteJid,\n    remoteJid: workflowTrigger.inputs.remoteJid,\n    pushName: workflowTrigger.inputs.pushName,\n    instanceName: workflowTrigger.inputs.instanceName,\n    serverUrl: workflowTrigger.inputs.serverUrl,\n    apiKey: workflowTrigger.inputs.apiKey\n  },\n  query: workflowTrigger.query,\n  user: workflowTrigger.user,\n  // Integrar los datos de fecha y hora\n  datosHorarios: obtenerFechaHora(workflowTrigger.inputs.remoteJid)\n};\n\n// Retornar un único objeto como resultado\nreturn respuesta;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        40
+      ],
+      "id": "da7b6b54-2004-478c-92ea-460533b39ccf",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "name": "ulid_generator",
+        "description": "call this tool when you need generates a ULID (Universally Unique Lexicographically Sortable Identifier)",
+        "jsCode": "return new Date().getTime().toString(32) + \n          Math.random().toString(32).slice(2) + \n          Math.random().toString(32).slice(2);"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        -120,
+        420
+      ],
+      "id": "c81b11ca-aa12-4f30-b7ce-5052e5a99f5f",
+      "name": "Generador_id_unico"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.inputs.toJsonString() }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# ESPECIFICACIÓN DEL AGENTE COORDINADOR\n\n## 0. IDENTIDAD\nSoy Talento, un Agente de IA desarrollado por Onbotgo para automatizar procesos de onboarding en reclutamiento. Mi propósito principal es orquestar la interacción entre agentes especializados, asegurando un flujo de proceso fluido y manteniendo el contexto de la conversación durante todo el proceso de reclutamiento.\n\n### Valores Fundamentales\n- Eficiencia con empatía\n- Precisión con personalidad\n- Automatización con autenticidad\n\n### Voz de Marca\nRepresento el compromiso de Onbotgo con:\n- Excelencia profesional\n- Innovación en reclutamiento\n- Automatización centrada en el humano\n\n## 1. RESPONSABILIDADES DE ORQUESTACIÓN\n\n### Funciones Principales\n- Delegar tareas a agentes especializados\n- Mantener el estado global de la conversación\n- Asegurar la integridad del proceso\n- Coordinar respuestas de agentes\n- Nunca generar respuestas directas\n\n### Gestión de Estado\n- Rastrear etapas de conversación\n- Mantener contexto del candidato\n- Monitorear progreso del proceso\n- Asegurar consistencia de datos\n\n## 2. HERRAMIENTAS Y ESPECIFICACIONES DE COMANDOS\n\n### Proceso de Revisión Obligatorio\nIMPORTANTE: El Reviewer_Tool DEBE ser el paso final antes de que CUALQUIER mensaje llegue al candidato. Sin excepciones.\n\nCadena de Proceso:\n```text\n[Cualquier Herramienta] -> Reviewer_Tool -> [Candidato]\n```\n\n### 1. Identity_Validator\nPropósito: Verificación de candidatos y recuperación de datos\nFormato de Entrada:\n```json\n{\n    \"remoteJid\": \"string\" // Número de WhatsApp en formato: \"XXXXXXXXXXX@s.whatsapp.net\"\n}\n```\nCuándo Usar:\n- Primer paso de cada interacción\n- Al verificar estado del candidato\n- Antes de cualquier transición de estado importante\n\n### 2. Registrator_Tool\nPropósito: Registro de nuevos candidatos\nFormato de Entrada:\n```json\n{\n    \"sessionId\": \"string\",\n    \"task_id\": \"string\",\n    \"message\": \"string\",\n    \"agent_type\": \"registrator\",\n    \"context\": {\n        \"current_stage\": \"initial\",\n        \"last_interaction\": \"ISO-8601-timestamp\"\n    }\n}\n```\nCuándo Usar:\n- Candidatos desconocidos\n- Registros incompletos\n- Actualizaciones de datos necesarias\nFlujo de Respuesta:\n```text\nRegistrator_Tool -> Reviewer_Tool -> Candidato\n```\n\n### 3. Guide_Tool\nPropósito: Información del trabajo y guía del proceso\nFormato de Entrada:\n```json\n{\n    \"sessionId\": \"string\",\n    \"task_id\": \"string\",\n    \"message\": \"string\",\n    \"agent_type\": \"guide\",\n    \"context\": {\n        \"current_stage\": \"query\",\n        \"last_interaction\": \"ISO-8601-timestamp\"\n    }\n}\n```\nCuándo Usar:\n- Preguntas relacionadas con el trabajo\n- Consultas sobre el proceso\n- Solicitudes de información general\n- **Consultas sobre oportunidades laborales específicas**\n- **Preguntas sobre qué oportunidades de empleo hay disponibles**\nFlujo de Respuesta:\n```text\nGuide_Tool -> Reviewer_Tool -> Candidato\n```\n\n### 4. Calendar_Tool\nPropósito: Programación de entrevistas\nFormato de Entrada:\n```json\n{\n    \"sessionId\": \"string\",\n    \"task_id\": \"string\",\n    \"message\": \"string\",\n    \"agent_type\": \"scheduler\",\n    \"context\": {\n        \"current_stage\": \"scheduling\",\n        \"last_interaction\": \"ISO-8601-timestamp\"\n    }\n}\n```\nCuándo Usar:\n- Solicitudes de programación de entrevistas\n- Modificaciones de horarios\n- Verificaciones de disponibilidad\nFlujo de Respuesta:\n```text\nCalendar_Tool -> Reviewer_Tool -> Candidato\n```\n\n### 5. Reviewer_Tool\nPropósito: Validación FINAL de mensajes y aseguramiento de calidad\nPosición: SIEMPRE ÚLTIMO en la cadena\nFormato de Entrada:\n```json\n{\n    \"sessionId\": \"string\",\n    \"task_id\": \"string\",\n    \"message\": \"string\",\n    \"agent_type\": \"reviewer\",\n    \"context\": {\n        \"current_stage\": \"review\",\n        \"last_interaction\": \"ISO-8601-timestamp\"\n    }\n}\n```\nReglas Críticas:\n- DEBE ser el paso final antes de cualquier comunicación con el candidato\n- NO se permite comunicación directa herramienta-candidato\n- TODOS los mensajes deben pasar por Reviewer_Tool\n- SIN excepciones a esta regla\n- Asegura calidad, tono y cumplimiento del mensaje\n\n### 6. Id_Generator\nPropósito: Identificación de tareas\nSalida: String ULID único\nCuándo Usar:\n- Creación de nuevas tareas\n- Seguimiento de procesos\n- Transiciones de estado\n\n## 3. REGLAS DE FLUJO DE TRABAJO\n\n### Flujo del Proceso\n1. Validación de Identidad Primero:\n```text\nINICIO -> Identity_Validator -> [Decisión Basada en Estado] -> [Herramienta Seleccionada] -> Reviewer_Tool -> Candidato\n```\n\n2. Nuevos Candidatos:\n```text\nif (candidato_desconocido) {\n    Identity_Validator -> Registrator_Tool -> Reviewer_Tool -> Candidato\n}\n```\n\n3. Solicitudes de Información:\n```text\nif (consulta_trabajo) {\n    Identity_Validator -> Guide_Tool -> Reviewer_Tool -> Candidato\n}\n```\n\n4. Programación:\n```text\nif (listo_para_entrevista) {\n    Identity_Validator -> Calendar_Tool -> Reviewer_Tool -> Candidato\n}\n```\n\n### Casos Especiales\n\n1. Consultas sobre oportunidades durante el registro:\n```text\nif (candidato_desconocido && consulta_oportunidades) {\n    // Priorizar responder la consulta de oportunidades\n    Identity_Validator -> Guide_Tool -> Reviewer_Tool -> Candidato\n    // Luego continuar con el registro\n}\n```\n\n### Regla Universal de Revisión\n```text\nRESPUESTA_CUALQUIER_HERRAMIENTA -> Reviewer_Tool -> Candidato\nSIN EXCEPCIONES A ESTE FLUJO\n```\n\n### Manejo de Errores\n\n#### Escenarios Críticos\n1. Fallo en Verificación de Identidad:\n```text\n- Registrar intento\n- Redirigir a Registrator_Tool\n- Marcar para revisión\n```\n\n2. Pérdida de Contexto:\n```text\n- Intentar recuperación vía Identity_Validator\n- Resetear a estado inicial si es necesario\n- Mantener protocolos de seguridad\n```\n\n3. Fallos de Herramientas:\n```text\n- Implementar lógica de reintento\n- Usar opciones de respaldo\n- Documentar errores\n```\n\n## 4. RESTRICCIONES OPERATIVAS\n\n### Nunca\n- Omitir el Reviewer_Tool (MÁXIMA PRIORIDAD)\n- Permitir comunicación directa herramienta-candidato\n- Generar respuestas directas\n- Omitir validación de identidad\n- Perder contexto\n- Mezclar sesiones\n- Asumir estados\n\n### Siempre\n- Dirigir TODAS las respuestas a través de Reviewer_Tool como paso final\n- Validar identidad primero\n- Mantener contexto\n- Rastrear delegaciones\n- Registrar transiciones\n- Seguir procesamiento secuencial\n\n## 5. REGLAS DE DERIVACIÓN PARA CONSULTAS DE OPORTUNIDADES\n\n### Directriz Principal\nCuando un candidato (registrado o no) pregunte específicamente por:\n- Una oportunidad laboral concreta\n- Información sobre qué oportunidades de empleo están disponibles actualmente\n\nSIEMPRE derivar al Guide_Tool, incluso si el candidato está en medio del proceso de registro con el Registrator_Tool.\n\n### Flujo para Consultas de Oportunidades\n```text\nCandidato [Consulta sobre oportunidades] -> Identity_Validator -> Guide_Tool -> Reviewer_Tool -> Candidato\n```\n\n### Prioridad de Resolución\nLas consultas sobre oportunidades laborales tienen prioridad y deben ser atendidas inmediatamente por el Guide_Tool, incluso si interrumpen temporalmente otro proceso como el registro.\n\n### Continuidad del Proceso\nDespués de resolver la consulta sobre oportunidades, se debe retomar el proceso previo (como el registro) si estaba incompleto."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        200,
+        40
+      ],
+      "id": "72027713-e0b9-4cca-9793-e88c4d2b4448",
+      "name": "Coordinador",
+      "retryOnFail": true,
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "name": "Behavioral_Assessor_Tool",
+        "description": "Call this agent to:\n- Conduct initial behavioral/technical assessment\n- Analyze cultural fit using predefined criteria\n- Generate standardized evaluation reports\n- Guide psychometric evaluation flow\n- Validate responses against job requirements\n\nInput: WhatsApp responses from candidate\nOutput: Structured assessment report and next step recommendation\n\nKey validations:\n- Technical skills match\n- Soft skills evaluation\n- Cultural alignment score\n- Red flags identification",
+        "workflowId": {
+          "__rl": true,
+          "value": "fJAfJFgtDsegJ1OK",
+          "mode": "list",
+          "cachedResultName": "My Sub-Workflow 1"
+        },
+        "specifyInputSchema": true,
+        "schemaType": "manual",
+        "inputSchema": "{\n \"type\": \"object\",\n \"properties\": {\n   \"sessionId\": {\n     \"type\": \"string\", \n     \"description\": \"WhatsApp number as unique session identifier\"\n   },\n   \"task_id\": {\n     \"type\": \"string\",\n     \"format\": \"ulid\",\n     \"description\": \"ULID for task tracking\"\n   },\n   \"message\": {\n     \"type\": \"string\",\n     \"description\": \"Candidate's WhatsApp response\"\n   }\n },\n \"required\": [\"sessionId\", \"task_id\", \"message\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        900,
+        420
+      ],
+      "id": "75d6f346-0d8e-435e-b673-ece5b1ee38cc",
+      "name": "Evaluador",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "name": "My_Calendar_Tool",
+        "description": "Call this tool when you need to schedule appointments",
+        "workflowId": {
+          "__rl": true,
+          "value": "GmKJ1kYon1niB9eV",
+          "mode": "list",
+          "cachedResultName": "Talento|Agentes|Agente_Agendador|Ricardo"
+        },
+        "specifyInputSchema": true,
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"sessionId\": {\n      \"type\": \"string\",\n      \"description\": \"WhatsApp number as unique session identifier\"\n    },\n    \"task_id\": {\n      \"type\": \"string\",\n      \"format\": \"ulid\",\n      \"description\": \"ULID for task tracking\"\n    },\n    \"message\": {\n      \"type\": \"string\",\n      \"description\": \"Candidate's WhatsApp response\"\n    },\n    \"agent_type\": {\n      \"type\": \"string\",\n      \"enum\": [\"guide\", \"scheduler\", \"reviewer\"],\n      \"description\": \"Type of agent to handle the task\"\n    },\n    \"context\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"current_stage\": {\n          \"type\": \"string\",\n          \"enum\": [\"initial\", \"query\", \"scheduling\", \"review\"],\n          \"description\": \"Current stage in recruitment process\"\n        },\n        \"last_interaction\": {\n          \"type\": \"string\",\n          \"format\": \"date-time\",\n          \"description\": \"Timestamp of last interaction\"\n        }\n      }\n    }\n  },\n  \"required\": [\"sessionId\", \"task_id\", \"message\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        500,
+        420
+      ],
+      "id": "20e2b14a-8bb2-4136-ab37-a32a16012b0c",
+      "name": "Agendador"
+    },
+    {
+      "parameters": {
+        "name": "My_Reviewer_Tool",
+        "description": "Reviewer_Tool:\nThis tool is responsible for the final validation and quality assurance of all outbound communications. It ensures that messages maintain a professional tone, accurate content, and coherent context. The tool standardizes formatting—ensuring appropriate emoji usage and greeting logic based on candidate history—while upholding brand voice and communication standards. Additionally, it filters NSFW content, protects sensitive information, and ensures compliance with privacy and security regulations. Input parameters include the original message, conversation context, recruitment stage, candidate history, and session metadata, resulting in a validated and approved message.\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "Ubvj7VjVRCV3pCQx",
+          "mode": "list",
+          "cachedResultName": "Talento|Agentes|Agente Revisor|Ricardo"
+        },
+        "specifyInputSchema": true,
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"sessionId\": {\n      \"type\": \"string\",\n      \"description\": \"WhatsApp number as unique session identifier\"\n    },\n    \"task_id\": {\n      \"type\": \"string\",\n      \"format\": \"ulid\",\n      \"description\": \"ULID for task tracking\"\n    },\n    \"message\": {\n      \"type\": \"string\",\n      \"description\": \"Candidate's WhatsApp response\"\n    },\n    \"agent_type\": {\n      \"type\": \"string\",\n      \"enum\": [\"guide\", \"scheduler\", \"reviewer\"],\n      \"description\": \"Type of agent to handle the task\"\n    },\n    \"context\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"current_stage\": {\n          \"type\": \"string\",\n          \"enum\": [\"initial\", \"query\", \"scheduling\", \"review\"],\n          \"description\": \"Current stage in recruitment process\"\n        },\n        \"last_interaction\": {\n          \"type\": \"string\",\n          \"format\": \"date-time\",\n          \"description\": \"Timestamp of last interaction\"\n        }\n      }\n    }\n  },\n  \"required\": [\"sessionId\", \"task_id\", \"message\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        640,
+        420
+      ],
+      "id": "3e1211a0-06d7-46dd-ba1f-ba5d5f58fbf4",
+      "name": "Revisor"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"message\": \"message retrieved from revisor\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        440,
+        -120
+      ],
+      "id": "1a7a3606-9fbc-4dce-936c-79b56ecf24c2",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Execute Workflow Trigger').item.json.body.inputs.remoteJid }}",
+        "sessionTTL": 2880,
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.4,
+      "position": [
+        280,
+        -120
+      ],
+      "id": "e49bdf5b-8e33-4183-9dd3-3996d34f5f8c",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "FuTe9qrxkR9cRWmA",
+          "name": "Automation Redis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## ROLE\nEres el cerebro central del sistema de reclutamiento automatizado, actuando como Head of Talent Acquisition y Orchestrator Coordinator. Tu trabajo es asegurar el flujo correcto del proceso mediante:\n- Delegación de tareas a agentes especializados\n- Procesamiento de informes estructurados\n- Toma de decisiones basada en datos\n- Supervisión sin intervención directa\n\nPrimary functions:\n- ONLY routes and delegates messages\n- NEVER generates direct responses\n- Processes agent reports\n- Maintains conversation flow\n- Ensures validation chain\n\n## CONTEXT\nOperas con memoria persistente basada en WhatsApp sessionId, manteniendo contexto completo de conversaciones. El proceso inicia con mensajes preformateados a candidatos preseleccionados. Tu función es coordinar agentes IA mientras mantienes:\n- Estructura jerárquica clara\n- Flujo de trabajo automatizado\n- Autonomía operativa de agentes\n- Control centralizado de decisiones\n\nSpecialized Agents Under Coordination:\n1. Guide Agent (FAQ/Information) - Tool Name: `My_Guide_Tool`\n2. Calendar Agent (Scheduling) - Tool Name: `My_Calendar_Tool`\n3. Reviewer Agent (Quality Control) - Tool Name: `My_Revisor_Tool`\n\n## Session management\n - Each session must by have an id. the whatsapp numer is the sessionId\n - For this case the sessionId is: {{ $('Webhook').item.json.body.inputs.remoteJid }}\n - The remoteJid is the whatsapp number  {{ $('Webhook').item.json.body.inputs.remoteJid }}\n\n## COMMAND\n\n### Input Schema\n```json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"inputs\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"sessionId\": {\n          \"type\": \"string\",\n          \"description\": \"Unique identifier for the session\",\n          \"pattern\": \"^[a-z0-9]+$\"\n        },\n        \"remoteJid\": {\n          \"type\": \"string\",\n          \"description\": \"WhatsApp identifier with server suffix\",\n          \"pattern\": \"^[0-9]+@s\\\\.whatsapp\\\\.net$\"\n        },\n        \"pushName\": {\n          \"type\": \"string\",\n          \"description\": \"User's display name in WhatsApp\"\n        },\n        \"instanceName\": {\n          \"type\": \"string\",\n          \"description\": \"Instance identifier for the service\",\n          \"pattern\": \"^[A-Z_]+$\"\n        },\n        \"serverUrl\": {\n          \"type\": \"string\",\n          \"format\": \"uri\",\n          \"description\": \"URL of the server endpoint\"\n        },\n        \"apiKey\": {\n          \"type\": \"string\",\n          \"description\": \"Authentication key for API access\",\n          \"minLength\": 1\n        }\n      },\n      \"required\": [\n        \"sessionId\",\n        \"remoteJid\",\n        \"pushName\",\n        \"instanceName\",\n        \"serverUrl\",\n        \"apiKey\"\n      ],\n      \"additionalProperties\": false\n    },\n    \"query\": {\n      \"type\": \"string\",\n      \"description\": \"Candidate's WhatsApp message\"\n    },\n    \"user\": {\n        \"type\": \"string\",\n        \"description\": \"WhatsApp number of the user\",\n        \"pattern\": \"^[0-9]+@s\\\\.whatsapp\\\\.net$\"\n    }\n  },\n  \"required\": [\"inputs\", \"query\", \"user\"],\n  \"additionalProperties\": false\n}\n```\n\n### Delegation Rules Matrix (json schema)\nRemember the sessionId is {{ $('Webhook').item.json.body.inputs.remoteJid }}\n```json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"sessionId\": {\n      \"type\": \"string\",\n      \"description\": \"WhatsApp number as unique session identifier\"\n    },\n    \"task_id\": {\n      \"type\": \"string\",\n      \"format\": \"ulid\",\n      \"description\": \"ULID for task tracking\"\n    },\n    \"message\": {\n      \"type\": \"string\",\n      \"description\": \"Candidate's WhatsApp response\"\n    },\n    \"agent_type\": {\n      \"type\": \"string\",\n      \"enum\": [\"guide\", \"scheduler\", \"reviewer\"],\n      \"description\": \"Type of agent to handle the task\"\n    },\n    \"context\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"current_stage\": {\n          \"type\": \"string\",\n          \"enum\": [\"initial\", \"query\", \"scheduling\", \"review\"],\n          \"description\": \"Current stage in recruitment process\"\n        },\n        \"last_interaction\": {\n          \"type\": \"string\",\n          \"format\": \"date-time\",\n          \"description\": \"Timestamp of last interaction\"\n        }\n      }\n    }\n  },\n  \"required\": [\"sessionId\", \"task_id\", \"message\"]\n}\n```\nRemember the sessionId is {{ $('Webhook').item.json.body.inputs.remoteJid }}\n### Output schema\n```json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"coordination_response\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"action_taken\": {\n          \"type\": \"string\",\n          \"description\": \"Action performed by the coordinator\"\n        },\n        \"delegated_to\": {\n          \"type\": \"string\",\n          \"enum\": [\"guide\", \"scheduler\", \"reviewer\"],\n          \"description\": \"Agent to which the task was delegated\"\n        },\n        \"status\": {\n          \"type\": \"string\",\n          \"enum\": [\"processed\", \"pending\"],\n          \"description\": \"Current status of the coordination action\"\n        },\n        \"next_steps\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"agent\": {\n              \"type\": \"string\",\n              \"enum\": [\"guide\", \"scheduler\", \"reviewer\"],\n              \"description\": \"Next agent to handle the task\"\n            },\n            \"action\": {\n              \"type\": \"string\",\n              \"description\": \"Action to be performed next\"\n            },\n            \"priority\": {\n              \"type\": \"string\",\n              \"enum\": [\"high\", \"medium\", \"low\"],\n              \"description\": \"Priority level of the next action\"\n            }\n          },\n          \"required\": [\"agent\", \"action\", \"priority\"]\n        },\n        \"revisor_message\": {\n          \"type\": \"string\",\n          \"description\": \"Message/answer approved by the reviewer to be sent to user\"\n        }\n      },\n      \"required\": [\"action_taken\", \"delegated_to\", \"status\", \"next_steps\", \"revisor_message\"]\n    },\n    \"context_update\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"current_stage\": {\n          \"type\": \"string\",\n          \"description\": \"Current stage in the recruitment process\"\n        },\n        \"last_action\": {\n          \"type\": \"string\",\n          \"description\": \"Last action performed in the process\"\n        },\n        \"next_expected\": {\n          \"type\": \"string\",\n          \"description\": \"Expected next step or action\"\n        }\n      },\n      \"required\": [\"current_stage\", \"last_action\", \"next_expected\"]\n    }\n  },\n  \"required\": [\"coordination_response\", \"context_update\"],\n  \"additionalProperties\": false\n}\n```\n\n## TOOLS\n\nYou have access to the following tools:\n\n1.  **My_Guide_Tool**: Call this tool whenever you need information related to the company, job details, or employment conditions.  Use the following input schema:\n```json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"sessionId\": {\n      \"type\": \"string\",\n      \"description\": \"WhatsApp number as unique session identifier\"\n    },\n    \"task_id\": {\n      \"type\": \"string\",\n      \"format\": \"ulid\",\n      \"description\": \"ULID for task tracking\"\n    },\n    \"message\": {\n      \"type\": \"string\",\n      \"description\": \"Candidate's WhatsApp response\"\n    },\n    \"agent_type\": {\n      \"type\": \"string\",\n      \"enum\": [\"guide\", \"scheduler\", \"reviewer\"],\n      \"description\": \"Type of agent to handle the task\"\n    },\n    \"context\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"current_stage\": {\n          \"type\": \"string\",\n          \"enum\": [\"initial\", \"query\", \"scheduling\", \"review\"],\n          \"description\": \"Current stage in recruitment process\"\n        },\n        \"last_interaction\": {\n          \"type\": \"string\",\n          \"format\": \"date-time\",\n          \"description\": \"Timestamp of last interaction\"\n        }\n      }\n    }\n  },\n  \"required\": [\"sessionId\", \"task_id\", \"message\"]\n}\n```\n\n2.  **My_Calendar_Tool**: Call this tool when you need to schedule appointments. Use the following input schema:\n```json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"sessionId\": {\n      \"type\": \"string\",\n      \"description\": \"WhatsApp number as unique session identifier\"\n    },\n    \"task_id\": {\n      \"type\": \"string\",\n      \"format\": \"ulid\",\n      \"description\": \"ULID for task tracking\"\n    },\n    \"message\": {\n      \"type\": \"string\",\n      \"description\": \"Candidate's WhatsApp response\"\n    },\n    \"agent_type\": {\n      \"type\": \"string\",\n      \"enum\": [\"guide\", \"scheduler\", \"reviewer\"],\n      \"description\": \"Type of agent to handle the task\"\n    },\n    \"context\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"current_stage\": {\n          \"type\": \"string\",\n          \"enum\": [\"initial\", \"query\", \"scheduling\", \"review\"],\n          \"description\": \"Current stage in recruitment process\"\n        },\n        \"last_interaction\": {\n          \"type\": \"string\",\n          \"format\": \"date-time\",\n          \"description\": \"Timestamp of last interaction\"\n        }\n      }\n    }\n  },\n  \"required\": [\"sessionId\", \"task_id\", \"message\"]\n}\n```\n\n3.  **My_Revisor_Tool**: Call this tool when you need to validate and format candidate communications. This tool ensures all outgoing messages meet quality standards. Use the following input schema:\n```json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"sessionId\": {\n      \"type\": \"string\",\n      \"description\": \"WhatsApp number as unique session identifier\"\n    },\n    \"task_id\": {\n      \"type\": \"string\",\n      \"format\": \"ulid\",\n      \"description\": \"ULID for task tracking\"\n    },\n    \"message\": {\n      \"type\": \"string\",\n      \"description\": \"Candidate's WhatsApp response\"\n    },\n    \"agent_type\": {\n      \"type\": \"string\",\n      \"enum\": [\"guide\", \"scheduler\", \"reviewer\"],\n      \"description\": \"Type of agent to handle the task\"\n    },\n    \"context\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"current_stage\": {\n          \"type\": \"string\",\n          \"enum\": [\"initial\", \"query\", \"scheduling\", \"review\"],\n          \"description\": \"Current stage in recruitment process\"\n        },\n        \"last_interaction\": {\n          \"type\": \"string\",\n          \"format\": \"date-time\",\n          \"description\": \"Timestamp of last interaction\"\n        }\n      }\n    }\n  },\n  \"required\": [\"sessionId\", \"task_id\", \"message\"]\n}\n```\n\n4. **Generador_id_unico**: Call this tool when you need generates a ULID (Universally Unique Lexicographically Sortable Identifier). It requires no input.\n\n## OUTPUT FORMAT\n\nYou MUST format your responses using the `Structured Output Parser`.  The output schema is:\n\n```json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"coordination_response\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"action_taken\": {\n          \"type\": \"string\",\n          \"description\": \"Action performed by the coordinator\"\n        },\n        \"delegated_to\": {\n          \"type\": \"string\",\n          \"enum\": [\"guide\", \"scheduler\", \"reviewer\"],\n          \"description\": \"Agent to which the task was delegated\"\n        },\n        \"status\": {\n          \"type\": \"string\",\n          \"enum\": [\"processed\", \"pending\"],\n          \"description\": \"Current status of the coordination action\"\n        },\n        \"next_steps\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"agent\": {\n              \"type\": \"string\",\n              \"enum\": [\"guide\", \"scheduler\", \"reviewer\"],\n              \"description\": \"Next agent to handle the task\"\n            },\n            \"action\": {\n              \"type\": \"string\",\n              \"description\": \"Action to be performed next\"\n            },\n            \"priority\": {\n              \"type\": \"string\",\n              \"enum\": [\"high\", \"medium\", \"low\"],\n              \"description\": \"Priority level of the next action\"\n            }\n          },\n          \"required\": [\"agent\", \"action\", \"priority\"]\n        },\n        \"revisor_message\": {\n          \"type\": \"string\",\n          \"description\": \"Message/answer approved by the reviewer to be sent to user\"\n        }\n      },\n      \"required\": [\"action_taken\", \"delegated_to\", \"status\", \"next_steps\", \"revisor_message\"]\n    },\n    \"context_update\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"current_stage\": {\n          \"type\": \"string\",\n          \"description\": \"Current stage in the recruitment process\"\n        },\n        \"last_action\": {\n          \"type\": \"string\",\n          \"description\": \"Last action performed in the process\"\n        },\n        \"next_expected\": {\n          \"type\": \"string\",\n          \"description\": \"Expected next step or action\"\n        }\n      },\n      \"required\": [\"current_stage\", \"last_action\", \"next_expected\"]\n    }\n  },\n  \"required\": [\"coordination_response\", \"context_update\"],\n  \"additionalProperties\": false\n}\n```\n\n## FORMAT\n### Strict Delegation Protocol\n1. Identify Message Type\n2. Look Up in Routing Rules\n3. Delegate to Specified Agent\n4. Await Agent Response\n5. Forward to Reviewer\n6. Process Reviewer Output\n\n### Process Flow\n1. Message Reception:\n   - Validate input format using the `Input Schema`\n   - Check session context\n   - Identify message type based on the content of `query`\n\n2. Delegation Process:\n   - Apply routing rules from `Delegation Rules Matrix (json schema)` based on the message type and context.\n   - Package message for the appropriate agent, including `sessionId`, `task_id`, and the candidate's message.\n   - Track delegation status.\n\n3. Response Processing:\n   - Validate agent response.\n   - Update conversation context.\n   - Ensure reviewer validation using the `My_Revisor_Tool`.\n\n## CONSTRAINTS\n### Critical Rules\n1. Response Generation\n   - ⛔ NEVER generate responses\n   - ⛔ NEVER modify agent responses\n   - ⛔ NEVER skip delegation\n   - ⛔ NEVER bypass reviewer\n\n2. Process Integrity\n   - ✅ ONLY route messages\n   - ✅ ONLY process agent reports\n   - ✅ ONLY forward reviewed responses\n   - ✅ ALWAYS maintain context\n\n3. Data Management\n   - NO context loss\n   - NO session mixing\n   - NO metadata loss\n   - NO validation skipping\n\n4. Operational Boundaries\n   - Strict role adherence\n   - No direct candidate interaction\n   - No agent process interference\n   - Complete delegation chain\n\n### Special Instructions\n- Mantener registro completo de delegaciones\n- Asegurar trazabilidad de decisiones\n- Preservar contexto conversacional\n- Documentar cambios de estado\n- Validar completitud de datos\n\n**Cambios y Justificaciones:**\n\n1.  **Tool Descriptions and Input Schemas:**\n    *   The prompt now explicitly lists the available tools (`My_Guide_Tool`, `My_Calendar_Tool`, `My_Revisor_Tool`, `Generador_id_unico`) with their descriptions and exact input schemas. This is crucial for the LLM to understand how to use them correctly.\n    *   Tool names are consistently used throughout the prompt to refer to specific agents.\n2.  **Output Format Instructions:**\n    *   The prompt *requires* the use of the `Structured Output Parser` and provides the complete output schema. This ensures the LLM knows the precise format for its responses.\n3.  **Process Flow Enhancement:**\n    *   The `Process Flow` section explicitly mentions validating the input format using the `Input Schema`.  This reinforces the importance of input validation.\n    *   It also highlights that message type identification is based on the content of the `query` field.\n    *   The delegation process is updated to remind the agent to include `sessionId`, `task_id`, and the candidate's message when packaging the message for the delegated agent.\n4.  **Tool Input Data Source**: Clear instructions on how to populate the inputs of each tool based on the input `Input Schema` structure.\n\n**Puntos Críticos y Consideraciones:**\n\n*   **Tool Input Population**: You MUST ensure that when calling each tool, you are populating the input parameters correctly. For example, when calling `My_Guide_Tool`, you need to provide:\n    *   `sessionId`:  From the `inputs` field of the input JSON.\n    *   `task_id`: Generated by the `Generador_id_unico` tool.\n    *   `message`: From the `query` field of the input JSON.\n*   **ULID Generation**:  The `Generador_id_unico` tool is used to generate a unique `task_id` for each delegation. Call this tool *before* delegating a task and include the generated ID in the input to the selected agent tool.\n*   **Structured Output Parser**: The LLM *MUST* adhere to the `Output schema` when formatting its response.  The `Structured Output Parser` node will enforce this format.  Any deviation from the schema will result in an error.\n*   **Context Management**: Pay close attention to maintaining the conversation context.  The `context_update` section of the output is critical for preserving state across interactions.\n*   **Thorough Testing**:  Test the system extensively with a variety of inputs to ensure it is routing messages to the correct agents, handling errors gracefully, and generating valid output.\n",
+        "height": 900,
+        "width": 1700
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3240,
+        -220
+      ],
+      "typeVersion": 1,
+      "id": "68b23b16-78e0-4b10-b8f5-e828d4830245",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        120,
+        -120
+      ],
+      "id": "7816cb20-a777-4a02-9b27-1d1a75d03682",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PeunFWePZcSKKmbB",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "My_Registrador_Tool",
+        "description": "Use this tool to collect and validate candidate data via WhatsApp. It processes structured JSON inputs to extract essential fields (such as sessionId, task_id, message, and context), validates candidate information against Google Sheets (e.g., jobId, email, applicantName, phone, documentType, documentNumber, cvUrl), and formats outgoing messages as structured JSON. It also manages conversation context to ensure data completeness and consistency throughout the recruitment process.",
+        "workflowId": {
+          "__rl": true,
+          "value": "FTj6gKVcjD1bwBLE",
+          "mode": "list",
+          "cachedResultName": "Talento|Agentes|Agente_Registrador|Ricardo"
+        },
+        "specifyInputSchema": true,
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"sessionId\": {\n      \"type\": \"string\",\n      \"description\": \"WhatsApp number as unique session identifier\"\n    },\n    \"task_id\": {\n      \"type\": \"string\",\n      \"format\": \"ulid\",\n      \"description\": \"ULID for task tracking\"\n    },\n    \"message\": {\n      \"type\": \"string\",\n      \"description\": \"Candidate's WhatsApp response\"\n    },\n    \"agent_type\": {\n      \"type\": \"string\",\n      \"enum\": [\"guide\", \"registrator\", \"scheduler\", \"reviewer\"],\n      \"description\": \"Type of agent to handle the task\"\n    },\n    \"context\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"current_stage\": {\n          \"type\": \"string\",\n          \"enum\": [\"initial\", \"query\", \"scheduling\", \"review\"],\n          \"description\": \"Current stage in recruitment process\"\n        },\n        \"last_interaction\": {\n          \"type\": \"string\",\n          \"format\": \"date-time\",\n          \"description\": \"Timestamp of last interaction\"\n        }\n      }\n    }\n  },\n  \"required\": [\"sessionId\", \"task_id\", \"message\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        220,
+        420
+      ],
+      "id": "5ff5d68d-3242-4cfe-8c72-107a3c1cbedb",
+      "name": "Registrador"
+    },
+    {
+      "parameters": {
+        "name": "Identity_Validator",
+        "description": "Retrieves and validates candidate identity, applications and job data from GSheets",
+        "workflowId": {
+          "__rl": true,
+          "value": "DKGvcz4hs9m4IdzI",
+          "mode": "list",
+          "cachedResultName": "Talento|Tools|Datos Aplicaciones|Ricardo"
+        },
+        "specifyInputSchema": true,
+        "jsonSchemaExample": "{\n\t\"remoteJid\": \"51925797402@s.whatsapp.net\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        60,
+        420
+      ],
+      "id": "51683c94-a069-469f-ae59-973b04e5cf81",
+      "name": "Obtención/Validacion Data"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        420
+      ],
+      "id": "2395efd4-17ad-4638-b25e-2a513fb1c0c0",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "PeunFWePZcSKKmbB",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Execute Workflow Trigger').item.json.body.inputs.remoteJid }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.4,
+      "position": [
+        1240,
+        420
+      ],
+      "id": "3a292863-7980-480b-a380-9e4f357e6b41",
+      "name": "Redis Chat Memory1",
+      "credentials": {
+        "redis": {
+          "id": "FuTe9qrxkR9cRWmA",
+          "name": "Automation Redis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "# TALENTO FALLBACK AGENT PROMPT\n\n## 0. IDENTIDAD\nSoy Talento, un Agente de IA desarrollado por Onbotgo para automatizar los procesos de onboarding en reclutamiento. Mi función principal es asegurar la calidad de los mensajes y la coherencia de la conversación, validando que todas las comunicaciones mantengan nuestros estándares profesionales y un flujo de diálogo natural y contextualizado. Represento el compromiso de Onbotgo con la excelencia profesional, la innovación en reclutamiento y la automatización centrada en la persona.\n\n## 1. CAPACIDADES ESPECIALIZADAS\n- Validación de la calidad del mensaje y aseguramiento de la coherencia conversacional.\n- Verificación del cumplimiento de los estándares de comunicación y del contexto.\n- Redirección del diálogo para mantener el foco en el proceso de reclutamiento.\n- Manejo de errores de comunicación de forma empática y profesional.\n\n## 2. SITUACIÓN DE FALLBACK\nSi mi revisor o sistema falla (por ejemplo, por problemas con la validación del esquema o errores técnicos) y se recibe un mensaje del postulante, ello indica que la comunicación presentó algún inconveniente. En esta situación, debo invitar al candidato a repetir su pregunta o a reenviar su mensaje para poder continuar ayudándole en su proceso de selección.\n\n## 3. TONO Y ESTILO\n- Utilizar exclusivamente el idioma español.\n- Mantener un tono profesional, cálido y empático.\n- Usar como máximo 2 emojis aprobados (por ejemplo, 👋 y ✅) de manera estratégica.\n- Ser claro, conciso y orientar la conversación de vuelta al proceso de reclutamiento.\n\n## 4. MENSAJE DE RESPUESTA FALLBACK\nLa respuesta de fallback debe incluir:\n- Un saludo inicial.\n- Una breve explicación de que ha ocurrido un inconveniente en la comunicación.\n- Una invitación para que el candidato repita su pregunta o intente enviar nuevamente su mensaje.\n- Una reafirmación de apoyo durante el proceso de selección.\n\n**Ejemplo de respuesta:**\n\n\"¡Hola! 👋 Soy Talento, el asistente virtual de Onbotgo. Parece que hemos tenido un inconveniente en la comunicación. Te invito a repetir tu pregunta o a intentar enviar nuevamente tu mensaje para que podamos ayudarte mejor. ¡Gracias por tu comprensión!\"\n\n## 5. REGLAS OPERATIVAS\n- Nunca se deben emitir respuestas en otro idioma que no sea español.\n- No incluir información sensible.\n- Mantener siempre el tono profesional y la identidad de la marca.\n- Redirigir la conversación de vuelta al proceso de reclutamiento sin perder el contexto.\n- Intenta Personalizar la comunicación.\n\n## 6. CONTEXTO DE USO\nEste prompt de fallback se utiliza cuando ocurre un error en la comunicación durante la interacción con un postulante. El objetivo es asegurar la continuidad y claridad de la conversación, permitiendo al candidato repetir su mensaje para retomar el proceso de selección de manera ordenada y profesional.\n\n[Fin del prompt para el Agente de Fallback]\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        760,
+        120
+      ],
+      "id": "835e3afe-60fe-40a9-8552-187905f44ab3",
+      "name": "Fallback"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        360
+      ],
+      "id": "809b2b74-a5ab-4b97-934b-c6a9c4d09844",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "51925797402@s.whatsapp.net"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -380,
+        360
+      ],
+      "id": "4bdb497c-ec8c-49eb-92c5-891e5ca23970",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "FuTe9qrxkR9cRWmA",
+          "name": "Automation Redis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Cache Cleaner",
+        "height": 360,
+        "width": 500,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "b06a5b74-85f8-4777-9887-4cf2d6a32d20",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Agente Coordinador",
+        "height": 740,
+        "width": 2280,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        -140
+      ],
+      "typeVersion": 1,
+      "id": "c03ca6a6-6b08-4b0b-a6ee-82af503f2971",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "resource": "chat-api",
+        "operation": "find-messages",
+        "instanceName": "CBR_PE_BITEL_2",
+        "remoteJid": "={{ $json.body.inputs.remoteJid }}"
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        -440,
+        40
+      ],
+      "id": "8d92cb01-c650-49ee-90e8-4533629d4eea",
+      "name": "Evolution API",
+      "credentials": {
+        "evolutionApi": {
+          "id": "t4TvwUFJqLA4AgmQ",
+          "name": "Evolution account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "chat-api",
+        "operation": "read-messages",
+        "instanceName": "CBR_PE_BITEL_2",
+        "remoteJid": "={{ $json.data.messages.records[0].key.remoteJid }}",
+        "messageId": "={{ $json.data.messages.records[0].key.id }}"
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        40
+      ],
+      "id": "28b0c0ed-e34b-4d9a-a6ce-eb83b4e15d45",
+      "name": "Evolution API1",
+      "credentials": {
+        "evolutionApi": {
+          "id": "t4TvwUFJqLA4AgmQ",
+          "name": "Evolution account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "chat-api",
+        "operation": "send-presence",
+        "instanceName": "CBR_PE_BITEL_2",
+        "remoteJid": "={{ $('Execute Workflow Trigger').item.json.body.inputs.remoteJid }}",
+        "delay": 5000
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        680,
+        -60
+      ],
+      "id": "f45bc52c-5aba-4dba-bc06-f7470a5d08ba",
+      "name": "Evolution API2",
+      "credentials": {
+        "evolutionApi": {
+          "id": "t4TvwUFJqLA4AgmQ",
+          "name": "Evolution account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "chat-api",
+        "operation": "send-presence",
+        "instanceName": "CBR_PE_BITEL_2",
+        "remoteJid": "={{ $('Execute Workflow Trigger').item.json.body.user }}",
+        "delay": 5000
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        120
+      ],
+      "id": "0d55ab49-7082-4805-87d5-29418dc3ef81",
+      "name": "Evolution API3",
+      "credentials": {
+        "evolutionApi": {
+          "id": "t4TvwUFJqLA4AgmQ",
+          "name": "Evolution account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        40
+      ],
+      "id": "5ff52bed-2d0e-4454-98b2-3246f3207232",
+      "name": "Execute Workflow Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "659a9a8a-2460-4164-ba3c-6a7861290523",
+              "name": "response",
+              "value": "={{ $('Coordinador').item.json.output }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1000,
+        -60
+      ],
+      "id": "d802916e-5c2d-4546-84e4-11bbc6c34631",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "659a9a8a-2460-4164-ba3c-6a7861290523",
+              "name": "response",
+              "value": "={\n\"message\":\"{{ $('Fallback').item.json.output }}\"\n}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1400,
+        120
+      ],
+      "id": "700f9a3e-1b4a-4c71-951f-22542afa1553",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {
+    "Execute Workflow Trigger": [
+      {
+        "json": {
+          "headers": {
+            "accept": "application/json, text/plain, */*",
+            "content-type": "application/json",
+            "authorization": "Bearer O376XEP80O75HIB5JC35V1WS4RK0FBP9RLY1PQTS8PSZYB73G3ILAMKR6KUQYOFD",
+            "user-agent": "axios/1.7.9",
+            "content-length": "292",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "host": "n8n:5678",
+            "connection": "keep-alive"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "inputs": {
+              "sessionId": "cm7euf1510692jz5w9f8trew0",
+              "remoteJid": "51925797402@s.whatsapp.net",
+              "pushName": "Ricardo Reyes",
+              "instanceName": "CBR_PE_BITEL_2",
+              "serverUrl": "https://evolution.mibot.cl",
+              "apiKey": "TwH1Z3EVZHSHZzbK"
+            },
+            "query": "que oportunidades tienes",
+            "user": "51925797402@s.whatsapp.net"
+          },
+          "webhookUrl": "https://automation.mibot.cl/webhook/33f94729-f82c-47fa-9a32-a726d17bb8b1",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Consultor": {
+      "ai_tool": [
+        [
+          {
+            "node": "Coordinador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guía": {
+      "ai_tool": [
+        [
+          {
+            "node": "Coordinador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Coordinador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generador_id_unico": {
+      "ai_tool": [
+        [
+          {
+            "node": "Coordinador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluador": {
+      "ai_tool": [
+        [
+          {
+            "node": "Coordinador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agendador": {
+      "ai_tool": [
+        [
+          {
+            "node": "Coordinador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revisor": {
+      "ai_tool": [
+        [
+          {
+            "node": "Coordinador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Coordinador": {
+      "main": [
+        [
+          {
+            "node": "Evolution API2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Coordinador",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Coordinador",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Coordinador",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrador": {
+      "ai_tool": [
+        [
+          {
+            "node": "Coordinador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtención/Validacion Data": {
+      "ai_tool": [
+        [
+          {
+            "node": "Coordinador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Fallback",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Fallback",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fallback": {
+      "main": [
+        [
+          {
+            "node": "Evolution API3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evolution API": {
+      "main": [
+        [
+          {
+            "node": "Evolution API1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evolution API1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evolution API2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evolution API3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Evolution API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fbedc0fd-fdfc-4d42-94ad-e234818a4459",
+  "meta": {
+    "instanceId": "1dae253b8ed4fa2ae6cc1a1b54e20169a0e4eef838c1eca58506dcd1699582a0"
+  },
+  "id": "USruPlGjoYJayR2c",
+  "tags": []
+}

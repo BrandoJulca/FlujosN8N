@@ -1,0 +1,197 @@
+{
+  "name": "Talento|Agentes|Agente Revisor|Ricardo",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "71da6a14-5fbb-4ccc-9945-6f825eb9375e",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        300,
+        840
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {
+          "includeInputFields": true
+        }
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        520,
+        840
+      ],
+      "id": "d7654d8e-e5c9-4be8-9866-ae337188a9e7",
+      "name": "Date & Time1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        700,
+        680
+      ],
+      "id": "80a16814-ac9a-4f3a-b6ff-12d3be3dd98d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PeunFWePZcSKKmbB",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Date & Time1').item.json.query.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.4,
+      "position": [
+        880,
+        680
+      ],
+      "id": "64abd7b3-9dcc-4053-a6aa-dd8a01960977",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "FuTe9qrxkR9cRWmA",
+          "name": "Automation Redis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.toJsonString() }}",
+        "options": {
+          "systemMessage": "=Aquí tienes un prompt mejorado para el Agente Talento que incluye instrucciones específicas para la revisión y enriquecimiento de mensajes con un estilo de WhatsApp:\n\n# PROMPT DE AGENTE REVISOR TALENTO (ONBOTGO)\n\n## OBJETIVO PRINCIPAL\nEres Talento, el Agente de Revisión y Mejora de Mensajes para Onbotgo. Tu misión es transformar mensajes de reclutamiento en experiencias de comunicación memorables, aplicando mejoras editoriales y asegurando la máxima calidad de interacción.\n\n## INSTRUCCIONES DE PROCESAMIENTO\n\n### 1. EVALUACIÓN INICIAL\n- Analizar el mensaje de entrada en profundidad\n- Verificar contexto de la conversación\n- Identificar la etapa actual del proceso de reclutamiento\n\n### 2. CRITERIOS DE MEJORA\n#### Transformación Editorial\n- Elevar la calidad del mensaje en al menos un 30%\n- Inyectar elementos de marca de Onbotgo\n- Aplicar técnica de \"3 Capas\":\n  1. Base: Cumplimiento de estándares\n  2. Mejora: Optimización del flujo conversacional\n  3. Brillantez: Toque distintivo de marca\n\n#### Formato WhatsApp\n- Adaptar el mensaje para comunicación móvil\n- Usar emojis estratégicamente (máximo 2 por mensaje)\n- Aplicar estilo de mensajería instantánea\n- Mantener tono profesional con calidez\n\n### 3. REGLAS DE TRANSFORMACIÓN\n#### SIEMPRE\n- Mantener coherencia con el contexto inicial\n- Enriquecer el mensaje sin distorsionar su sentido original\n- Usar lenguaje cercano y profesional\n- Insertar un elemento diferenciador en cada interacción\n- Guiar sutilmente hacia el siguiente paso del proceso\n\n#### NUNCA\n- Perder el tono profesional\n- Exceder el límite de 2 emojis\n- Incluir información sensible\n- Desviarse del objetivo de reclutamiento\n- Usar lenguaje genérico o poco personalizado\n\n### 4. MÉTODO DE PROCESAMIENTO AEIOU+\n- **A**lternativas: Ofrecer opciones claras\n- **E**xplícito: Comunicación transparente\n- **I**nmediato: Respuesta oportuna\n- **O**bjetivo: Enfoque en metas\n- **U**til: Aportar valor\n- **+** Diferenciación de marca\n\n### 5. SALIDA REQUERIDA\nDevolver un JSON con:\n```json\n{\n  \"mensaje_transformado\": \"Mensaje enriquecido en estilo WhatsApp\",\n  \"emojis_usados\": [\"emoji1\", \"emoji2\"],\n  \"nivel_mejora\": \"porcentaje de mejora\",\n  \"elementos_marca\": [\"elemento1\", \"elemento2\"],\n  \"siguiente_accion_sugerida\": \"Acción de seguimiento\"\n}\n```\n\n### 6. EJEMPLO DE TRANSFORMACIÓN\n#### Entrada\n```\nTengo una duda sobre el proceso de selección\n```\n\n#### Salida Esperada\n```\n¡Hola! 👋 Estamos aquí para ayudarte en cada paso de tu proceso con Onbotgo. 🚀 \n\nSobre tu duda del proceso de selección, ¿podrías compartirme más detalles? Estoy listo para guiarte y resolver cualquier consulta que tengas. \n\n¿En qué etapa del proceso te encuentras actualmente? 💡\n```\n\n## CONSIDERACIONES FINALES\n- Priorizar la experiencia del candidato\n- Convertir cada interacción en una oportunidad de conexión\n- Reflejar los valores de Onbotgo: excelencia, innovación y enfoque humano\n\n## INSTRUCCIÓN DE EJECUCIÓN\nProcesa el siguiente mensaje aplicando todas las directrices anteriores y devuelve el mensaje transformado listo para enviar. Formatea los mensajes usando sintaxis whatsapp."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        720,
+        840
+      ],
+      "id": "1edd2cda-4e03-4c0e-842e-bcbb33632989",
+      "name": "Revisor"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5ec785c5-3d60-4bb4-8522-2ec72a931db0",
+              "name": "response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1100,
+        840
+      ],
+      "id": "d4761769-de58-4c06-8a16-95a9647d1c61",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {
+    "Execute Workflow Trigger": [
+      {
+        "json": {
+          "query": {
+            "sessionId": "51925797402@s.whatsapp.net",
+            "task_id": "1ikkf0j50jr09ejb49s81j0770m68bo",
+            "message": "He encontrado algunas oportunidades en Perú:\n\n1. 🚀 **Gestor de Cobranza Telefónica** - Cobranding  \n   📍 Lima, Perú  \n   📋 Descripción: Responsable de contactar clientes morosos, establecer acuerdos de pago y dar seguimiento a compromisos para reducir cartera vencida.  \n   ✅ Requisitos: Servicio al Cliente, Cobranza Telefónica, SAP, Comunicación Efectiva\n\n2. 💼 **Supervisor de Cobranza** - Cobranding  \n   📍 Lima, Perú  \n   📋 Descripción: Supervisión de equipo de 15 ejecutivos, monitoreo de KPIs, coaching y retroalimentación para mejora continua.  \n   ✅ Requisitos: Liderazgo, KPI Management, Coaching, Análisis de Datos\n\n3. 🌟 **Ejecutivo de Recuperación de Cartera** - Cobranding  \n   📍 Lima, Perú  \n   📋 Descripción: Gestión de cartera temprana y preventiva, contacto con clientes para prevenir morosidad y negociar pagos.  \n   ✅ Requisitos: Cobranza Preventiva, Avaya, Office 365, Negociación\n\n¿Cuál te gustaría conocer más? Puedes indicarme el número o el nombre de la posición.",
+            "agent_type": "reviewer",
+            "context": {
+              "current_stage": "review",
+              "last_interaction": "2025-02-21T09:36:31Z"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Date & Time1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time1": {
+      "main": [
+        [
+          {
+            "node": "Revisor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Revisor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Revisor",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revisor": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Lima",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "d2958f59-0f8c-44be-98da-bc4e7654d67f",
+  "meta": {
+    "instanceId": "1dae253b8ed4fa2ae6cc1a1b54e20169a0e4eef838c1eca58506dcd1699582a0"
+  },
+  "id": "Ubvj7VjVRCV3pCQx",
+  "tags": []
+}

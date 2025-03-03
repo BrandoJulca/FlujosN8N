@@ -1,0 +1,371 @@
+{
+  "name": "Talento | Agentes | Webhook Router",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "33f94729-f82c-47fa-9a32-a726d17bb8b1",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        -320
+      ],
+      "id": "054bb987-dbbd-4e12-8d3b-e45eb453cced",
+      "name": "Webhook",
+      "webhookId": "33f94729-f82c-47fa-9a32-a726d17bb8b1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "uBCzyiez1EQWM0GW",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        -200
+      ],
+      "id": "3dc37674-1371-46b2-8771-c4b6855bfaea",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ $json.response.toJsonString() }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        -200
+      ],
+      "id": "6c3e8d9c-5c40-4f3a-8c75-17f6e787364b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "USruPlGjoYJayR2c",
+          "mode": "list",
+          "cachedResultName": "Talento|Agentes|Agente Coordinador|Ricardo"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        180,
+        -200
+      ],
+      "id": "59a2642f-0cb1-40be-9064-72e686649dd3",
+      "name": "Invocar Coordinador"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9aeb3a5c-e20c-430c-9ddc-c0d674a8f33d",
+              "leftValue": "={{ $json.body.query }}",
+              "rightValue": "documentMessage",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -220,
+        -320
+      ],
+      "id": "9690bb04-b4ae-4990-9bb7-4cd6ff1cb916",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "chat-api",
+        "operation": "get-media-base64",
+        "instanceName": "={{ $json.body.inputs.instanceName }}",
+        "messageId": "={{ $json.body.query.split(\"|\")[1] }}"
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        180,
+        -380
+      ],
+      "id": "ce4b17cf-9714-43cb-b63f-fc54faea1f3b",
+      "name": "Evolution API4",
+      "credentials": {
+        "evolutionApi": {
+          "id": "6YF8X8tQYbcRym6h",
+          "name": "evolution.mibot.cl"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "={{ $binary.data.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1Wo2JVpLiCKL-sf6BQXi-UhkA89o8JEnT",
+          "mode": "list",
+          "cachedResultName": "CURRICULUMS",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1Wo2JVpLiCKL-sf6BQXi-UhkA89o8JEnT"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        680,
+        -380
+      ],
+      "id": "9170957b-2aa0-4f18-8135-3ca1b56d5a53",
+      "name": "Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "4eN18c5XqqqCNSnV",
+          "name": "ricardo@onbotgo.cl"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data.base64",
+        "options": {
+          "fileName": "={{ $json.data.fileName }}",
+          "mimeType": "={{ $json.data.mimetype }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        420,
+        -380
+      ],
+      "id": "ef4c38a1-dded-4090-8b0b-d27371610483",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1500,
+        -380
+      ],
+      "id": "22e0f23c-bf33-4b2e-a796-a6864af02172",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n\n\"body\": {{ $json.toJsonString() }}\n\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1060,
+        -380
+      ],
+      "id": "317beee6-e97d-4291-8353-6e37e6e5d2c6",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Modifica y retorna el objeto original con un nuevo query construido elegantemente\nreturn (() => {\n  // Obtener el objeto original\n  const webhookData = $node[\"Webhook\"]?.json?.body || {};\n  \n  // Extraer y procesar el mensaje\n  const [,, userMsg] = (webhookData.query || \"\").split(\"|\").concat([null, null, \"Te comparto mi curriculum\"]);\n  const { webViewLink: cvLink } = $input.first()?.json || {};\n  \n  // Modificar el objeto original con los datos procesados\n  return {\n    ...webhookData,\n    query: `${userMsg.trim()}|${cvLink || \"Enlace no disponible\"}`\n  };\n})();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        -380
+      ],
+      "id": "d0598958-b2aa-4d9d-b934-c8512d24e305",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "USruPlGjoYJayR2c",
+          "mode": "list",
+          "cachedResultName": "Talento|Agentes|Agente Coordinador|Ricardo"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1280,
+        -380
+      ],
+      "id": "b5cc72eb-560d-4ad5-a395-33978f253cff",
+      "name": "Invocar Coordinador1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invocar Coordinador": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Evolution API4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invocar Coordinador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evolution API4": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Invocar Coordinador1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invocar Coordinador1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6c9e58ea-452e-41d4-ad86-20aeaffbaf76",
+  "meta": {
+    "instanceId": "1dae253b8ed4fa2ae6cc1a1b54e20169a0e4eef838c1eca58506dcd1699582a0"
+  },
+  "id": "VnbP04xlID7vgAxJ",
+  "tags": []
+}
