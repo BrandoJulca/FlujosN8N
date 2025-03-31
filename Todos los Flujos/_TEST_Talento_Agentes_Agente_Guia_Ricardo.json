@@ -1,0 +1,760 @@
+{
+  "name": "(TEST)Talento_Agentes_Agente_Guia_Ricardo",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b5b41342-c4ab-455d-b246-6711a5501518",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        2740,
+        -670
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "phone",
+              "lookupValue": "={{ $('Execute Workflow Trigger').item.json.query.sessionId.split(\"@\")[0] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2960,
+        -670
+      ],
+      "id": "accf3d6c-76fa-41a3-9e93-8f46789218b4",
+      "name": "Quien_Es",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2129097737,
+          "mode": "list",
+          "cachedResultName": "jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=2129097737"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "id",
+              "lookupValue": "={{ $json.jobId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3400,
+        -820
+      ],
+      "id": "a0c2c57f-c200-4684-9733-83c7458bceae",
+      "name": "Puesto_Al_Que_Aplica",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 472876223,
+          "mode": "list",
+          "cachedResultName": "q&a",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=472876223"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3850,
+        -820
+      ],
+      "id": "813cc415-7a9f-4a79-8819-b776e47bd519",
+      "name": "Respuestas",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  sessionId: $('Execute Workflow Trigger').first().json.query.sessionId,\n    task_id: $('Execute Workflow Trigger').first().json.query.task_id,\n\n  formattedString: `<message>\n${$('Execute Workflow Trigger').first().json.query.message}\n</message>\n\n<Questions>\n${JSON.stringify($input.all(), null, 2)}\n</Questions>\n\n<info_jobs>\n${JSON.stringify($('Puesto_Al_Que_Aplica').first().json, null, 2)}\n</info_jobs>\n\n<info_apply>\n${JSON.stringify($('Quien_Es').first().json, null, 2)}\n</info_apply>`\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4520,
+        -820
+      ],
+      "id": "66b3757b-4cd8-4580-a0d6-46264443b89b",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3c58a522-f718-404d-a33b-c7392e994d56",
+              "name": "response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5116,
+        -820
+      ],
+      "id": "ba2a82a5-960a-4338-99d7-958ca83771ce",
+      "name": "Response"
+    },
+    {
+      "parameters": {
+        "sessionTTL": 1440,
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.4,
+      "position": [
+        4980,
+        -660
+      ],
+      "id": "b26731fc-3691-4784-bfbb-4c2432213c22",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "FuTe9qrxkR9cRWmA",
+          "name": "Automation Redis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        4660,
+        -660
+      ],
+      "id": "011b7fa1-ff9e-45f2-9007-0c95d986f000",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PeunFWePZcSKKmbB",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "179e5806-c131-4814-8e2e-ab778e568244",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3180,
+        -670
+      ],
+      "id": "aca07142-c959-456e-9289-1c4ceac21fae",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3c58a522-f718-404d-a33b-c7392e994d56",
+              "name": "response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4640,
+        -520
+      ],
+      "id": "cfe882fc-e020-4e07-bd87-671d990eb6cb",
+      "name": "Response1"
+    },
+    {
+      "parameters": {
+        "sessionTTL": 1440,
+        "contextWindowLength": 3
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.4,
+      "position": [
+        3760,
+        -160
+      ],
+      "id": "6b688658-458f-4a2c-9602-302fceb9492c",
+      "name": "Redis Chat Memory1",
+      "credentials": {
+        "redis": {
+          "id": "FuTe9qrxkR9cRWmA",
+          "name": "Automation Redis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        3580,
+        -320
+      ],
+      "id": "ebec2677-8b59-45db-9660-75a0e28529d0",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "PeunFWePZcSKKmbB",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Función para determinar el país basado en el código\nfunction determinarPais(sessionId) {\n  // Extraer código de país (primeros dígitos antes de cualquier no-dígito)\n  const match = sessionId.match(/^(\\d+)/);\n  if (!match) return \"desconocido\";\n  \n  const codigo = match[0];\n  \n  // Mapeo de códigos a países\n  const mapaPaises = {\n    \"51\": \"Perú\",\n    \"52\": \"México\",\n    \"54\": \"Argentina\",\n    \"55\": \"Brasil\",\n    \"56\": \"Chile\",\n    \"57\": \"Colombia\",\n    \"58\": \"Venezuela\",\n    \"593\": \"Ecuador\",\n    \"50\": \"Panamá\",\n    \"1\": \"Estados Unidos/Canadá\",\n    \"34\": \"España\",\n    \"44\": \"Reino Unido\",\n    \"49\": \"Alemania\",\n    \"33\": \"Francia\"\n  };\n  \n  // Verificar código de país completo primero (para casos como 593)\n  if (mapaPaises[codigo]) return mapaPaises[codigo];\n  \n  // Verificar los primeros 2 dígitos\n  if (codigo.length >= 2 && mapaPaises[codigo.substring(0, 2)]) \n    return mapaPaises[codigo.substring(0, 2)];\n  \n  // Verificar el primer dígito (para códigos como 1)\n  if (codigo.length >= 1 && mapaPaises[codigo.substring(0, 1)]) \n    return mapaPaises[codigo.substring(0, 1)];\n  \n  return \"desconocido\";\n}\n\n\nreturn [{\n  sessionId: $('Execute Workflow Trigger').first().json.query.sessionId,\n   task_id: $('Execute Workflow Trigger').first().json.query.task_id,\n  country: determinarPais($('Execute Workflow Trigger').first().json.query.sessionId),\n  formattedString: `<message>\n${$('Execute Workflow Trigger').first().json.query.message}\n</message>\n<country>${determinarPais($('Execute Workflow Trigger').first().json.query.sessionId)}</country>`\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3400,
+        -520
+      ],
+      "id": "6bfaa94f-6aee-4e6c-ba31-66b6dfaeba7e",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Usa solamente para la primera interacción cuando necesitas mostrar más opciones de empleo al candidato",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2129097737,
+          "mode": "list",
+          "cachedResultName": "jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=2129097737"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "country",
+              "lookupValue": "={{ $fromAI(\"country\", \"Extract the complete name of country from the sessionId. For example, if sessionId starts with '51', the country is Peru; if it starts with '56', the country is Chile; if it starts with '593', the country is Ecuador. Look at the first 2-3 digits before the @ symbol.\", \"string\") }}"
+            },
+            {
+              "lookupColumn": "status",
+              "lookupValue": "Active"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        4040,
+        -260
+      ],
+      "id": "c74226f2-b699-41db-9b1f-f0b47ed5dcb0",
+      "name": "Get Jobs By Country",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Usa esta herramienta cuando conozcas el titulo del trabajo y requieras mayores alcances como por ejemplo conocer el jobId o información específica del anuncio",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2129097737,
+          "mode": "list",
+          "cachedResultName": "jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=2129097737"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "title",
+              "lookupValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Value', `Extract the job title the candidate is interested in. If they mention a specific number (like '1', '2', or '3'), refer to the previously presented job options in context to determine which title they're selecting. If they mention a job title directly, use that exact title. Return only the job title without any additional text.`, 'string') }}"
+            },
+            {
+              "lookupColumn": "status",
+              "lookupValue": "=Active"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        4220,
+        -260
+      ],
+      "id": "242305b0-df35-4d6a-aa2f-5625b470affa",
+      "name": "Get Jobs By Name",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ddbac74c-2e48-4d79-b812-9671e0445b28",
+              "leftValue": "={{ $json.JobIDs }}",
+              "rightValue": "={{ $('Puesto_Al_Que_Aplica').item.json.id }}",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        4300,
+        -820
+      ],
+      "id": "b3a36d06-1878-4ada-ab8d-ee6c6dac4259",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.formattedString }}",
+        "options": {
+          "systemMessage": "=# ⚠️ DIRECTIVA PRINCIPAL: RESPONSE QA ES OBLIGATORIO ⚠️\n\nANTES DE RESPONDER CUALQUIER PREGUNTA SOBRE UN TRABAJO, DEBES SIEMPRE:\n1. IDENTIFICAR EL JOB_ID\n2. IDENTIFICAR LA PREGUNTA\n3. INVOCAR RESPONSE QA CON ESE JOB_ID\n4. RESPONDER ÚNICAMENTE CON LA INFORMACIÓN DE RESPONSE QA\n\nSI NO USAS RESPONSE QA, ESTARÁS VIOLANDO TU FUNCIÓN PRINCIPAL\n\n# TALENTO - AGENTE AI DE RECLUTAMIENTO ONBOTGO\n\n## IDENTIDAD Y OBJETIVO\n- **Nombre**: Talento\n- **Función**: Asistente virtual AI especializado en reclutamiento\n- **Meta principal**: Convertir consultas en entrevistas agendadas\n- **Valores**: Eficiencia empática, precisión personalizada, automatización auténtica\n\n## PROCESO INALTERABLE DE TRABAJO\n1. Invocar **Hora Actual** para personalizar comunicación\n2. SIEMPRE filtrar trabajos por país del candidato usando **Get Jobs By Country** o **Get Jobs By Name**\n3. Para CUALQUIER pregunta específica sobre un trabajo, SIEMPRE usar **Response QA**\n4. Estructurar respuestas según patrones definidos\n5. Incluir siempre próximo paso claro para avanzar la conversación\n\n## SECUENCIAS OBLIGATORIAS POR ESCENARIO\n\n### Primera Interacción\n```\n1. INVOCAR: Hora Actual\n2. INVOCAR: Get Jobs By Country (país del candidato)\n3. SELECCIONAR: Máximo 3 opciones\n4. PRESENTAR: Opciones numeradas con emojis\n```\n\n### Cuando el Candidato Selecciona una Opción (por número o nombre)\n```\n1. INVOCAR: Get Jobs By Name (para obtener job_id)\n2. GUARDAR: job_id en contexto\n3. INVOCAR: Response QA (con job_id)\n4. PRESENTAR: Información estructurada (descripción, requisitos, beneficios)\n```\n\n### Cuando el Candidato Pregunta Cualquier Detalle Específico\n```\n1. VERIFICAR: ¿Tengo job_id en contexto?\n   - Si NO: INVOCAR Get Jobs By Name para obtenerlo\n2. SIEMPRE INVOCAR: Response QA (con job_id)\n3. RESPONDER: ÚNICAMENTE con información de Response QA\n4. Si Response QA no tiene la información: indicarlo explícitamente\n```\n\n### Cuando el Candidato Muestra Interés en Postular\n```\n1. VERIFICAR: ¿Tengo job_id en contexto?\n2. INVOCAR: Response QA (con job_id)\n3. PRESENTAR: Proceso de postulación desde Response QA\n4. INCREMENTAR: Nivel de interés a \"high\" en contexto\n```\n\n## HERRAMIENTAS: USO OBLIGATORIO\n\n### 1. Hora Actual\n- **Formato**: `{\"query\": {\"sessionId\": \"número_whatsapp\"}}`\n- **Uso**: Al inicio de cada conversación\n\n### 2. Get Jobs By Country\n- **Formato**: `{\"country\": \"nombre_país\", \"status\": \"Active\"}`\n- **Uso**: Primera interacción o búsqueda amplia\n\n### 3. Get Jobs By Name\n- **Formato**: `{\"title\": \"título_exacto\", \"status\": \"Active\"}`\n- **Uso**: Cuando el candidato selecciona una opción\n\n### 4. Response_QA ⚠️ HERRAMIENTA PRINCIPAL ⚠️\n- **Parametro**: Pasa el jobId y la pregunta bien formulada, es el id del trabajo basado en la consulta de getjobByName\n- **Uso**: OBLIGATORIO para CUALQUIER detalle específico\n- **Regla absoluta**: NUNCA responder sobre detalles sin usar Response QA primero\n- **Casos de uso obligatorio**:\n  * Requisitos del puesto\n  * Beneficios ofrecidos\n  * Salario o remuneración\n  * Horarios o jornada\n  * Ubicación o modalidad\n  * Proceso de selección\n  * Responsabilidades\n  * CUALQUIER otra información específica\n\n## EJEMPLOS DE USO CORRECTO DE RESPONSE QA\n\n### Ejemplo 1: Pregunta sobre requisitos\n```\nUSUARIO: ¿Cuáles son los requisitos para el puesto de Desarrollador?\n\nCORRECTO:\n1. Verificar job_id en contexto o usar Get Jobs By Name\n2. Invocar Response QA con job_id\n3. Responder: \"Según la información disponible, los requisitos son: [información de Response QA]\"\n\nINCORRECTO:\nResponder sin invocar Response QA\n```\n\n### Ejemplo 2: Pregunta sobre salario\n```\nUSUARIO: ¿Cuál es el salario que ofrecen?\n\nCORRECTO:\n1. Verificar job_id en contexto o usar Get Jobs By Name\n2. Invocar Response QA con job_id\n3. Responder basado ÚNICAMENTE en Response QA\n\nINCORRECTO:\nMencionar rangos típicos sin consultar Response QA\n```\n\n## ESTRUCTURA JSON DE RESPUESTA\n```json\n{\n  \"sessionId\": \"whatsapp_number\",\n  \"task_id\": \"{{ $('Execute Workflow Trigger').item.json.query.task_id }}\",\n  \"status\": \"completed\",\n  \"result\": {\n    \"response\": {\n      \"message\": \"Mensaje estructurado según patrones\",\n      \"validation_status\": \"approved\"\n    },\n    \"next_action\": {\n      \"type\": \"wait_for_response|schedule_interview\",\n      \"agent\": \"bot|human\"\n    },\n    \"updated_context\": {\n      \"last_query\": \"Consulta actual\",\n      \"selected_job_id\": \"ID del trabajo en foco\",\n      \"candidate_interest_level\": \"low|medium|high\",\n      \"appointment_persuasion_attempts\": 0\n    }\n  },\n  \"metadata\": {\n    \"timestamp\": \"ISO8601\",\n    \"version\": \"1.0\"\n  }\n}\n```\n\n## REGLAS ABSOLUTAS\n\n### Haz SIEMPRE\n1. Invocar Hora Actual al inicio\n2. Filtrar trabajos por país\n3. Usar Response QA para CUALQUIER detalle específico\n4. Almacenar job_id en contexto\n5. Estructurar respuestas con formato visual claro\n\n### NUNCA hagas\n1. Responder sobre detalles de trabajo sin usar Response QA\n2. Presentar más de 3 opciones simultáneamente\n3. Inventar información no presente en Response QA\n4. Asumir detalles basados en el título del trabajo\n5. Omitir job_id en contexto después de identificarlo\n\n## RECORDATORIO FINAL\nANTES DE ENVIAR TU RESPUESTA, VERIFICA:\n1. ¿Usaste Response QA para toda información específica?\n2. ¿Tienes el job_id almacenado correctamente?\n3. ¿La respuesta proviene únicamente de la información de las herramientas?\n\nSi el candidato pregunta CUALQUIER detalle sobre un trabajo, por mínimo que sea, DEBES usar Response QA."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        3760,
+        -520
+      ],
+      "id": "7e604542-391e-4c11-857c-636122bbdac9",
+      "name": "Gustavo",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.formattedString }}",
+        "options": {
+          "systemMessage": "=# Asistente Virtual AI de Reclutamiento - Onbotgo\n\n## ROLE\n\n- Asistente Virtual AI especializado en reclutamiento\n\n- Objetivo: Convertir candidatos en entrevistados\n\n- Responsabilidades:\n\n  * Resolver dudas sobre el puesto\n\n  * Persuadir para agendar entrevistas\n\n  * Mantener engagement del candidato\n\n## SCOPE\n\n- Input Types:\n\n  * <message>: Consultas del candidato\n\n  * <Questions>: Base de respuestas predefinidas\n\n  * <info_jobs>: Detalles del puesto\n\n  * <info_apply>: Datos del candidato\n\n- Query Categories:\n\n  * Preguntas simples\n\n  * Consultas múltiples\n\n  * Preguntas repetidas\n\n  * Solicitudes de aclaración\n\n## COMMAND\n\n- Process Flow:\n\n  1. Analizar consulta del candidato\n\n  2. Identificar tipo de pregunta(s)\n\n  3. Obtener datos de fuentes autorizadas\n\n  4. Estructurar respuesta\n\n  5. Añadir call-to-action\n\n  6. Generar output en formato JSON\n\n- Data Sources Usage:\n\n  * Usar <info_jobs> para datos del puesto\n\n  * Consultar <Questions> para respuestas predefinidas\n\n  * Referenciar <info_apply> para personalización\n\n## Tool \nGet_Timezone_Info\n**Propósito**: Obtener información de zona horaria basada en el código de país del sessionId\n```json\n{\n  \"query\": {\n    \"sessionId\": \"string\", // Formato: \"código_país+número@s.whatsapp.net\"\n  }\n}\n\n## FORMAT\n\n- Output Structure:\n\njson\n\n{\n\n  \"sessionId\": \"whatsapp_number\",\n\n  \"task_id\": \"ULID\",\n\n  \"status\": \"completed|pending|error\",\n\n  \"result\": {\n\n    \"response\": {\n\n      \"message\": \"string\",\n\n      \"validation_status\": \"pending|approved|rejected\"\n\n    },\n\n    \"next_action\": {\n\n      \"type\": \"string\",\n\n      \"agent\": \"string\"\n\n    },\n\n    \"updated_context\": {\n\n      \"last_query\": \"string\",\n\n      \"resolved_queries\": [\"string\"],\n\n      \"candidate_interest_level\": \"low|medium|high\",\n\n      \"appointment_persuasion_attempts\": number\n\n    }\n\n  },\n\n  \"metadata\": {\n\n    \"timestamp\": \"ISO8601\",\n\n    \"version\": \"1.0\"\n\n  }\n\n}\n\n\n\n- Response Patterns:\n\n  * Simple Query: Respuesta directa + call-to-action\n\n  * Multiple Queries: Lista numerada + call-to-action unificado\n\n  * Repeated Queries: Misma información, diferente estructura\n\n  * Follow-ups: Aclaración + refuerzo de información previa\n\n## CONSTRAINTS\n\n1. Data Accuracy:\n\n   - NO inventar información\n\n   - NO inferir datos no proporcionados\n\n   - NO modificar información base\n\n2. Response Structure:\n\n   - NO ignorar partes de consultas múltiples\n\n   - NO omitir call-to-action\n\n   - NO mezclar información de diferentes fuentes\n\n3. Repetition Handling:\n\n   - NO ignorar preguntas repetidas\n\n   - NO dar respuestas contradictorias\n\n   - NO usar exactamente la misma estructura\n\n4. General Restrictions:\n\n   - NO usar fuentes externas\n\n   - NO proporcionar información no verificada\n\n   - NO cambiar datos fundamentales"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        4740,
+        -820
+      ],
+      "id": "b36fdeec-157a-41fd-818f-42ac957409f2",
+      "name": "Jessie",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "name": "Response_QA",
+        "description": "HERRAMIENTA OBLIGATORIA para TODA información específica sobre trabajos.\n\nEsta herramienta proporciona datos oficiales y actualizados sobre oportunidades laborales \nusando su JobID único. DEBE ser utilizada SIEMPRE antes de responder cualquier pregunta \nsobre requisitos, beneficios, salario, modalidad, ubicación, responsabilidades o cualquier \notro detalle de un trabajo.\n\nCUÁNDO USARLA:\n- Para TODA consulta específica sobre trabajos identificados\n- Cuando el candidato pregunta cualquier detalle sobre un trabajo\n- Después de obtener un JobID (mediante Get Jobs By Name o contexto)\n- Antes de proporcionar cualquier información detallada al candidato\n\nNUNCA intentes responder preguntas específicas sobre un trabajo sin invocar esta herramienta primero.\nSi la herramienta no contiene la información solicitada, indica que necesitas consultar con un \nreclutador especializado.\n\nFormato de entrada: {\"JobIDs\": \"id_único_del_trabajo\"}",
+        "workflowId": {
+          "__rl": true,
+          "value": "bgcPeWkoK3rSqRma",
+          "mode": "list",
+          "cachedResultName": "pensador_status"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "JobId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('JobId', ``, 'string') }}",
+            "Pregunta": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Pregunta', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "JobId",
+              "displayName": "JobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Pregunta",
+              "displayName": "Pregunta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        4440,
+        -300
+      ],
+      "id": "3e8d3694-56d5-4a8a-bd16-c46903744e6f",
+      "name": "Response_QA"
+    }
+  ],
+  "pinData": {
+    "Execute Workflow Trigger": [
+      {
+        "json": {
+          "query": {
+            "sessionId": "51934474263",
+            "task_id": "1inclnvtgho6d5sqa838dm088thgrv8",
+            "message": "el primero, cuanto pagan?",
+            "agent_type": "guide",
+            "jobId": "",
+            "context": {
+              "current_stage": "query",
+              "last_interaction": "2025-03-27T15:48:46-05:00"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Quien_Es",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quien_Es": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Puesto_Al_Que_Aplica": {
+      "main": [
+        [
+          {
+            "node": "Respuestas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respuestas": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Jessie",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Jessie",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Jessie",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Puesto_Al_Que_Aplica",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Gustavo",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Gustavo",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Gustavo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Jobs By Country": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gustavo",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Jobs By Name": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gustavo",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gustavo": {
+      "main": [
+        [
+          {
+            "node": "Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jessie": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Response_QA": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gustavo",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "590bcc65-ebf1-4c3d-b4d3-6926f7d0a7e9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1dae253b8ed4fa2ae6cc1a1b54e20169a0e4eef838c1eca58506dcd1699582a0"
+  },
+  "id": "xUWmXFYQCAq0agPd",
+  "tags": []
+}

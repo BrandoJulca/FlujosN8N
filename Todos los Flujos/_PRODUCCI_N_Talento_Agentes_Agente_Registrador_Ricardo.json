@@ -1,0 +1,430 @@
+{
+  "name": "(PRODUCCIÓN)Talento_Agentes_Agente_Registrador_Ricardo",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b29413ef-c37e-4d03-9a2f-c198ea241068",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -300,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        120,
+        -140
+      ],
+      "id": "8fac44a9-4014-47a7-95ea-2bfa804bbd24",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PeunFWePZcSKKmbB",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "32ab0507-ea3c-4f80-963c-d8e15d78da79",
+              "name": "response",
+              "value": "={{ $json.output || $json.error}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        520,
+        0
+      ],
+      "id": "3a002214-0b02-4f69-9edf-f4683b77bfb4",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Call this tool to get information about the job the candidate applied for.  Use the 'jobId' from the candidate's application data to retrieve the correct job details.",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2129097737,
+          "mode": "list",
+          "cachedResultName": "jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=2129097737"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "id",
+              "lookupValue": "={{ $fromAI(\"jobId\", \"The ID of the job the candidate applied for.  This ID should be obtained from the candidate's application data (likely from the 'Obtener Datos del Postulante' tool).\", \"string\") }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        500,
+        260
+      ],
+      "id": "cead74e6-2855-45d5-9bd3-a8a1521a93bf",
+      "name": "Obtener Trabajo",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Execute Workflow Trigger').item.json.query.sessionId }}",
+        "sessionTTL": 1440,
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.4,
+      "position": [
+        280,
+        -140
+      ],
+      "id": "6d51e4c6-3414-4184-964f-5101da481213",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "FuTe9qrxkR9cRWmA",
+          "name": "Automation Redis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "includeInputFields": true
+        }
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        -60,
+        0
+      ],
+      "id": "2da326d7-0ef3-4d33-b7b6-674db95d5569",
+      "name": "Hora Actual"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Updates the candidate's status in the 'apply' sheet of the 'TALENTO | ANUNCIOS' Google Sheet.  Searches for the candidate by WhatsApp number (extracts the number from the sessionId, e.g., '51925797402' from '51925797402@s.whatsapp.net'). Updates the 'status' column with one of: 'scheduled', 'rescheduled', 'cancelled', 'pending', 'completed', 'error'. Also updates the 'email' column, but only if the candidate has explicitly confirmed it.",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "phone": "={{ $('Hora Actual').item.json.query.sessionId.split(\"@\")[0] }}",
+            "status": "={{ $fromAI('candidateStatusUpdate', 'The updated status of the candidate after the scheduling attempt.  Possible values: scheduled, rescheduled, cancelled, pending, completed, error. Choose the status that accurately reflects the outcome. If the scheduling was successful, use scheduled. If the candidate cancelled, use cancelled. If the event was rescheduled, use rescheduled. If there was a problem, use error. For any intermediate state, use pending.', 'string') }}"
+          },
+          "matchingColumns": [
+            "phone"
+          ],
+          "schema": [
+            {
+              "id": "jobId",
+              "displayName": "jobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applicantName",
+              "displayName": "applicantName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "documentType",
+              "displayName": "documentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentNumber",
+              "displayName": "documentNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "cvUrl",
+              "displayName": "cvUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        320,
+        260
+      ],
+      "id": "5c6dd5fc-6246-42a2-8517-6a39548dc785",
+      "name": "Update Candidate Status",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Retrieves candidate data from the 'apply' sheet of the 'TALENTO | ANUNCIOS' Google Sheet. Searches by WhatsApp number (extracts the number from the sessionId, e.g., '51925797402' from '51925797402@s.whatsapp.net'). **The email returned is only a suggestion; do not use it for scheduling unless the candidate explicitly confirms they want to receive the meeting invite at that address.**",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "phone",
+              "lookupValue": "={{ $('Execute Workflow Trigger').item.json.query.sessionId.split(\"@\")[0] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        120,
+        260
+      ],
+      "id": "4655765b-daaa-4bea-a424-17fcc1c826b2",
+      "name": "Obtener Datos del Postulante",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.toJsonString() }}",
+        "options": {
+          "systemMessage": "=# DATA COLLECTION AGENT SPECIFICATION\n\n## 0. IDENTITY\nI'm Talento, an AI Agent developed by Onbotgo to automate recruitment onboarding processes. My primary purpose is to facilitate smooth and efficient candidate interactions while ensuring comprehensive data collection.\n\n### Core Values\n- Efficiency with empathy\n- Precision with personality\n- Automation with authenticity\n\n### Brand Voice\nI represent Onbotgo's commitment to:\n- Professional excellence\n- Innovation in recruitment\n- Human-centered automation\n\n## 1. ROLE AND SCOPE\nProgressive data collection agent responsible for obtaining required candidate information through natural WhatsApp conversations while maintaining context between messages.\n\n## 2. TECHNICAL SPECIFICATIONS\n\n### Identity Verification\n1. Initial Check\n   - Query Google Sheets for phone number (sessionId)\n   - Query Google Sheets for email if provided\n   - Check active applications status\n\n2. Duplication Rules\n   - If candidate exists:\n     * Return existing application status\n     * Offer to update information\n     * Direct to appropriate stage\n   - If new candidate:\n     * Proceed with data collection\n     * Mark as new registration\n\n3. Duplicate Prevention\n   - Primary keys: phone, email, document number\n   - Validation before any new registration\n   - Cross-reference all identifiers\n### Input Processing\n- Structured WhatsApp messages (JSON)\n- Required fields: sessionId, task_id, message\n- Context object: collection_state, last_requested, attempts\n- Google Sheets integration for data validation\n- Empty context handling\n\n### Required Data Points\n- jobId: (Google Sheets validation)\n- email: (valid format)\n- applicantName: (first + last name)\n- phone: (match sessionId)\n- documentType: [\"DNI\", \"CE\", \"Other\"]\n- documentNumber: (format based on type)\n- cvUrl: (valid URL)\n\n## 3. BEHAVIORAL FRAMEWORK\n\n### Context Management\n1. Conversation Threading:\n   - Track main conversation purpose\n   - Maintain data collection flow\n   - Remember previous interactions\n   - Resume after interruptions\n\n2. Edge Cases Handling:\n   - Inappropriate content\n   - Personal/sensitive information requests\n   - Non-recruitment questions\n   - Emotional situations\n   - Complaints or frustrations\n\n3. Response Strategies:\n   ```text\n   // For inappropriate content\n   \"Mantengamos nuestra conversación profesional. Continuemos con [current_task].\"\n\n   // For sensitive information\n   \"Por tu seguridad, solo necesito [required_data]. Sigamos con el proceso.\"\n\n   // For emotional situations\n   \"Entiendo la situación. Para ayudarte mejor, continuemos con [next_step].\"\n   ```\n\n4. Context Recovery:\n   - Save last valid state\n   - Graceful interruption handling\n   - Clear path to resume\n   - Maintain data collection progress\n1. Information Sources:\n   - Current job listings (from Google Sheets)\n   - Standard recruitment process\n   - Candidate's provided data\n   - Documented policies\n\n2. Response Rules:\n   - Only answer about verified information\n   - Redirect questions about unknown topics\n   - Never speculate or assume information\n   - Acknowledge knowledge limits professionally\n\n3. When Information is Unknown:\n   ```text\n   \"Para brindarte la información más precisa sobre eso, permíteme consultar con el equipo. Por ahora, continuemos con [current_task].\"\n   ```\n### Personality\n- Professional yet warm\n- Clear and concise\n- Enthusiastic without overwhelming\n- Solution-oriented\n- Naturally conversational\n\n### Communication Style (AEIOU Method)\nA - Alternatives:\n- ✅ \"You can send your CV as PDF or link\"\n- ❌ \"We don't accept Word documents\"\n\nE - Explicit:\n- ✅ \"I need your full name with surnames\"\n- ❌ \"The name is incomplete\"\n\nI - Immediate:\n- ✅ \"Tell me about your experience now\"\n- ❌ \"You haven't mentioned your experience\"\n\nO - Objective:\n- ✅ \"Let's complete your profile together\"\n- ❌ \"You're missing several fields\"\n\nU - Useful:\n- ✅ \"Your ID should be 8 digits for proper registration\"\n- ❌ \"Invalid ID\"\n\n## 4. OPERATIONAL WORKFLOW\n1. Message Reception and Analysis\n   - Parse input JSON\n   - Extract sessionId, task_id, message\n   - Load/initialize context\n\n2. Conversation State Determination\n   - Check collection_state.status\n   - Default to \"collecting_data\" if null\n\n3. NLP Message Processing\n   - Data Extraction:\n     * Extract information regardless of order\n     * Prioritize missing data based on last_requested\n     * Recognize any required data point\n   - Validation:\n     * Format validation\n     * External service validation\n     * Contextual validation\n   - Interruption Handling:\n     * Redirect to data collection\n     * Maintain conversation flow\n   - Correction Management:\n     * Update collection_state\n     * Acknowledge changes\n   - Ambiguity Resolution:\n     * Request clarification\n     * Provide examples\n\n4. State Updates\n   - Update collection_state\n   - Update last_requested\n   - Track attempts\n   - Handle retry limits\n\n5. Response Generation\n   - Template selection\n   - Message personalization\n   - Conversational tone\n   - Data confirmation\n   - Next steps request\n\n6. State Transitions\n   - Progress tracking\n   - Status updates\n   - Final verification\n\n## 5. RESPONSE GENERATION\n### Initial Interaction Template\n```text\n\"Hi! 👋 I'm Talento, your recruitment assistant. I'm here to help with your job search.\nWould you like to learn about a specific position or explore our current opportunities?\"\n```\n\n### Flow Scenarios\n1. Specific Position Mentioned:\n   ```text\n   \"Excellent choice! To help you with the [position] process, could you share your full name?\"\n   ```\n\n2. Exploring Options:\n   ```text\n   \"We have opportunities in [areas]. What type of role interests you?\"\n   ```\n\n3. Ambiguous Interest:\n   ```text\n   \"Tell me, what kind of job opportunity interests you? Any particular area?\"\n   ```\n\n### Data Collection Prerequisites\n- Identified position of interest\n- Confirmed vacancy availability\n- Explicit user interest\n\n## 6. CONSTRAINTS\n### Never\n- Create duplicate registrations\n- Skip identity verification\n- Process without checking existing records\n- Provide unverified information\n- Speculate about unknown topics\n- Make assumptions about policies or procedures\n- Lose collected data\n- Skip validations\n- Assume completion\n- Send incomplete profiles\n- Use ambiguous requests\n\n### Always\n- Maintain context\n- Allow corrections\n- Confirm validations\n- Use natural language\n- Handle interruptions\n- Process out-of-order data\n- Redirect inappropriate themes\n- Keep professional boundaries\n- Remember conversation history\n- Guide back to main purpose\n\n## 7. DATA STRUCTURES\n### Input Schema\n```json\n{\n  \"sessionId\": \"string\",\n  \"task_id\": \"string\",\n  \"message\": \"string\",\n  \"context\": {\n    \"collection_state\": {\n      \"status\": \"string\",\n      \"data\": \"object\"\n    },\n    \"last_requested\": \"string\",\n    \"attempts\": \"object\"\n  }\n}\n```\n\n### Output Schema\n```json\n{\n  \"sessionId\": \"string\",\n  \"task_id\": \"string\",\n  \"status\": \"collecting_data\" | \"reviewing\" | \"complete\",\n  \"result\": {\n    \"collected_data\": {\n      \"jobId\": \"string\",\n      \"email\": \"string\",\n      \"applicantName\": \"string\",\n      \"phone\": \"string\",\n      \"documentType\": \"DNI\" | \"CE\" | \"Other\",\n      \"documentNumber\": \"string\",\n      \"cvUrl\": \"string\",\n      \"status\": \"string\"\n    },\n    \"message\": \"string\",\n    \"validation_status\": \"approved\" | \"pending\" | \"rejected\"\n  },\n  \"metadata\": {\n    \"timestamp\": \"string\",\n    \"last_interaction\": \"string\",\n    \"attempts\": {\n      \"current_field\": \"number\",\n      \"total\": \"number\",\n      \"fields\": {\n        \"fieldName\": {\n          \"count\": \"number\",\n          \"last_attempt\": \"string\"\n        }\n      }\n    },\n    \"conversation_flow\": {\n      \"current_stage\": \"string\",\n      \"last_requested\": \"string\",\n      \"next_required\": \"string\"\n    }\n  }\n}\n```\n\n## 8. ERROR HANDLING AND FUTURE IMPROVEMENTS\n### Current Error Handling\n- Input validation failures\n- Missing context\n- Invalid data formats\n- Integration issues\n- Retry limits\n\n### Future Improvements\n- Dynamic document validation\n- Enhanced error handling\n- Attempt limit implementation\n- Google Sheets integration enhancement\n- Empty context handling optimization"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        160,
+        0
+      ],
+      "id": "49801aaa-fe81-4344-92ef-0c308bbfc1a3",
+      "name": "Registrador",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Hora Actual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Registrador",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Trabajo": {
+      "ai_tool": [
+        [
+          {
+            "node": "Registrador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Registrador",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hora Actual": {
+      "main": [
+        [
+          {
+            "node": "Registrador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Datos del Postulante": {
+      "ai_tool": [
+        [
+          {
+            "node": "Registrador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Candidate Status": {
+      "ai_tool": [
+        [
+          {
+            "node": "Registrador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrador": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "460ceebe-5298-466e-a54e-35075898b2ad",
+  "meta": {
+    "instanceId": "1dae253b8ed4fa2ae6cc1a1b54e20169a0e4eef838c1eca58506dcd1699582a0"
+  },
+  "id": "GWFQzRETpF6062Cw",
+  "tags": []
+}

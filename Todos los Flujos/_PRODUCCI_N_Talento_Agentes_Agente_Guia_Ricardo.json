@@ -1,0 +1,755 @@
+{
+  "name": "(PRODUCCIÓN)Talento_Agentes_Agente_Guia_Ricardo",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "6bda7031-10b2-4732-844c-26e622fbd2c3",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -1560,
+        120
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "phone",
+              "lookupValue": "={{ $('Execute Workflow Trigger').item.json.query.sessionId.split(\"@\")[0] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -1340,
+        120
+      ],
+      "id": "8f8968ea-ab00-4cbc-b2a5-b439df2f691f",
+      "name": "Quien_Es",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2129097737,
+          "mode": "list",
+          "cachedResultName": "jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=2129097737"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "id",
+              "lookupValue": "={{ $json.jobId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -820,
+        -60
+      ],
+      "id": "6e966ea7-b396-480f-8b44-584ecfe6fae5",
+      "name": "Puesto_Al_Que_Aplica",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 472876223,
+          "mode": "list",
+          "cachedResultName": "q&a",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=472876223"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -620,
+        -60
+      ],
+      "id": "6182e431-a5f3-4d6e-84b6-d68c3398959e",
+      "name": "Respuestas",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  sessionId: $('Execute Workflow Trigger').first().json.query.sessionId,\n    task_id: $('Execute Workflow Trigger').first().json.query.task_id,\n\n  formattedString: `<message>\n${$('Execute Workflow Trigger').first().json.query.message}\n</message>\n\n<Questions>\n${JSON.stringify($input.all(), null, 2)}\n</Questions>\n\n<info_jobs>\n${JSON.stringify($('Puesto_Al_Que_Aplica').first().json, null, 2)}\n</info_jobs>\n\n<info_apply>\n${JSON.stringify($('Quien_Es').first().json, null, 2)}\n</info_apply>`\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        -60
+      ],
+      "id": "3f9bd68a-c115-47cf-beb3-5ea6f101e566",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3c58a522-f718-404d-a33b-c7392e994d56",
+              "name": "response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        100,
+        -60
+      ],
+      "id": "766b8429-8000-45fb-9de6-4e0501874915",
+      "name": "Response"
+    },
+    {
+      "parameters": {
+        "sessionTTL": 1440,
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.4,
+      "position": [
+        -80,
+        -180
+      ],
+      "id": "8e1f9ab1-cac1-42e2-993b-215bdd78d54a",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "FuTe9qrxkR9cRWmA",
+          "name": "Automation Redis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.formattedString }}",
+        "options": {
+          "systemMessage": "=# Asistente Virtual AI de Reclutamiento - Onbotgo\n\n## ROLE\n\n- Asistente Virtual AI especializado en reclutamiento\n\n- Objetivo: Convertir candidatos en entrevistados\n\n- Responsabilidades:\n\n  * Resolver dudas sobre el puesto\n\n  * Persuadir para agendar entrevistas\n\n  * Mantener engagement del candidato\n\n## SCOPE\n\n- Input Types:\n\n  * <message>: Consultas del candidato\n\n  * <Questions>: Base de respuestas predefinidas\n\n  * <info_jobs>: Detalles del puesto\n\n  * <info_apply>: Datos del candidato\n\n- Query Categories:\n\n  * Preguntas simples\n\n  * Consultas múltiples\n\n  * Preguntas repetidas\n\n  * Solicitudes de aclaración\n\n## COMMAND\n\n- Process Flow:\n\n  1. Analizar consulta del candidato\n\n  2. Identificar tipo de pregunta(s)\n\n  3. Obtener datos de fuentes autorizadas\n\n  4. Estructurar respuesta\n\n  5. Añadir call-to-action\n\n  6. Generar output en formato JSON\n\n- Data Sources Usage:\n\n  * Usar <info_jobs> para datos del puesto\n\n  * Consultar <Questions> para respuestas predefinidas\n\n  * Referenciar <info_apply> para personalización\n\n## Tool \nGet_Timezone_Info\n**Propósito**: Obtener información de zona horaria basada en el código de país del sessionId\n```json\n{\n  \"query\": {\n    \"sessionId\": \"string\", // Formato: \"código_país+número@s.whatsapp.net\"\n  }\n}\n\n## FORMAT\n\n- Output Structure:\n\njson\n\n{\n\n  \"sessionId\": \"whatsapp_number\",\n\n  \"task_id\": \"ULID\",\n\n  \"status\": \"completed|pending|error\",\n\n  \"result\": {\n\n    \"response\": {\n\n      \"message\": \"string\",\n\n      \"validation_status\": \"pending|approved|rejected\"\n\n    },\n\n    \"next_action\": {\n\n      \"type\": \"string\",\n\n      \"agent\": \"string\"\n\n    },\n\n    \"updated_context\": {\n\n      \"last_query\": \"string\",\n\n      \"resolved_queries\": [\"string\"],\n\n      \"candidate_interest_level\": \"low|medium|high\",\n\n      \"appointment_persuasion_attempts\": number\n\n    }\n\n  },\n\n  \"metadata\": {\n\n    \"timestamp\": \"ISO8601\",\n\n    \"version\": \"1.0\"\n\n  }\n\n}\n\n\n\n- Response Patterns:\n\n  * Simple Query: Respuesta directa + call-to-action\n\n  * Multiple Queries: Lista numerada + call-to-action unificado\n\n  * Repeated Queries: Misma información, diferente estructura\n\n  * Follow-ups: Aclaración + refuerzo de información previa\n\n## CONSTRAINTS\n\n1. Data Accuracy:\n\n   - NO inventar información\n\n   - NO inferir datos no proporcionados\n\n   - NO modificar información base\n\n2. Response Structure:\n\n   - NO ignorar partes de consultas múltiples\n\n   - NO omitir call-to-action\n\n   - NO mezclar información de diferentes fuentes\n\n3. Repetition Handling:\n\n   - NO ignorar preguntas repetidas\n\n   - NO dar respuestas contradictorias\n\n   - NO usar exactamente la misma estructura\n\n4. General Restrictions:\n\n   - NO usar fuentes externas\n\n   - NO proporcionar información no verificada\n\n   - NO cambiar datos fundamentales"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -260,
+        -60
+      ],
+      "id": "1399cc38-b3de-40f8-83b0-af9f819d256b",
+      "name": "Guia",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        -260,
+        -180
+      ],
+      "id": "a0a85b2f-0ec2-47a3-b8ea-c14612411172",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PeunFWePZcSKKmbB",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "179e5806-c131-4814-8e2e-ab778e568244",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1080,
+        120
+      ],
+      "id": "f7c161e7-8beb-4c3b-8c76-b57b4475c6a1",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3c58a522-f718-404d-a33b-c7392e994d56",
+              "name": "response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -200,
+        280
+      ],
+      "id": "3280f4a5-c6ef-4925-a068-83ffa3dccbd7",
+      "name": "Response1"
+    },
+    {
+      "parameters": {
+        "sessionTTL": 1440,
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.4,
+      "position": [
+        -380,
+        160
+      ],
+      "id": "ab650902-47f2-4583-86a5-3bfa54424cc8",
+      "name": "Redis Chat Memory1",
+      "credentials": {
+        "redis": {
+          "id": "FuTe9qrxkR9cRWmA",
+          "name": "Automation Redis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.formattedString }}",
+        "options": {
+          "systemMessage": "=# Agente Virtual AI de Reclutamiento - Talento de Onbotgo\n\n## IDENTIDAD Y PROPÓSITO\n\n- **Nombre**: Talento\n- **Función**: Asistente Virtual AI especializado en conectar candidatos con oportunidades laborales\n- **Objetivo Principal**: Convertir consultas en interés concreto y agendar entrevistas\n- **Valores Fundamentales**:\n  * Eficiencia con empatía\n  * Precisión con personalidad\n  * Automatización con autenticidad\n\n## COMANDO\n\nComo Talento, tu misión es ser un asistente de reclutamiento eficiente y empático que:\n\n1. **ANALIZA** cada mensaje del candidato para identificar su intención y etapa en el proceso\n2. **CONSULTA** la base de datos de trabajos y respuestas predefinidas según sea necesario\n3. **ESTRUCTURA** respuestas claras, personalizadas y visualmente atractivas\n4. **PERSUADE** sutilmente al candidato hacia el siguiente paso del proceso\n5. **ADAPTA** tu comunicación según el nivel de interés detectado\n6. **GENERA** respuestas en formato JSON siguiendo exactamente la estructura definida\n\nAnte cualquier consulta, primero debes identificar el país del candidato y utilizar esa información para presentar solo opciones relevantes y disponibles para su ubicación. Cada interacción debe avanzar hacia el objetivo de convertir al candidato en un entrevistado potencial.\n\n## ENTRADAS DEL SISTEMA\n\n- `<message>`: Consulta textual del candidato\n- `<country>`: País de origen del candidato\n- `<session_id>`: Identificador único de la conversación\n- `<candidate_data>`: Información previa del candidato (si existe)\n\n## HERRAMIENTAS DISPONIBLES\n\n### 1. Get_Jobs\n**Propósito**: Obtener trabajos filtrados por país\n```json\n{\n  \"country\": \"string\",\n  \"status\": \"Active\"\n}\n```\n\n### 2. Response_QA\n**Propósito**: Obtener información específica sobre un trabajo\n```json\n{\n  \"JobIDs\": \"string\"\n}\n```\n\n### 3. Get_Timezone_Info\n**Propósito**: Obtener información de zona horaria basada en el código de país del sessionId. El siguiente JSON ya tiene el numero real del usuario, para que itilices la tool\n```json\n{\n  \"query\": {\n    \"sessionId\": \"{{ $json.sessionId }}\",\n  }\n}\n```\n**Respuesta**: Proporciona información detallada sobre:\n- País detectado\n- Zona horaria\n- Hora local\n- Saludo contextual (buenos días/tardes/noches)\n- Estación actual (para países con cambios de horario)\n\n## FLUJOS DE INTERACCIÓN\n\n### Análisis de Consulta\n1. Identifica el tipo de mensaje:\n   * Primera interacción/búsqueda general\n   * Selección específica (por número o nombre)\n   * Pregunta sobre trabajo específico\n   * Solicitud de aclaración\n   * Interés en postulación\n\n### Uso de Información Contextual\n1. **Información de Zona Horaria**:\n   * Utiliza Get_Timezone_Info al inicio de cada interacción\n   * Adapta menciones temporales al contexto horario del candidato\n   * Considera diferencias estacionales (especialmente para países del hemisferio sur)\n\n### Respuesta por Tipo de Consulta\n1. **Primera Interacción**:\n   * Utiliza Get_Jobs con país del candidato\n   * Presenta máximo 3 opciones relevantes\n   * Solicita selección explícita\n\n2. **Selección de Trabajo**:\n   * Identifica trabajo seleccionado (por número o nombre)\n   * Muestra detalles completos del trabajo\n   * Ofrece siguiente paso (preguntas o postulación)\n\n3. **Preguntas Específicas**:\n   * Utiliza Response_QA con el job_id correspondiente\n   * Responde de forma directa y completa\n   * Sugiere información adicional relevante\n\n4. **Manifestación de Interés**:\n   * Confirma detalles de contacto\n   * Explica proceso siguiente\n   * Establece expectativas de tiempo\n\n## ESTRUCTURA DE RESPUESTA\n\n```json\n{\n  \"sessionId\": \"whatsapp_number\",\n  \"task_id\": \"{{ $('Execute Workflow Trigger').item.json.query.task_id }}\",\n  \"status\": \"completed|pending|error\",\n  \"result\": {\n    \"response\": {\n      \"message\": \"string\",\n      \"validation_status\": \"pending|approved|rejected\"\n    },\n    \"next_action\": {\n      \"type\": \"string\",\n      \"agent\": \"string\"\n    },\n    \"updated_context\": {\n      \"last_query\": \"string\",\n      \"resolved_queries\": [\"string\"],\n      \"candidate_interest_level\": \"low|medium|high\",\n      \"appointment_persuasion_attempts\": number\n    }\n  },\n  \"metadata\": {\n    \"timestamp\": \"ISO8601\",\n    \"version\": \"1.0\"\n  }\n}\n```\n\n## PATRONES DE MENSAJE\n\n### Primera Presentación\n```\nHe encontrado estas oportunidades en [país]:\n\n1. 🚀 [Título 1] - [Empresa]\n2. 💼 [Título 2] - [Empresa]\n3. 🌟 [Título 3] - [Empresa]\n\n¿Cuál te gustaría conocer más? Puedes indicarme el número o nombre.\n```\n\n### Presentación de Detalles\n```\n¡Excelente elección! 👏 Aquí tienes más información sobre [Título]:\n\n📋 Descripción:\n[Descripción formateada en párrafos breves]\n\n✅ Requisitos clave:\n• [Requisito 1]\n• [Requisito 2]\n• [Requisito 3]\n\n✨ Beneficios:\n• [Beneficio 1]\n• [Beneficio 2]\n• [Beneficio 3]\n\n¿Te gustaría conocer más detalles o postularte a esta posición?\n```\n\n### Respuesta a Consultas Específicas\n```\nSobre tu pregunta de [aspecto] para la posición de [Título]:\n\n[Respuesta específica]\n\n¿Hay algo más que quieras saber antes de considerar postularte?\n```\n\n## PRINCIPIOS DE COMUNICACIÓN\n\n1. **Claridad**: Información estructurada y concisa\n2. **Personalización**: Referencias al nombre y contexto\n3. **Engagement**: Preguntas de seguimiento relevantes\n4. **Progresión**: Cada respuesta avanza hacia el objetivo\n5. **Persuasión Sutil**: Énfasis en beneficios y oportunidades\n\n## REGLAS CRÍTICAS\n\n### Siempre\n1. Filtrar trabajos por país del candidato\n2. Limitar a 3 opciones en presentaciones iniciales\n3. Verificar coherencia de respuestas con historial\n4. Incluir acción clara de seguimiento\n5. Mantener tono profesional y cercano\n6. Usar formato estructurado con emojis relevantes\n7. Almacenar el job_id seleccionado en el contexto\n\n### Nunca\n1. Inventar información no presente en las herramientas\n2. Enviar mensajes sin verificar contexto previo\n3. Ignorar partes de consultas múltiples\n4. Repetir exactamente la misma estructura de mensaje\n5. Omitir sugerencias de siguiente paso\n6. Usar lenguaje técnico excesivo o complejo\n\n## MANEJO DE INCERTIDUMBRE\n\n1. **Ambigüedad en selección**:\n   * \"Para mostrarte la información correcta, ¿podrías confirmar cuál de estas opciones te interesa?\"\n   * [Repetir opciones relevantes]\n\n2. **Sin coincidencias**:\n   * \"En este momento no encuentro exactamente lo que buscas en [país]. ¿Te interesaría explorar estas alternativas relacionadas?\"\n\n3. **Fuera de alcance**:\n   * \"Esta consulta requiere atención personalizada. ¿Te gustaría que te conecte con un reclutador especializado?\"\n\n## EVALUACIÓN DE INTERÉS\n\n* **Bajo**: Consultas generales, sin selecciones específicas\n* **Medio**: Selección específica, preguntas sobre detalles\n* **Alto**: Preguntas sobre proceso, manifestación de interés\n\n## MÉTRICAS DE ÉXITO\n\n1. Precisión en identificación de consultas\n2. Relevancia de selecciones presentadas\n3. Coherencia con contexto previo\n4. Progresión hacia objetivo (postulación)\n5. Tasa de conversión a entrevistas"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -560,
+        280
+      ],
+      "id": "2dd4af38-69af-4052-84c4-0d7fa2cf9e4c",
+      "name": "Guia1",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        160
+      ],
+      "id": "d0775b1f-f443-494c-8d65-6dd168f890bd",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "PeunFWePZcSKKmbB",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 472876223,
+          "mode": "list",
+          "cachedResultName": "q&a",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=472876223"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "JobIDs",
+              "lookupValue": "={{ $fromAI(\"jobId\", \"The ID of the job the candidate applied for.  This ID should be obtained from the candidate's application data (likely from the 'Get Jobs' tool).\", \"string\") }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        -160,
+        560
+      ],
+      "id": "e88602fa-da32-4b5c-b71b-254748a9da54",
+      "name": "Response QA",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Get_Timezone_Info",
+        "description": "Call this tool to extract timezone information based on a WhatsApp sessionId's country code. Use when you need local time, appropriate greetings, or timezone details for user interaction contextualization.",
+        "jsCode": "// Mapeo de códigos de país a zonas horarias y nombres\nconst countryTimezones = {\n  // América Latina\n  \"51\": { timezone: \"America/Lima\", country: \"Perú\", hasDST: false },\n  \"52\": { timezone: \"America/Mexico_City\", country: \"México\", hasDST: true },\n  \"54\": { timezone: \"America/Argentina/Buenos_Aires\", country: \"Argentina\", hasDST: false },\n  \"55\": { timezone: \"America/Sao_Paulo\", country: \"Brasil\", hasDST: false },\n  \"56\": { timezone: \"America/Santiago\", country: \"Chile\", hasDST: true },\n  \"57\": { timezone: \"America/Bogota\", country: \"Colombia\", hasDST: false },\n  \"58\": { timezone: \"America/Caracas\", country: \"Venezuela\", hasDST: false },\n  \"593\": { timezone: \"America/Guayaquil\", country: \"Ecuador\", hasDST: false },\n  \"59\": { timezone: \"America/Guayaquil\", country: \"Ecuador\", hasDST: false },\n  \"50\": { timezone: \"America/Panama\", country: \"Panamá\", hasDST: false },\n  \"1\": { timezone: \"America/New_York\", country: \"Estados Unidos/Canadá\", hasDST: true },\n  \"34\": { timezone: \"Europe/Madrid\", country: \"España\", hasDST: true },\n  \"44\": { timezone: \"Europe/London\", country: \"Reino Unido\", hasDST: true },\n  \"49\": { timezone: \"Europe/Berlin\", country: \"Alemania\", hasDST: true },\n  \"33\": { timezone: \"Europe/Paris\", country: \"Francia\", hasDST: true }\n};\n\n// Extraer sessionId y procesar\nconst sessionId = query.sessionId;\n  \n// Extraer código de país (primeros dígitos)\nlet countryCode = sessionId.match(/^(\\d+)/);\ncountryCode = countryCode ? countryCode[0] : null;\n\n// Buscar país en el mapa\nlet countryInfo = null;\n\n// Intentar con código completo primero\nif (countryCode && countryTimezones[countryCode]) {\n  countryInfo = countryTimezones[countryCode];\n} \n// Luego con 2 primeros dígitos\nelse if (countryCode && countryCode.length >= 2 && countryTimezones[countryCode.substring(0, 2)]) {\n  countryInfo = countryTimezones[countryCode.substring(0, 2)];\n} \n// Finalmente con primer dígito\nelse if (countryCode && countryCode.length >= 1 && countryTimezones[countryCode.substring(0, 1)]) {\n  countryInfo = countryTimezones[countryCode.substring(0, 1)];\n} \n// Predeterminado si no se encuentra\nelse {\n  countryInfo = { \n    country: \"Internacional\", \n    timezone: \"UTC\", \n    hasDST: false \n  };\n}\n\n// Obtener hora local\nconst now = new Date();\nlet localTime, hour, greeting;\n\ntry {\n  // Intenta obtener hora local en formato ES\n  localTime = now.toLocaleString('es-ES', {\n    timeZone: countryInfo.timezone,\n    hour12: false\n  });\n  \n  // Extraer hora para saludo\n  hour = new Date(localTime).getHours();\n  \n  // Determinar saludo según hora\n  if (hour >= 5 && hour < 12) {\n    greeting = \"buenos días\";\n  } else if (hour >= 12 && hour < 19) {\n    greeting = \"buenas tardes\";\n  } else {\n    greeting = \"buenas noches\";\n  }\n} catch (e) {\n  // Fallback simple\n  localTime = now.toISOString();\n  greeting = \"saludos\";\n  hour = now.getUTCHours();\n}\n\n// Determinar estación para países del sur\nconst currentMonth = now.getMonth() + 1;\nconst isWinterInSouthernHemisphere = currentMonth >= 4 && currentMonth <= 9;\nconst isSouthernCountry = [\"56\", \"54\", \"55\"].includes(countryCode);\nconst season = isSouthernCountry\n  ? (isWinterInSouthernHemisphere ? \"invierno\" : \"verano\")\n  : (isWinterInSouthernHemisphere ? \"verano\" : \"invierno\");\n\n// Crear objeto con toda la información\nconst result = {\n  country: countryInfo.country,\n  countryCode: countryCode || \"desconocido\",\n  timezone: countryInfo.timezone,\n  localTime: localTime,\n  greeting: greeting,\n  hour: hour,\n  season: season\n};\n\n// Retornar como string JSON\nreturn JSON.stringify(result);",
+        "specifyInputSchema": true,
+        "schemaType": "manual",
+        "inputSchema": "{\n\"type\": \"object\",\n\"properties\": {\n        \"sessionId\": {\n          \"type\": \"string\",\n          \"description\": \"WhatsApp session ID containing the country code (format: countryCodeAndnumber@s.whatsapp.net)\"\n        }\n\t}\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        -620,
+        560
+      ],
+      "id": "e9405bd9-4a78-4e00-9d24-298d975958b2",
+      "name": "Hora Actual"
+    },
+    {
+      "parameters": {
+        "name": "Get_Timezone_Info",
+        "description": "Call this tool to extract timezone information based on a WhatsApp sessionId's country code. Use when you need local time, appropriate greetings, or timezone details for user interaction contextualization.",
+        "jsCode": "/**\n * Herramienta para detectar zona horaria basada en el código de país\n * Extrae el código de país de los primeros caracteres del sessionId\n * y devuelve información horaria relevante.\n */\n\n// Mapeo de códigos de país a zonas horarias y nombres\nconst countryTimezones = {\n  // América Latina\n  \"51\": { timezone: \"America/Lima\", country: \"Perú\", hasDST: false },\n  \"52\": { timezone: \"America/Mexico_City\", country: \"México\", hasDST: true },\n  \"54\": { timezone: \"America/Argentina/Buenos_Aires\", country: \"Argentina\", hasDST: false },\n  \"55\": { timezone: \"America/Sao_Paulo\", country: \"Brasil\", hasDST: false },\n  \"56\": { timezone: \"America/Santiago\", country: \"Chile\", hasDST: true },\n  \"57\": { timezone: \"America/Bogota\", country: \"Colombia\", hasDST: false },\n  \"58\": { timezone: \"America/Caracas\", country: \"Venezuela\", hasDST: false },\n  \"593\": { timezone: \"America/Guayaquil\", country: \"Ecuador\", hasDST: false },\n  \"59\": { timezone: \"America/Guayaquil\", country: \"Ecuador\", hasDST: false }, // Mantener compatibilidad\n  \"50\": { timezone: \"America/Panama\", country: \"Panamá\", hasDST: false },\n  \n  // Norteamérica\n  \"1\": { timezone: \"America/New_York\", country: \"Estados Unidos/Canadá\", hasDST: true },\n  \n  // Europa\n  \"34\": { timezone: \"Europe/Madrid\", country: \"España\", hasDST: true },\n  \"44\": { timezone: \"Europe/London\", country: \"Reino Unido\", hasDST: true },\n  \"49\": { timezone: \"Europe/Berlin\", country: \"Alemania\", hasDST: true },\n  \"33\": { timezone: \"Europe/Paris\", country: \"Francia\", hasDST: true },\n  \n  // Predeterminado si no se encuentra\n  \"default\": { timezone: \"UTC\", country: \"Internacional\", hasDST: false }\n};\n\n/**\n * Procesa el input del agente y extrae información de zona horaria\n * @param {Object} input - Objeto de entrada con información de la consulta\n * @returns {Object} - Información sobre zona horaria y hora local\n */\nfunction processTimezoneInfo(input) {\n  try {\n    // Extraer el sessionId del input\n    const sessionId = input.query.sessionId;\n    \n    // Extraer código de país (primeros 2 dígitos antes del primer no-dígito)\n    let countryCode = sessionId.match(/^(\\d+)/);\n    countryCode = countryCode ? countryCode[0] : null;\n    \n    // Intentar con los primeros 2 dígitos, luego con el primero si es necesario\n    let timezoneInfo = null;\n    \n    if (countryCode && countryCode.length >= 2) {\n      // Probar con los primeros 2 dígitos\n      timezoneInfo = countryTimezones[countryCode.substring(0, 2)];\n      \n      // Si no se encuentra, probar con el primer dígito (para códigos como '1')\n      if (!timezoneInfo && countryCode.length >= 1) {\n        timezoneInfo = countryTimezones[countryCode.substring(0, 1)];\n      }\n    }\n    \n    // Usar predeterminado si no se encontró coincidencia\n    if (!timezoneInfo) {\n      timezoneInfo = countryTimezones.default;\n      countryCode = \"desconocido\";\n    }\n    \n    // Obtener la hora actual en la zona horaria correcta\n    const now = new Date();\n    const options = {\n      timeZone: timezoneInfo.timezone,\n      hour12: false,\n      hour: '2-digit',\n      minute: '2-digit',\n      second: '2-digit',\n      year: 'numeric',\n      month: '2-digit',\n      day: '2-digit'\n    };\n    \n    // Formatear la fecha según la zona horaria\n    let localTime;\n    try {\n      localTime = now.toLocaleString('es-ES', options);\n    } catch (e) {\n      // Fallback si hay problemas con toLocaleString\n      localTime = now.toISOString();\n    }\n    \n    // Calcular el desplazamiento (offset) actual basado en la hora local\n    // Esto manejará automáticamente el horario de verano/invierno\n    const localDate = new Date(localTime);\n    const utcDate = new Date(now.toISOString());\n    \n    // Calcular diferencia en minutos entre hora local y UTC\n    const offsetMinutes = (localDate.getTime() - utcDate.getTime()) / 60000;\n    \n    // Formatear offset como +/-HH:MM\n    const offsetHours = Math.floor(Math.abs(offsetMinutes) / 60);\n    const offsetMins = Math.abs(offsetMinutes) % 60;\n    const offsetSign = offsetMinutes >= 0 ? '+' : '-';\n    const offset = `${offsetSign}${String(offsetHours).padStart(2, '0')}:${String(offsetMins).padStart(2, '0')}`;\n    \n    // Determinar si está en horario de verano\n    const isDST = timezoneInfo.hasDST && \n                  (function() {\n                    // Método simple para detectar DST: comparar offset en enero vs ahora\n                    const januaryDate = new Date(now.getFullYear(), 0, 1);\n                    const januaryOptions = {...options};\n                    const januaryString = januaryDate.toLocaleString('es-ES', januaryOptions);\n                    const januaryLocal = new Date(januaryString);\n                    const januaryUTC = new Date(januaryDate.toISOString());\n                    const januaryOffset = (januaryLocal.getTime() - januaryUTC.getTime()) / 60000;\n                    \n                    return Math.abs(offsetMinutes) !== Math.abs(januaryOffset);\n                  })();\n    \n    // Determinar la estación actual (para Chile y otros países con DST)\n    const currentMonth = now.getMonth() + 1; // 1-12\n    const isWinterInSouthernHemisphere = currentMonth >= 4 && currentMonth <= 9;\n    const season = (countryCode === \"56\" || countryCode === \"54\" || countryCode === \"55\") \n                    ? (isWinterInSouthernHemisphere ? \"invierno\" : \"verano\")\n                    : (isWinterInSouthernHemisphere ? \"verano\" : \"invierno\");\n    \n    // Determinar saludo según la hora local\n    // Extraer hora de la fecha local\n    const hourMatch = localTime.match(/(\\d{2}):/);\n    const hour = hourMatch ? parseInt(hourMatch[1]) : 12;\n    \n    let greeting = \"\";\n    if (hour >= 5 && hour < 12) {\n      greeting = \"buenos días\";\n    } else if (hour >= 12 && hour < 19) {\n      greeting = \"buenas tardes\";\n    } else {\n      greeting = \"buenas noches\";\n    }\n    \n    // Retornar objeto con información completa\n    return {\n      countryCode: countryCode,\n      country: timezoneInfo.country,\n      timezone: timezoneInfo.timezone,\n      offset: offset,\n      isDST: isDST,\n      season: season,\n      localTime: localTime,\n      hour: hour,\n      greeting: greeting,\n      timestamp: now.toISOString(),\n    };\n  } catch (error) {\n    // En caso de error, devolver información básica\n    return {\n      error: \"Error procesando información de zona horaria\",\n      errorDetail: error.message,\n      timestamp: new Date().toISOString(),\n      timezone: \"UTC\",\n      greeting: \"saludos\"\n    };\n  }\n}\n\n// Función principal que maneja la entrada a la herramienta\nfunction getCountryTimezone(input) {\n  // Verificar que el input tenga la estructura esperada\n  if (!input || !input.query || !input.query.sessionId) {\n    return {\n      error: \"Formato de entrada inválido\",\n      timestamp: new Date().toISOString()\n    };\n  }\n  \n  // Procesar y retornar la información de zona horaria\n  return processTimezoneInfo(input);\n}\n\n// Código para procesar la entrada\nmodule.exports = function(input) {\n  return getCountryTimezone(input);\n};",
+        "specifyInputSchema": true,
+        "schemaType": "manual",
+        "inputSchema": "{\n\"type\": \"object\",\n\"properties\": {\n        \"sessionId\": {\n          \"type\": \"string\",\n          \"description\": \"WhatsApp session ID containing the country code (format: countryCode+number@s.whatsapp.net)\"\n        }\n\t}\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        -100,
+        100
+      ],
+      "id": "bf2e866d-1db6-4b74-8167-1491836f3c9e",
+      "name": "Hora Actual1"
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Función para determinar el país basado en el código\nfunction determinarPais(sessionId) {\n  // Extraer código de país (primeros dígitos antes de cualquier no-dígito)\n  const match = sessionId.match(/^(\\d+)/);\n  if (!match) return \"desconocido\";\n  \n  const codigo = match[0];\n  \n  // Mapeo de códigos a países\n  const mapaPaises = {\n    \"51\": \"Perú\",\n    \"52\": \"México\",\n    \"54\": \"Argentina\",\n    \"55\": \"Brasil\",\n    \"56\": \"Chile\",\n    \"57\": \"Colombia\",\n    \"58\": \"Venezuela\",\n    \"593\": \"Ecuador\",\n    \"50\": \"Panamá\",\n    \"1\": \"Estados Unidos/Canadá\",\n    \"34\": \"España\",\n    \"44\": \"Reino Unido\",\n    \"49\": \"Alemania\",\n    \"33\": \"Francia\"\n  };\n  \n  // Verificar código de país completo primero (para casos como 593)\n  if (mapaPaises[codigo]) return mapaPaises[codigo];\n  \n  // Verificar los primeros 2 dígitos\n  if (codigo.length >= 2 && mapaPaises[codigo.substring(0, 2)]) \n    return mapaPaises[codigo.substring(0, 2)];\n  \n  // Verificar el primer dígito (para códigos como 1)\n  if (codigo.length >= 1 && mapaPaises[codigo.substring(0, 1)]) \n    return mapaPaises[codigo.substring(0, 1)];\n  \n  return \"desconocido\";\n}\n\n\nreturn [{\n  sessionId: $('Execute Workflow Trigger').first().json.query.sessionId,\n   task_id: $('Execute Workflow Trigger').first().json.query.task_id,\n  country: determinarPais($('Execute Workflow Trigger').first().json.query.sessionId),\n  formattedString: `<message>\n${$('Execute Workflow Trigger').first().json.query.message}\n</message>\n<country>${determinarPais($('Execute Workflow Trigger').first().json.query.sessionId)}</country>`\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -740,
+        280
+      ],
+      "id": "474dc808-eade-43f8-b9c2-df85269eb0dd",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2129097737,
+          "mode": "list",
+          "cachedResultName": "jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=2129097737"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "country",
+              "lookupValue": "={{ $fromAI(\"country\", \"Extract the complete name of country from the sessionId. For example, if sessionId starts with '51', the country is Peru; if it starts with '56', the country is Chile; if it starts with '593', the country is Ecuador. Look at the first 2-3 digits before the @ symbol.\", \"string\") }}"
+            },
+            {
+              "lookupColumn": "status",
+              "lookupValue": "Active"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        -480,
+        560
+      ],
+      "id": "712c87ba-81ec-4e43-a77f-c3e411fb0819",
+      "name": "Get Jobs By Country",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2129097737,
+          "mode": "list",
+          "cachedResultName": "jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=2129097737"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "title",
+              "lookupValue": "={{ $fromAI(\"jobTitle\", \"Extract the job title the candidate is interested in. If they mention a specific number (like '1', '2', or '3'), refer to the previously presented job options in context to determine which title they're selecting. If they mention a job title directly, use that exact title. Return only the job title without any additional text.\", \"string\") }}"
+            },
+            {
+              "lookupColumn": "status",
+              "lookupValue": "Active"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        -340,
+        560
+      ],
+      "id": "f2e3564d-4eaa-4587-ac5f-aec9d4edd459",
+      "name": "Get Jobs By Name",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Execute Workflow Trigger": [
+      {
+        "json": {
+          "query": {
+            "sessionId": "51925797402@s.whatsapp.net",
+            "task_id": "1ikken793t43uphg4vg3qco6ledclo",
+            "message": "Hola, estoy buscando trabajo",
+            "agent_type": "guide",
+            "context": {
+              "current_stage": "query",
+              "last_interaction": "2025-02-21T09:31:20Z"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Quien_Es",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quien_Es": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Puesto_Al_Que_Aplica": {
+      "main": [
+        [
+          {
+            "node": "Respuestas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respuestas": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Guia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Guia",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guia": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Guia",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Puesto_Al_Que_Aplica",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Guia1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guia1": {
+      "main": [
+        [
+          {
+            "node": "Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Guia1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Response QA": {
+      "ai_tool": [
+        [
+          {
+            "node": "Guia1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hora Actual": {
+      "ai_tool": [
+        [
+          {
+            "node": "Guia1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hora Actual1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Guia",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Guia1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Jobs By Country": {
+      "ai_tool": [
+        [
+          {
+            "node": "Guia1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Jobs By Name": {
+      "ai_tool": [
+        [
+          {
+            "node": "Guia1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8543e9f1-4ca4-4bc4-8cb3-dea7d41d0267",
+  "meta": {
+    "instanceId": "1dae253b8ed4fa2ae6cc1a1b54e20169a0e4eef838c1eca58506dcd1699582a0"
+  },
+  "id": "tKbKfg1mPtQ56CgN",
+  "tags": []
+}

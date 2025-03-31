@@ -1,0 +1,402 @@
+{
+  "name": "Talento_Convierte_PDF_a_Texto_Brando",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# Talento_Convierte_PDF_a_Texto_Brando\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "height": 300,
+        "width": 1880,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -960,
+        -120
+      ],
+      "typeVersion": 1,
+      "id": "e9a0aa67-b6c9-48d0-858d-6e7425b69db9",
+      "name": "Sticky Note3",
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        -40
+      ],
+      "id": "afcf1017-a5a3-4604-bf26-72d27e4f78e2",
+      "name": "Execute Workflow Trigger"
+    },
+    {
+      "parameters": {
+        "content": "FILTRR SI ES POR WSP  OES POR TALENTO, sino no debe activarse"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1220,
+        -40
+      ],
+      "typeVersion": 1,
+      "id": "615329c6-5f5a-4de3-9c5c-fcc1b25176be",
+      "name": "Sticky Note5",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.placeholder.split(\"/\")[5] }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -140,
+        -40
+      ],
+      "id": "a217cba7-95fc-4122-95c2-134ccbdbe1ed",
+      "name": "Descarga",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "k4De97fkoMo7qZVc",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloud.llamaindex.ai/api/parsing/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "webhook_url",
+              "value": "https://tu-servicio.com/webhook"
+            },
+            {
+              "name": "structured_output",
+              "value": "true"
+            },
+            {
+              "name": "extract_layout",
+              "value": "true"
+            },
+            {
+              "name": "parsing_instruction",
+              "value": "={{ $('Instrucción_De_parsing').item.json.parsing_instruccion }}"
+            },
+            {
+              "name": "complemental_formatting_instruction",
+              "value": "={{ $('Instrucción_De_formato').item.json.format_instruccion }}"
+            },
+            {
+              "name": "is_formatting_instruction",
+              "value": "true"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        40,
+        -40
+      ],
+      "id": "912e9e48-a075-468b-9ab5-efb61fd9d31a",
+      "name": "Upload_llamaparse",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "fcXXWkVbQEJFMyOe",
+          "name": "LlamaParseRicardo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        -40
+      ],
+      "id": "e664b934-4f47-4418-aebe-d44167bea0ba",
+      "name": "Wait",
+      "webhookId": "c6f8e078-084c-4d69-8f78-94e631505ad5"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloud.llamaindex.ai/api/v1/parsing/job/{{ $json.id }}/result/raw/markdown",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        -40
+      ],
+      "id": "6a33e090-c679-4134-ac7a-e3b994330a42",
+      "name": "Get_llamaparse",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "fcXXWkVbQEJFMyOe",
+          "name": "LlamaParseRicardo"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "09359f6a-1002-4db2-b04e-5b4d0bbf9146",
+              "name": "candidate_info",
+              "value": "={{ $json.data }}",
+              "type": "string"
+            },
+            {
+              "id": "4006ec20-42da-4ff4-9d69-28323458e758",
+              "name": "applyId",
+              "value": "={{ $('Execute Workflow Trigger').item.json.applyId }}",
+              "type": "string"
+            },
+            {
+              "id": "a93cf176-559a-40bb-94d2-0315fd895686",
+              "name": "jobId",
+              "value": "={{ $('Execute Workflow Trigger').item.json.jobId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        700,
+        -40
+      ],
+      "id": "cd9f82fc-2ef9-4b4b-98bf-25bd8213f5d5",
+      "name": "candidate_info"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "70e6baba-a1ac-492b-b5b7-7364503ceb9d",
+              "name": "parsing_instruccion",
+              "value": "# Instrucción de Parsing (parsing_instruction)  Este documento es un CV o currículum vitae. Necesito que extraigas toda la información relevante con máxima precisión y detalle, incluyendo:  1. *Información personal y de contacto*: Nombre completo, dirección de correo electrónico, número de teléfono, ubicación geográfica, perfiles de redes profesionales.  2. *Resumen profesional*: Sintetiza la descripción personal o profesional que el candidato hace de sí mismo.  3. *Experiencia laboral*: Para cada posición:    - Título exacto del puesto    - Nombre de la empresa/organización    - Fechas de inicio y fin (mes y año)    - Ubicación del trabajo si está disponible    - Responsabilidades y logros concretos    - Tecnologías o herramientas mencionadas en cada rol  4. *Educación*: Para cada título o grado:    - Nombre del título/grado/certificación    - Institución educativa    - Fechas de inicio y fin o año de obtención    - Especialización, menciones o tesis si se indican    - Calificaciones relevantes si se mencionan  5. *Habilidades técnicas*:     - Lenguajes de programación    - Frameworks y bibliotecas    - Bases de datos    - Herramientas y plataformas    - Software específico del sector    - Metodologías  6. *Idiomas*: Cada idioma con su nivel de competencia.  7. *Certificaciones profesionales*: Nombre, entidad emisora y fecha de obtención.  8. *Proyectos destacados*: Nombre, descripción, tecnologías utilizadas y resultados.  9. *Logros, premios o reconocimientos*: Cualquier distinción profesional o académica.  10. *Referencias*: Si se proporcionan.  Asegúrate de: - Preservar la información textual exacta sin interpretaciones adicionales - Capturar todos los datos técnicos con precisión, especialmente nombres de tecnologías y herramientas - Mantener la estructura cronológica original - No omitir ninguna sección relevante del documento - Captar detalles clave como números, fechas y nombres propios con exactitud",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -680,
+        -40
+      ],
+      "id": "9c1e224c-b28b-4e01-ad51-13fe576c2b22",
+      "name": "Instrucción_De_parsing"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dec63a7f-9827-4fb6-a2f8-df6012a29b12",
+              "name": "format_instruccion",
+              "value": "# Instrucción de Formato (complemental_formatting_instruction)  Formatea toda la información extraída siguiendo estrictamente esta estructura en Markdown. NO omitas ninguna sección ni alteres los niveles de encabezado o el formato especificado:  markdown # Perfil: [Nombre Completo]  ## Información de Contacto - **Email**: [email] - **Teléfono**: [teléfono] - **LinkedIn**: [perfil de LinkedIn] - **Ubicación**: [ciudad, país]  ## Resumen Profesional [Breve descripción de 2-3 oraciones sobre la carrera profesional y objetivo]  ## Experiencia Laboral ### [Título del Puesto] | [Empresa] | [Mes Año] - [Mes Año] - [Logro o responsabilidad clave 1] - [Logro o responsabilidad clave 2] - [Logro o responsabilidad clave 3]  ### [Título del Puesto] | [Empresa] | [Mes Año] - [Mes Año] - [Logro o responsabilidad clave 1] - [Logro o responsabilidad clave 2] - [Logro o responsabilidad clave 3]  ## Educación ### [Título/Grado] | [Institución] | [Año] - [Detalle relevante: especialización, tesis, etc.]  ## Habilidades Técnicas - **Lenguajes de Programación**: [lista separada por comas] - **Frameworks/Bibliotecas**: [lista separada por comas] - **Herramientas/Plataformas**: [lista separada por comas] - **Idiomas**: [lista de idiomas con nivel]  ## Certificaciones - [Nombre de Certificación] | [Entidad Emisora] | [Año/Validez]  ## Proyectos Destacados ### [Nombre del Proyecto] - **Descripción**: [breve descripción] - **Tecnologías**: [tecnologías utilizadas] - **Enlace**: [URL si está disponible]  ## Referencias [Disponibles bajo petición / Nombre y contacto si se proporcionan]   Reglas de formato obligatorias:  1. Utiliza exactamente los niveles de encabezado mostrados:    - # para el nombre del perfil    - ## para secciones principales    - ### para subsecciones (experiencia, educación, proyectos)  2. Mantén la estructura de listas con viñetas (-) y texto en negrita (**) tal como se muestra.  3. Las fechas deben seguir el formato \"Mes Año\" (ej. \"Enero 2020\").  4. Para secciones sin información disponible, incluye la sección con \"[No especificado]\".  5. Mantén el orden cronológico: la experiencia/educación más reciente primero.  6. No agregues secciones ni subsecciones adicionales.  7. Usa formato tabular con barras verticales (|) para separar elementos como se muestra.  8. Conserva toda la información técnica exactamente como aparece en el documento original.  9. Los logros y responsabilidades deben estar en formato de lista, iniciando con verbos de acción.  10. Conserva todos los enlaces originales completos (LinkedIn, GitHub, portfolio).  Si alguna sección contiene múltiples elementos (experiencias, educaciones, proyectos), repite la estructura de la subsección para cada uno manteniendo el mismo formato.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -480,
+        -40
+      ],
+      "id": "28382ecd-0416-4ef3-ab54-e629d5af8ad6",
+      "name": "Instrucción_De_formato"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d996f049-bb96-4a3b-85b8-67c76d385e5c",
+              "name": "placeholder",
+              "value": "https://drive.google.com/file/d/1RVQrapwzMYBDv0gqSNv1P2sYR2KmzZcV/view?usp=drive_link",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -300,
+        -40
+      ],
+      "id": "84adb139-f5af-40ee-af70-d725c904aa40",
+      "name": "URL"
+    }
+  ],
+  "pinData": {
+    "Execute Workflow Trigger": [
+      {
+        "json": {
+          "jobId": "JOB002",
+          "applyId": "APP001"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Instrucción_De_parsing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Descarga": {
+      "main": [
+        [
+          {
+            "node": "Upload_llamaparse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload_llamaparse": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get_llamaparse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get_llamaparse": {
+      "main": [
+        [
+          {
+            "node": "candidate_info",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "candidate_info": {
+      "main": [
+        []
+      ]
+    },
+    "Instrucción_De_parsing": {
+      "main": [
+        [
+          {
+            "node": "Instrucción_De_formato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instrucción_De_formato": {
+      "main": [
+        [
+          {
+            "node": "URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "URL": {
+      "main": [
+        [
+          {
+            "node": "Descarga",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "23ad7e9a-3297-44b4-beb7-dab71cfc75f2",
+  "meta": {
+    "instanceId": "1dae253b8ed4fa2ae6cc1a1b54e20169a0e4eef838c1eca58506dcd1699582a0"
+  },
+  "id": "BYPfELyaHzt29UvM",
+  "tags": []
+}

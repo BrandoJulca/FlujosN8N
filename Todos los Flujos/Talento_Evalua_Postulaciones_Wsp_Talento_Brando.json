@@ -1,0 +1,563 @@
+{
+  "name": "Talento_Evalua_Postulaciones_Wsp&Talento_Brando",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# Talento_Evalua_Postulaciones_Wsp&Talento_Brando\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "height": 260,
+        "width": 1700,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -880,
+        -120
+      ],
+      "typeVersion": 1,
+      "id": "c824f14f-3f0b-463b-b15b-48b5e8dc4d70",
+      "name": "Sticky Note2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "BYPfELyaHzt29UvM",
+          "mode": "list",
+          "cachedResultName": "pdf_a_llama"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        400,
+        -20
+      ],
+      "id": "f228e9c4-a6c4-4570-bedd-9f657efc3049",
+      "name": "llamar a llama"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "520542a9-000d-47f6-88d2-d3a491e5af36",
+              "name": "jobId",
+              "value": "={{ $('Status').item.json.jobId }}",
+              "type": "string"
+            },
+            {
+              "id": "cb9c1024-8d54-444a-a6e4-54945f528436",
+              "name": "applyId",
+              "value": "={{ $('If').item.json.applyId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        200,
+        -20
+      ],
+      "id": "2dd9c4ef-5667-4b59-8e8e-83b30dd8002c",
+      "name": "response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "279e6f8c-fa3a-4558-8aa1-ce5c433ffe0d",
+              "name": "status",
+              "value": "Registra la aplicación",
+              "type": "string"
+            },
+            {
+              "id": "95f67937-dca8-48c2-ba77-51cb457b9206",
+              "name": "jobId",
+              "value": "={{ $json.jobId }}",
+              "type": "string"
+            },
+            {
+              "id": "e0adf2d6-ead2-492e-b887-1d6aa7c71d1e",
+              "name": "applyId",
+              "value": "={{ $json.applyId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -200,
+        -20
+      ],
+      "id": "8c406b31-3aa5-48a1-8632-76e864a9e3dd",
+      "name": "Status"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5690c235-5a7c-495d-bab9-2b8cf6c6e98b",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -420,
+        -20
+      ],
+      "id": "1e86f344-f1ae-4d58-90b6-5677eef65196",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "af5a2260-1b16-4356-ac81-d263469916c4",
+              "leftValue": "={{ $json }}",
+              "rightValue": "=PortalTalento",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "f668aa6b-2602-41c6-8c46-0fa4c5d8814d",
+              "leftValue": "={{ $json }}",
+              "rightValue": "Whatsapp",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -620,
+        -20
+      ],
+      "id": "3b8f19ff-de5d-4885-ad8b-04466ff46645",
+      "name": "De_que_Fuente"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -840,
+        -20
+      ],
+      "id": "f287e0a0-ac9f-498c-aa4b-5186866d144a",
+      "name": "Cuando Haya Cambio",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "ABNAKnaE6ZRwq39W",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "9BcjqjGGKsFY8zWe",
+          "mode": "list",
+          "cachedResultName": "Evaluador"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        600,
+        -20
+      ],
+      "id": "a64dc83a-545d-472b-bae0-08ee4da0792f",
+      "name": "llamar a evaluador"
+    },
+    {
+      "parameters": {
+        "content": "## Estados para flujo\n1. Registra la aplicación → *Application Registered*\n2. Pasa a Ser Evaluado → *Under Evaluation*\n3. Se determina si es apto:\n   - Apto → *Qualified*\n   - No Apto → *Not Qualified*\n4. Si es Apto se le envía el mensaje de invitación para la entrevista → *Interview Invitation Sent*\n5. El candidato puede responder con una primera interacción → *Candidate Response Received*\n6. Si está de acuerdo con la propuesta nos agenda → *Interview Scheduled*\n7. Asistencia a la entrevista:\n   - Asistió → *Interview Attended*\n   - No Asistió → *Interview No-Show*\n8. Decisión final:\n   - Seleccionado → *Selected*\n   - No Seleccionado → *Not Selected*\n\n\n\n Diccionario de Estados del Proceso de Reclutamiento\n\n| Español                                      | Inglés                       |\n|----------------------------------------------|------------------------------|\n| Registra la aplicación                       | Application Registered       |\n| Pasa a Ser Evaluado                          | Under Evaluation             |\n| Apto                                         | Qualified                    |\n| No Apto                                      | Not Qualified                |\n| Invitación para la entrevista enviada        | Interview Invitation Sent    |\n| Respuesta del candidato recibida             | Candidate Response Received  |\n| Entrevista agendada                          | Interview Scheduled          |\n| Asistió a la entrevista                      | Interview Attended           |\n| No asistió a la entrevista                   | Interview No-Show            |\n| Seleccionado                                 | Selected                     |\n| No Seleccionado                              | Not Selected                 |\n\n",
+        "height": 680,
+        "width": 960,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -880,
+        180
+      ],
+      "typeVersion": 1,
+      "id": "788e9bc1-376e-4cd7-8275-f64f8104cff7",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## TO DO\n*-NOMBRES ADECUADOS A LOS FLUJOS\n*-HACER QUE FUNCIONE EL FLUJO DE REGISTRO DE WHATSAPP\n*-ARMAR CARPETAS CON REPOSITORIO EN GITHUB\n*-ENVIO DE CAMPAÑA MASIVA DE WSP. CUANDO LLEGAS AL ESTADO CALIFICADO. \"APTO\". CUANDO ESO CAMBIA EN EL SHEET. DE ESE CAMPO. LE MANDAS UN MENSAJE.\n*-TRIGGER PARA PARTIR ES UN SHEET.\n*-MENSAJE \"Hola Manuel 👋\nSoy Talento 🤖, el Asistente Virtual de reclutamiento para ONBOTGO. Vimos tu CV y nos interesó tu perfil para el puesto de [Ejecutivo de Cobranza REMOTO 100% en Conbranding]. 💼\nNos gustaría poder conocerte un poco más en un meet hoy. 🎯 ¿Nos confirmas si prefieres que sea por la mañana entre 11 y 12, o por la tarde entre 14 y 16? ⏰\nQuedo atento a tu confirmación para enviarte el enlace. 🔗\nSaludos cordiales ✨\"\n\nABRIR EVENTO EJEMPLO: CONSULTA\nEL FLUJO INICIAL QUE ENVIAMOS ES SOLO UNA PLANTILLA CON VARIABLES IRLAS CAMBIANDO. Y LUEGO PARA ENVIARLE. ES TOMAR LA CONSULTA AL CALENDARIO, FILTRARLO Y DECIRLE PARA QUÉ FECHA Y HORA ES, Y QUE DEBE LLEGAR PUNTUAL\n\nA TODOS LOS QUE SEAN APTOS.",
+        "height": 680,
+        "width": 780,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        180
+      ],
+      "typeVersion": 1,
+      "id": "6e0fc90e-a9b7-47dd-b9af-f2188502c440",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "applyId": "={{ $json.applyId }}",
+            "status": "Pasa a ser evaluado"
+          },
+          "matchingColumns": [
+            "applyId"
+          ],
+          "schema": [
+            {
+              "id": "jobId",
+              "displayName": "jobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applicantName",
+              "displayName": "applicantName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentType",
+              "displayName": "documentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentNumber",
+              "displayName": "documentNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "cvUrl",
+              "displayName": "cvUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "evalutionResult",
+              "displayName": "evalutionResult",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applyId",
+              "displayName": "applyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        0,
+        -20
+      ],
+      "id": "fab43a43-f866-449a-b704-2a759653fa00",
+      "name": "Cambia_Status",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Origenes:\n1)Pnadape \n• curriculum individual\n• carga de excel\n2)TalentoPortal\n• curriculum individual\n\n3)Wsp\n• curriculum individual\n",
+        "height": 480
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        940,
+        -120
+      ],
+      "typeVersion": 1,
+      "id": "3c269696-0f53-482f-bf9b-a405cc275f29",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {
+    "llamar a llama": [
+      {
+        "json": {
+          "candidate_info": "**Información personal y de contacto:**\n- **Nombre completo:** Ricardo Emanuel Reyes Ramirez\n- **Correo electrónico:** reyesramirezricardoemanuelagmallcom\n- **Número de teléfono:** +51925797402\n- **Ubicación geográfica:** Avenida Brasil 3029, Magdalena del Mar, Lima, Perú\n- **Perfil de LinkedIn:** www.linkedin.com/in/reyere\n\n**Resumen profesional:**\nProfesional con más de 5 años de experiencia en desarrollo de software y análisis de datos, especializado en gestión y optimización de bases de datos (Oracle Database, SQL Server). Experto en diseño e implementación de soluciones para automatización de procesos y análisis de datos empresariales.\n\n**Experiencia laboral:**\n1. **Arquitecto de Soluciones**\n- **Empresa:** Onbatgo\n- **Fechas:** Septiembre 2024 - Presente\n- **Ubicación:** Lima, Perú\n- **Responsabilidades y logros:**\n- Diseño e implementación de arquitecturas de datos.\n- Integración entre sistemas y almacenamiento.\n- Optimización de consultas SQL y desarrollo de procedimientos almacenados.\n- Gestión de bases de datos relacionales para aplicaciones de alto rendimiento.\n- Desarrollo de dashboards y reportes analíticos para seguimiento de KPIs.\n\n2. **Jefe de Soluciones Tecnológicas**\n- **Empresa:** Grupo Polo\n- **Fechas:** Julio 2022 - Mayo 2024\n- **Ubicación:** Perú\n- **Responsabilidades y logros:**\n- Liderazgo en diseño y mantenimiento de bases de datos para aplicaciones críticas.\n- Implementación de soluciones de ETL para procesamiento de datos masivos.\n- Desarrollo de sistemas de monitoreo y alertas para rendimiento de bases de datos.\n- Optimización de consultas y estructuras de datos.\n\n3. **Analista de Datos**\n- **Empresa:** MTG Perú Consultores\n- **Fechas:** Marzo 2019 - Mayo 2020\n- **Ubicación:** Lima, Perú\n- **Responsabilidades y logros:**\n- Análisis y procesamiento de grandes volúmenes de datos empresariales.\n- Desarrollo de scripts SQL para automatización de reportes y análisis.\n- Implementación de procedimientos almacenados y triggers.\n- Creación de dashboards para visualización de KPIs.\n\n**Educación:**\n1. **Ingeniería de Sistemas**\n- **Institución:** Universidad Continental\n- **Fechas:** Marzo 2021 - Julio 2026\n- **Estado:** En curso\n\n2. **Ingeniería de Sistemas**\n- **Institución:** Universidad Santa María\n- **Año de obtención:** 2008\n\n3. **Cocinero Profesional**\n- **Institución:** Academia de Artes Culinarios de Caracas\n- **Fechas:** 2013 - 2014\n- **Especialización:** Cocina gastronomía, general\n\n**Habilidades técnicas:**\n- **Bases de datos:**\n- Oracle Database\n- SQL Server\n- MySQL\n- **Lenguajes de programación:**\n- SQL\n- PL/SQL\n- T-SQL\n- Python para análisis de datos\n- **Herramientas:**\n- Power BI\n- Tableau\n- ETL tools\n- **Metodologías:**\n- Modelado de datos\n- Optimización de consultas\n- Data Warehousing\n\n**Logros destacados:**\n- Reducción del 40% en tiempos de procesamiento de datos mediante optimización de consultas.\n- Implementación exitosa de sistemas de monitoreo y alertas para bases de datos críticas.\n- Desarrollo de soluciones de automatización que mejoraron la eficiencia operativa en un 30%.",
+          "applyId": "M7PBVLZALB",
+          "jobId": "48939"
+        }
+      },
+      {
+        "json": {
+          "candidate_info": "**Información personal y de contacto:**\n- **Nombre completo:** Ricardo Emanuel Reyes Ramirez\n- **Correo electrónico:** reyesramirezricardoemanuelagmallcom\n- **Número de teléfono:** +51925797402\n- **Ubicación geográfica:** Avenida Brasil 3029, Magdalena del Mar, Lima, Perú\n- **Perfil de LinkedIn:** www.linkedin.com/in/reyere\n\n**Resumen profesional:**\nProfesional con más de 5 años de experiencia en desarrollo de software y análisis de datos, especializado en gestión y optimización de bases de datos (Oracle Database, SQL Server). Experto en diseño e implementación de soluciones para automatización de procesos y análisis de datos empresariales.\n\n**Experiencia laboral:**\n1. **Arquitecto de Soluciones**\n- **Empresa:** Onbatgo\n- **Fechas:** Septiembre 2024 - Presente\n- **Ubicación:** Lima, Perú\n- **Responsabilidades y logros:**\n- Diseño e implementación de arquitecturas de datos.\n- Integración entre sistemas y almacenamiento.\n- Optimización de consultas SQL y desarrollo de procedimientos almacenados.\n- Gestión de bases de datos relacionales para aplicaciones de alto rendimiento.\n- Desarrollo de dashboards y reportes analíticos para seguimiento de KPIs.\n\n2. **Jefe de Soluciones Tecnológicas**\n- **Empresa:** Grupo Polo\n- **Fechas:** Julio 2022 - Mayo 2024\n- **Ubicación:** Perú\n- **Responsabilidades y logros:**\n- Liderazgo en diseño y mantenimiento de bases de datos para aplicaciones críticas.\n- Implementación de soluciones de ETL para procesamiento de datos masivos.\n- Desarrollo de sistemas de monitoreo y alertas para rendimiento de bases de datos.\n- Optimización de consultas y estructuras de datos.\n\n3. **Analista de Datos**\n- **Empresa:** MTG Perú Consultores\n- **Fechas:** Marzo 2019 - Mayo 2020\n- **Ubicación:** Lima, Perú\n- **Responsabilidades y logros:**\n- Análisis y procesamiento de grandes volúmenes de datos empresariales.\n- Desarrollo de scripts SQL para automatización de reportes y análisis.\n- Implementación de procedimientos almacenados y triggers.\n- Creación de dashboards para visualización de KPIs.\n\n**Educación:**\n1. **Ingeniería de Sistemas**\n- **Institución:** Universidad Continental\n- **Fechas:** Marzo 2021 - Julio 2026\n- **Estado:** En curso\n\n2. **Ingeniería de Sistemas**\n- **Institución:** Universidad Santa María\n- **Año de obtención:** 2008\n\n3. **Cocinero Profesional**\n- **Institución:** Academia de Artes Culinarios de Caracas\n- **Fechas:** 2013 - 2014\n- **Especialización:** Cocina gastronomía, general\n\n**Habilidades técnicas:**\n- **Bases de datos:**\n- Oracle Database\n- SQL Server\n- MySQL\n- **Lenguajes de programación:**\n- SQL\n- PL/SQL\n- T-SQL\n- Python para análisis de datos\n- **Herramientas:**\n- Power BI\n- Tableau\n- ETL tools\n- **Metodologías:**\n- Modelado de datos\n- Optimización de consultas\n- Data Warehousing\n\n**Logros destacados:**\n- Reducción del 40% en tiempos de procesamiento de datos mediante optimización de consultas.\n- Implementación exitosa de sistemas de monitoreo y alertas para bases de datos críticas.\n- Desarrollo de soluciones de automatización que mejoraron la eficiencia operativa en un 30%.",
+          "applyId": "M7PBLPGNWJ",
+          "jobId": "48939"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "llamar a llama": {
+      "main": [
+        [
+          {
+            "node": "llamar a evaluador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "response": {
+      "main": [
+        [
+          {
+            "node": "llamar a llama",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status": {
+      "main": [
+        [
+          {
+            "node": "Cambia_Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "De_que_Fuente": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cuando Haya Cambio": {
+      "main": [
+        [
+          {
+            "node": "De_que_Fuente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cambia_Status": {
+      "main": [
+        [
+          {
+            "node": "response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "41ee1176-b443-45f3-8c02-cc323fa120c2",
+  "meta": {
+    "instanceId": "1dae253b8ed4fa2ae6cc1a1b54e20169a0e4eef838c1eca58506dcd1699582a0"
+  },
+  "id": "MMvfkEpj0Gri1EK7",
+  "tags": []
+}

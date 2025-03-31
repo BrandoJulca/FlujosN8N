@@ -1,0 +1,1147 @@
+{
+  "name": "flujo_mensaje_api_evol_agendamiento",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Estados para flujo\n1. Registra la aplicación → *Application Registered*\n2. Pasa a Ser Evaluado → *Under Evaluation*\n3. Se determina si es apto:\n   - Apto → *Qualified*\n   - No Apto → *Not Qualified*\n4. Si es Apto se le envía el mensaje de invitación para la entrevista → *Interview Invitation Sent*\n5. El candidato puede responder con una primera interacción → *Candidate Response Received*\n6. Si está de acuerdo con la propuesta nos agenda → *Interview Scheduled*\n7. Asistencia a la entrevista:\n   - Asistió → *Interview Attended*\n   - No Asistió → *Interview No-Show*\n8. Decisión final:\n   - Seleccionado → *Selected*\n   - No Seleccionado → *Not Selected*\n\n\n\n Diccionario de Estados del Proceso de Reclutamiento\n\n| Español                                      | Inglés                       |\n|----------------------------------------------|------------------------------|\n| Registra la aplicación                       | Application Registered       |\n| Pasa a Ser Evaluado                          | Under Evaluation             |\n| Apto                                         | Qualified                    |\n| No Apto                                      | Not Qualified                |\n| Invitación para la entrevista enviada        | Interview Invitation Sent    |\n| Respuesta del candidato recibida             | Candidate Response Received  |\n| Entrevista agendada                          | Interview Scheduled          |\n| Asistió a la entrevista                      | Interview Attended           |\n| No asistió a la entrevista                   | Interview No-Show            |\n| Seleccionado                                 | Selected                     |\n| No Seleccionado                              | Not Selected                 |\n\n",
+        "height": 680,
+        "width": 960,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        1700
+      ],
+      "typeVersion": 1,
+      "id": "5a948bee-692c-4b68-8e30-9135adb001a7",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "height": 660,
+        "width": 2940,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        920,
+        660
+      ],
+      "typeVersion": 1,
+      "id": "8d7eb0ba-7c3a-44fa-94b8-c91b6c9ef932",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "amount": 10,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2780,
+        1020
+      ],
+      "id": "443db446-80ce-4de9-a125-5603fdac102c",
+      "name": "Wait",
+      "webhookId": "35aaea06-4bf5-485f-9673-6c82afb97777"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0b49ab75-bc75-44b1-ab88-fb88920db362",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "=APTO",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1240,
+        1000
+      ],
+      "id": "53d0a5d2-26fb-42ae-93ef-7ba421afd1fc",
+      "name": "FILTRAR APTO"
+    },
+    {
+      "parameters": {
+        "content": "## TO DO\n*-NOMBRES ADECUADOS A LOS FLUJOS\n*-HACER QUE FUNCIONE EL FLUJO DE REGISTRO DE WHATSAPP\n*-ARMAR CARPETAS CON REPOSITORIO EN GITHUB\n*-ENVIO DE CAMPAÑA MASIVA DE WSP. CUANDO LLEGAS AL ESTADO CALIFICADO. \"APTO\". CUANDO ESO CAMBIA EN EL SHEET. DE ESE CAMPO. LE MANDAS UN MENSAJE.\n*-TRIGGER PARA PARTIR ES UN SHEET.\n*-MENSAJE \"Hola Manuel 👋\nSoy Talento 🤖, el Asistente Virtual de reclutamiento para ONBOTGO. Vimos tu CV y nos interesó tu perfil para el puesto de [Ejecutivo de Cobranza REMOTO 100% en Conbranding]. 💼\nNos gustaría poder conocerte un poco más en un meet hoy. 🎯 ¿Nos confirmas si prefieres que sea por la mañana entre 11 y 12, o por la tarde entre 14 y 16? ⏰\nQuedo atento a tu confirmación para enviarte el enlace. 🔗\nSaludos cordiales ✨\"\n\nABRIR EVENTO EJEMPLO: CONSULTA\nEL FLUJO INICIAL QUE ENVIAMOS ES SOLO UNA PLANTILLA CON VARIABLES IRLAS CAMBIANDO. Y LUEGO PARA ENVIARLE. ES TOMAR LA CONSULTA AL CALENDARIO, FILTRARLO Y DECIRLE PARA QUÉ FECHA Y HORA ES, Y QUE DEBE LLEGAR PUNTUAL\n\nA TODOS LOS QUE SEAN APTOS.",
+        "height": 680,
+        "width": 780,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2020,
+        1700
+      ],
+      "typeVersion": 1,
+      "id": "b5fe2ae7-252f-4666-8c45-bc3831411d9a",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b54e8f1f-085a-4cc4-ba53-52e2e218e5fc",
+              "name": "Cel_a_contactar",
+              "value": "51934474263",
+              "type": "string"
+            },
+            {
+              "id": "3a12de8d-4e49-4470-8809-f1eff970eabf",
+              "name": "jobId",
+              "value": "={{ $('FILTRAR APTO').item.json.jobId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2120,
+        1020
+      ],
+      "id": "e0adc224-8847-4186-91bb-ad01582e1d1d",
+      "name": "Datos_de_Contactado",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "event": "rowUpdate",
+        "options": {
+          "columnsToWatch": [
+            "status"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        1020,
+        1000
+      ],
+      "id": "7b57e69b-b9b1-42b9-a4a1-bd39a2425d2b",
+      "name": "Cuando_Status_Cambia",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "ABNAKnaE6ZRwq39W",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "62682715-b644-4cc1-bd5b-0df661e00169",
+              "name": "Nombre_candidato",
+              "value": "={{ $('GetApply').item.json.applicantName }}",
+              "type": "string"
+            },
+            {
+              "id": "8fe3cf12-c6c6-4ba8-987c-5db0b208f876",
+              "name": "Nombre_trabajo",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "e0f97c0d-07aa-4b29-938b-674bfdac7eff",
+              "name": "applyId",
+              "value": "={{ $('GetApply').item.json.applyId }}",
+              "type": "string"
+            },
+            {
+              "id": "48118189-6426-4b26-90f9-76f032d23e03",
+              "name": "phone",
+              "value": "={{ $('GetApply').item.json.phone }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3220,
+        800
+      ],
+      "id": "ccf66a73-cd0a-4cd6-ba04-69e42217a265",
+      "name": "Get Values"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "start.dateTime"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        2120,
+        800
+      ],
+      "id": "8e3fd4ca-f7c1-4269-856d-48130dce2257",
+      "name": "Ordena_El_Más_Próximo1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        2340,
+        800
+      ],
+      "id": "bbf82e9d-8b18-4f5f-9b64-c3f03dd175d0",
+      "name": "Limita_a_1_evento1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "041203e9-0016-4701-88b5-0fb6a1de03a5",
+              "name": "Mensaje",
+              "value": "=🚨 *ALERTA IMPORTANTE* 🚨\n\nHemos detectado que *NO HAY UNA REUNIÓN AGENDADA* para el trabajo con JobId *{{ $json.jobId }}*. \n🔴 *Volveremos a intentar en 10 minutos.*\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2340,
+        1020
+      ],
+      "id": "a33ddf24-094e-4891-8c9f-b96ecdd2e192",
+      "name": "Mensaje",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "=BJ",
+        "remoteJid": "={{ $('Datos_de_Contactado').item.json.Cel_a_contactar }}",
+        "messageText": "={{ $json.Mensaje }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        2560,
+        1020
+      ],
+      "id": "c5294f5e-9070-4631-ac7a-31ea3822eeb6",
+      "name": "Envia_mensaje",
+      "credentials": {
+        "evolutionApi": {
+          "id": "t4TvwUFJqLA4AgmQ",
+          "name": "Evolution account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "No contactado",
+            "applyId": "={{ $('Get Values').item.json.applyId }}"
+          },
+          "matchingColumns": [
+            "applyId"
+          ],
+          "schema": [
+            {
+              "id": "jobId",
+              "displayName": "jobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applicantName",
+              "displayName": "applicantName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentType",
+              "displayName": "documentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentNumber",
+              "displayName": "documentNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "cvUrl",
+              "displayName": "cvUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "evalutionResult",
+              "displayName": "evalutionResult",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applyId",
+              "displayName": "applyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3660,
+        900
+      ],
+      "id": "01441354-dec0-4b6e-b969-3fd0331dcbed",
+      "name": "Estado a no contactado",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "Invitación para la entrevista enviada",
+            "applyId": "={{ $('Get Values').item.json.applyId }}"
+          },
+          "matchingColumns": [
+            "applyId"
+          ],
+          "schema": [
+            {
+              "id": "jobId",
+              "displayName": "jobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applicantName",
+              "displayName": "applicantName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentType",
+              "displayName": "documentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentNumber",
+              "displayName": "documentNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "cvUrl",
+              "displayName": "cvUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "evalutionResult",
+              "displayName": "evalutionResult",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applyId",
+              "displayName": "applyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3660,
+        700
+      ],
+      "id": "9191b36f-fe5d-4bf4-a6db-40ced1c61dea",
+      "name": "Estado a contactado",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "phone",
+              "lookupValue": "={{ $('FILTRAR APTO').item.json.phone }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2560,
+        800
+      ],
+      "id": "b538bccc-58d4-4eeb-83b9-4cc6d7cf5830",
+      "name": "GetApply",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2129097737,
+          "mode": "list",
+          "cachedResultName": "jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=2129097737"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2780,
+        800
+      ],
+      "id": "0e4a59ad-c9b5-4cc7-a964-757558fa4232",
+      "name": "GetJobs",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "14ccdf30-93e8-408d-8c8b-0bdb8c6bc0d7",
+              "leftValue": "={{ $json }}",
+              "rightValue": "={{ $('GetApply').item.json.jobId }}",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        3000,
+        800
+      ],
+      "id": "f7188a76-20d7-4821-bb8c-cc5ce1162500",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "BJ",
+        "remoteJid": "={{ $json.phone }}",
+        "messageText": "=Hola {{ $json.Nombre_candidato }} 👋  \n\nSoy *Talento 🤖*, asistente virtual de reclutamiento de *ONBOTGO*. Hemos revisado tu CV y queremos conocerte mejor para el puesto de *{{ $json.Nombre_trabajo }}* 💼  \n\nConfirma si puedes asistir a un *Meet* el *{{ $('Limita_a_1_evento1').item.json.start.dateTime.toDateTime().format('dd-MM-yyyy') }} a las {{ $('Limita_a_1_evento1').item.json.start.dateTime.toDateTime().format('HH:mm') }}* ⏰  \n  \nSi confirmas, envíame tu correo 📧 para compartirte el enlace 🔗 \n\n*Quedamos atentos*\n",
+        "options_message": {
+          "delay": 10000
+        }
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        3440,
+        800
+      ],
+      "id": "e6b9c00e-74d3-4597-9e80-1e65afae4a31",
+      "name": "Envia Invitación",
+      "credentials": {
+        "evolutionApi": {
+          "id": "t4TvwUFJqLA4AgmQ",
+          "name": "Evolution account 2"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "c_41edf5e9b588f7b01bea790394dc1603e03b0cf5f60effee672062a4a66abad6@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "TALENTO - MEETS RECLUTAMIENTO"
+        },
+        "returnAll": true,
+        "options": {
+          "timeMin": "={{ $now.toISO() }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.2,
+      "position": [
+        1460,
+        1000
+      ],
+      "id": "55ecaebd-4f57-4323-b7df-e13966ae4294",
+      "name": "Obtiene Calendario",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "TOuAFMH2lO00Ldog",
+          "name": "Google Calendar (Talento)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "79818c76-a126-4203-9b7a-dde270243ae1",
+              "leftValue": "={{ \n  Array.isArray($json) ? \n    ($json.length === 0 || $json.some(event => event.summary && event.summary.startsWith($('FILTRAR APTO').item.json.jobId))) : \n    (!$json || !$json.summary || $json.summary.startsWith($('FILTRAR APTO').item.json.jobId)) \n}}",
+              "rightValue": "={{ !$json || Object.keys($json).length === 0 ? $json : ($json.summary !== undefined ? $json.summary : $json) }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1680,
+        1000
+      ],
+      "id": "ad57f551-a1b6-41b4-be53-2e2b30e43167",
+      "name": "Filter1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json}}",
+                    "rightValue": "={{    Array.isArray($json) &&    ($json.length === 0 ||     ($json.length > 0 &&      $json.every(event => !event.summary || Object.keys(event).length === 0))) }}",
+                    "operator": {
+                      "type": "object",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "id": "123eeb85-d87c-494b-8aea-f2a72bedc4c3"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "cb155aae-cd99-420b-868e-3a64a8122052",
+                    "leftValue": "={{$json}}",
+                    "rightValue": "={{    Array.isArray($json) &&    $json.length > 0 &&    $json.some(event => event.summary &&               event.summary.includes($('FILTRAR APTO').item.json.jobId)) }}",
+                    "operator": {
+                      "type": "object",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1900,
+        1000
+      ],
+      "id": "390a8ee6-3e1e-461d-9f5a-f11b7607f8e6",
+      "name": "Switch"
+    }
+  ],
+  "pinData": {
+    "Cuando_Status_Cambia": [
+      {
+        "json": {
+          "row_number": 5,
+          "jobId": "JOB001",
+          "email": "qweqwe@gmail.com",
+          "applicantName": "Rodrigo Maria Del Pilar",
+          "phone": 51999666333,
+          "documentType": "D.N.I",
+          "documentNumber": 46418748,
+          "cvUrl": "",
+          "status": "NO APTO ❌",
+          "evalutionResult": "Evaluacion: NO APTO ❌\nNivel de Perfil:❌\nRazón principal:Falta de experiencia específica en gestión de cobranza y en el sector bancario. No cumple con los 3 años requeridos.\nAspectos positivos:Tiene formación como asesor de cobranzas y está en búsqueda activa de nuevas oportunidades.",
+          "applyId": "M8DICKCANB",
+          "source": "CargaMasiva"
+        }
+      },
+      {
+        "json": {
+          "row_number": 6,
+          "jobId": "JOB001",
+          "email": "brandojulca96@gmail.com",
+          "applicantName": "Brando Julca",
+          "phone": 51934474263,
+          "documentType": "D.N.I",
+          "documentNumber": 10874312,
+          "cvUrl": "",
+          "status": "APTO ✅",
+          "evalutionResult": "Evaluacion: APTO ✅\nNivel de Perfil:⭐⭐\nRazón principal:Brando tiene experiencia relevante en cobranza y vive en Lima, mostrando disponibilidad para el puesto.\nAspectos positivos:Posee experiencia en gestión de cobranza y atención al cliente, lo que es valioso para el rol.",
+          "applyId": "M8DI2OOCVQ",
+          "source": "CargaMasiva"
+        }
+      },
+      {
+        "json": {
+          "row_number": 7,
+          "jobId": "JOB001",
+          "email": "ckjlklllkjl@gmail.com",
+          "applicantName": "Diego Claudia Herminia",
+          "phone": 51999888741,
+          "documentType": "D.N.I",
+          "documentNumber": 76566814,
+          "cvUrl": "",
+          "status": "NO APTO ❌",
+          "evalutionResult": "Evaluacion: NO APTO ❌\nNivel de Perfil:❌\nRazón principal:No cumple con la experiencia mínima de 3 años requerida y otros criterios fundamentales.\nAspectos positivos:Candidato tiene experiencia reciente en cobranza y ha cumplido metas mensuales en su empleo actual.",
+          "applyId": "M8DI7R2SA7",
+          "source": "CargaMasiva"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FILTRAR APTO": {
+      "main": [
+        [
+          {
+            "node": "Obtiene Calendario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Datos_de_Contactado": {
+      "main": [
+        [
+          {
+            "node": "Mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cuando_Status_Cambia": {
+      "main": [
+        [
+          {
+            "node": "FILTRAR APTO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ordena_El_Más_Próximo1": {
+      "main": [
+        [
+          {
+            "node": "Limita_a_1_evento1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limita_a_1_evento1": {
+      "main": [
+        [
+          {
+            "node": "GetApply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Values": {
+      "main": [
+        [
+          {
+            "node": "Envia Invitación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje": {
+      "main": [
+        [
+          {
+            "node": "Envia_mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envia_mensaje": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetApply": {
+      "main": [
+        [
+          {
+            "node": "GetJobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetJobs": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Get Values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envia Invitación": {
+      "main": [
+        [
+          {
+            "node": "Estado a contactado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Estado a no contactado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtiene Calendario": {
+      "main": [
+        [
+          {
+            "node": "Filter1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Ordena_El_Más_Próximo1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Datos_de_Contactado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ea9765e4-5d67-4d48-860b-199fb267f0f3",
+  "meta": {
+    "instanceId": "1dae253b8ed4fa2ae6cc1a1b54e20169a0e4eef838c1eca58506dcd1699582a0"
+  },
+  "id": "vboPubkfBVISqig5",
+  "tags": []
+}

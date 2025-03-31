@@ -1,0 +1,1091 @@
+{
+  "name": "(TEST)Talento_Evalua_CargaMasiva_Brando",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1KpP4bUpe4a4DpiNvegG033eJvP5icnq-"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        720
+      ],
+      "id": "810cf7a7-809c-43bf-a69d-f7f43cdb7776",
+      "name": "📌 Trigger - Nueva Relación",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "k4De97fkoMo7qZVc",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -920,
+        720
+      ],
+      "id": "6ae4207a-2cc9-4c34-a382-1728f4bd3682",
+      "name": "📥 Descargar Archivo",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "k4De97fkoMo7qZVc",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {
+          "headerRow": false,
+          "range": "A1:B4"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        840
+      ],
+      "id": "d8180040-2c73-4795-b250-72a913066091",
+      "name": "📄 Extraer Datos del Anuncio"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {
+          "headerRow": true,
+          "range": "A6:AD1000"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        640
+      ],
+      "id": "56b2352d-188e-4e93-bcf0-176f040b6e58",
+      "name": "👤 Extraer Datos de Postulantes"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        -220,
+        700
+      ],
+      "id": "76d16776-c7bb-4123-b7c8-05703c8db5e5",
+      "name": "🔀 Merge Datos Anuncio y Postulantes"
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Convierte una matriz de filas en formato [clave, valor] a un único objeto diccionario.\n * @param {Array} items - Array de objetos con propiedad \"row\" que contiene arrays [clave, valor]\n * @returns {Object} - Diccionario combinado con todas las claves y valores\n */\nfunction convertMatrixToDictionary(items) {\n    // Inicializar el diccionario resultante\n    const result = {\n        \"Nombre del aviso\": null,\n        \"JobId\": null,\n        \"Etapa\": null,\n        \"Tags\": null,\n        \"NombreAviso\": null\n    };\n    \n    // Recorrer todos los items para extraer información\n    items.forEach(item => {\n        if (item && item.json && item.json.row && Array.isArray(item.json.row)) {\n            const row = item.json.row;\n            const key = row[0];\n            const value = row.length > 1 ? row[1] : null;\n            \n            // Asignar valores según la clave\n            if (key === \"Nombre del aviso:\") {\n                result[\"Nombre del aviso\"] = value;\n                result[\"NombreAviso\"] = value;\n            } \n            else if (key === \"Referencia de aviso:\") {\n                result[\"JobId\"] = value;\n            }\n            else if (key === \"Nombre de la etapa:\") {\n                result[\"Etapa\"] = value;\n            }\n            else if (key === \"TAG´s del aviso:\") {\n                result[\"Tags\"] = value;\n            }\n        }\n    });\n    \n    return result;\n}\n\n// Código para n8n - procesa todos los items y devuelve un único objeto\nfunction processItems(items) {\n    try {\n        // Procesar todos los items juntos para crear un único diccionario\n        const combinedDictionary = convertMatrixToDictionary(items);\n        \n        // Devolver un único objeto como resultado\n        return [{\n            json: combinedDictionary\n        }];\n    } catch (error) {\n        console.error(`Error procesando items: ${error.message}`);\n        return [{\n            json: {\n                error: error.message,\n                originalData: items.map(item => item.json)\n            }\n        }];\n    }\n}\n\n// Devolver un único objeto que contiene todos los datos\nreturn processItems(items);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        800
+      ],
+      "id": "730136f5-9e8f-4db8-a199-2dc671687953",
+      "name": "📄 Transformación Datos del Anuncio"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "postulaciones",
+          "mode": "list",
+          "cachedResultName": "postulaciones"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nombre": "={{ $json.nombre }}",
+            "apellido": "={{ $json.apellido }}",
+            "tipo_de_documento": "={{ $json.tipo_de_documento }}",
+            "numero_de_identificacion": "={{ $json.numero_de_identificacion }}",
+            "titulo": "={{ $json.titulo }}",
+            "fecha_de_inscripcion": "={{ $json.fecha_de_inscripcion.toDateTime().toISO() }}",
+            "postulante_desde": "={{ $json.postulante_desde }}",
+            "correo_electronico": "={{ $json.correo_electronico }}",
+            "telefono": "={{ $json.telefono }}",
+            "telefono_celular": "={{ $json.telefono_celular }}",
+            "departamento": "={{ $json.departamento }}",
+            "ciudad": "={{ $json.ciudad }}",
+            "codigo_postal": "={{ $json.codigo_postal }}",
+            "direccion": "={{ $json.direccion }}",
+            "complemento": "={{ $json.complemento }}",
+            "numero": "={{ $json.numero }}",
+            "fecha_de_nacimiento": "={{ $json.fecha_de_nacimiento }}",
+            "edad": "={{ $json.edad }}",
+            "genero": "={{ $json.genero }}",
+            "estado_civil": "={{ $json.estado_civil }}",
+            "nacionalidad": "={{ $json.nacionalidad }}",
+            "salario_minimo": "={{ $json.salario_minimo }}",
+            "salario_maximo": "={{ $json.salario_maximo }}",
+            "candidatos_cv_tags": "={{ $json.candidatos_cv_tags }}",
+            "experiencia_profesional": "={{ $json.experiencia_profesional }}",
+            "formacion": "={{ $json.formacion }}",
+            "idiomas": "={{ $json.idiomas }}",
+            "origen_de_la_postulacion": "={{ $json.origen_de_la_postulacion }}",
+            "historico_de_aplicacion_en_la_empresa": "={{ $json.historico_de_aplicacion_en_la_empresa }}",
+            "test_comportamental": "={{ $json.test_comportamental }}",
+            "job_id": "={{ $json.job_id }}",
+            "apply_id": "={{ $json.apply_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "apellido",
+              "displayName": "apellido",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tipo_de_documento",
+              "displayName": "tipo_de_documento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "numero_de_identificacion",
+              "displayName": "numero_de_identificacion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "titulo",
+              "displayName": "titulo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fecha_de_inscripcion",
+              "displayName": "fecha_de_inscripcion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "postulante_desde",
+              "displayName": "postulante_desde",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "correo_electronico",
+              "displayName": "correo_electronico",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "telefono",
+              "displayName": "telefono",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "telefono_celular",
+              "displayName": "telefono_celular",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "departamento",
+              "displayName": "departamento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ciudad",
+              "displayName": "ciudad",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "codigo_postal",
+              "displayName": "codigo_postal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "direccion",
+              "displayName": "direccion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "complemento",
+              "displayName": "complemento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "numero",
+              "displayName": "numero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fecha_de_nacimiento",
+              "displayName": "fecha_de_nacimiento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "edad",
+              "displayName": "edad",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "genero",
+              "displayName": "genero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "estado_civil",
+              "displayName": "estado_civil",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nacionalidad",
+              "displayName": "nacionalidad",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "salario_minimo",
+              "displayName": "salario_minimo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "salario_maximo",
+              "displayName": "salario_maximo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "candidatos_cv_tags",
+              "displayName": "candidatos_cv_tags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "experiencia_profesional",
+              "displayName": "experiencia_profesional",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "formacion",
+              "displayName": "formacion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "idiomas",
+              "displayName": "idiomas",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "origen_de_la_postulacion",
+              "displayName": "origen_de_la_postulacion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "historico_de_aplicacion_en_la_empresa",
+              "displayName": "historico_de_aplicacion_en_la_empresa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "test_comportamental",
+              "displayName": "test_comportamental",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "job_id",
+              "displayName": "job_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "apply_id",
+              "displayName": "apply_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "creado_en",
+              "displayName": "creado_en",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "id_ulid",
+              "displayName": "id_ulid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ]
+        },
+        "options": {
+          "largeNumbersOutput": "text"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        180,
+        700
+      ],
+      "id": "fc96828d-3563-4f2d-8baf-1a771f5fbe06",
+      "name": "Postgres",
+      "credentials": {
+        "postgres": {
+          "id": "7FNDb7dPjUBo3gT0",
+          "name": "Postgres account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Talento_Evalua_Postulaciones_Pandape_Brando",
+        "height": 580,
+        "width": 2440,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1200,
+        620
+      ],
+      "typeVersion": 1,
+      "id": "f9e6fb27-3087-4442-9612-19d39ee2f5b1",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "applicantName": "={{ $('Postgres').item.json.nombre }} {{ $('Postgres').item.json.apellido }}",
+            "documentType": "={{ $('Postgres').item.json.tipo_de_documento }}",
+            "documentNumber": "={{ $('Postgres').item.json.numero_de_identificacion }}",
+            "phone": "={{ $json.celular }}",
+            "jobId": "={{ $('Postgres').item.json.job_id }}",
+            "email": "={{ $('Postgres').item.json.correo_electronico }}",
+            "status": "Registra la aplicación",
+            "source": "CargaMasiva",
+            "applyId": "={{ $('Postgres').item.json.apply_id }}"
+          },
+          "matchingColumns": [
+            "applyId"
+          ],
+          "schema": [
+            {
+              "id": "jobId",
+              "displayName": "jobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "applicantName",
+              "displayName": "applicantName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "documentType",
+              "displayName": "documentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "documentNumber",
+              "displayName": "documentNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cvUrl",
+              "displayName": "cvUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "evalutionResult",
+              "displayName": "evalutionResult",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applyId",
+              "displayName": "applyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        620,
+        700
+      ],
+      "id": "ad96296e-df70-42dd-a46d-398ec7ca3027",
+      "name": "Register_Apply",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "9BcjqjGGKsFY8zWe",
+          "mode": "list",
+          "cachedResultName": "Evaluador"
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1060,
+        700
+      ],
+      "id": "36822f65-341d-4f0b-bcff-f94ca7634fe8",
+      "name": "llamar a evaluador"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Función para normalizar número de teléfono peruano\nconst normalizePeruvianPhone = (phone, departamento = null, ciudad = null) => {\n    if (!phone) return null;\n    \n    // Eliminar todos los caracteres que no sean dígitos\n    let cleanPhone = phone.replace(/\\D/g, '');\n    \n    // Asegurar que tenga el código de país de Perú (51)\n    if (!cleanPhone.startsWith('51')) {\n        cleanPhone = '51' + cleanPhone;\n    }\n    \n    // Si después del código de país comienza con '0', quitarlo\n    if (cleanPhone.startsWith('510')) {\n        cleanPhone = '51' + cleanPhone.substring(3);\n    }\n    \n    // Determinar si es un celular (después del código 51 debe tener un 9)\n    // Los números de posición serían: 0-1: código país (51), 2: primer dígito después del código\n    if (cleanPhone.length >= 3 && cleanPhone.charAt(2) === '9') {\n        // Es un celular - asegurar que tenga exactamente 11 dígitos (51 + 9 dígitos)\n        return cleanPhone.substring(0, 11);\n    }\n    \n    // Si es un teléfono fijo de Lima\n    if (departamento === 'Lima' || ciudad === 'Lima' || ciudad === 'Callao') {\n        // El código de área de Lima es 1\n        if (!cleanPhone.startsWith('511') && cleanPhone.startsWith('51')) {\n            cleanPhone = '511' + cleanPhone.substring(2);\n        }\n        // Asegurar que tenga exactamente 10 dígitos (51 + 1 + 7 dígitos)\n        return cleanPhone.substring(0, 10);\n    } \n    \n    // Para fijos de provincia, mantenemos el formato estándar 51 + (código) + número\n    // Devolvemos lo que tenemos, asegurando que tenga al menos el código 51\n    return cleanPhone;\n};\n\n// Función para convertir cualquier valor a string de forma segura\nconst safeToString = (value) => {\n    if (value === null || value === undefined) return null;\n    \n    // Asegurar que sea un string válido, incluso para objetos\n    try {\n        if (typeof value === 'object') {\n            return JSON.stringify(value);\n        }\n        // Convertir explícitamente a string para evitar problemas con números grandes\n        return String(value);\n    } catch (e) {\n        console.error(`Error al convertir a string: ${e.message}`);\n        return null;\n    }\n};\n\n// Función para truncar strings al tamaño máximo\nconst truncate = (str, maxLength) => {\n    if (str === null || str === undefined) return null;\n    // Asegurar que sea string\n    const strValue = safeToString(str);\n    if (!strValue) return null;\n    \n    return strValue.length > maxLength ? strValue.substring(0, maxLength) : strValue;\n};\n\n// Genera un ID único para el apply_id\nconst generateApplyId = () => {\n    const timestamp = Date.now().toString(36).substring(0, 4).toUpperCase();\n    const randomPart = Array.from({ length: 6 }, () => \n        Math.floor(Math.random() * 36).toString(36).toUpperCase()).join('');\n    return timestamp + randomPart;\n};\n\n// Convierte fecha serial de Excel a formato de fecha PostgreSQL\nconst formatDate = (serial) => {\n    if (!serial || isNaN(Number(serial))) return null;\n    \n    try {\n        // Convertir explícitamente a número\n        const numSerial = Number(serial);\n        const date = new Date(Date.UTC(1899, 11, 30) + numSerial * 86400000);\n        return date.toISOString().split('T')[0]; // Formato YYYY-MM-DD\n    } catch (e) {\n        console.error(`Error al formatear fecha: ${e.message}`);\n        return null;\n    }\n};\n\n// Función para limpiar el valor del salario eliminando cualquier caracter no numérico\nconst cleanupSalary = (salary) => {\n    if (!salary) return \"0\";\n    \n    // Convertir a string si no lo es\n    const salaryStr = safeToString(salary);\n    if (!salaryStr) return \"0\";\n    \n    // Remover cualquier caracter que no sea dígito o punto\n    return salaryStr.replace(/[^\\d.]/g, '');\n};\n\n// Función principal para transformar candidatos\nfunction transformCandidateToPostgres(candidate) {\n    // Asegurar que todas las propiedades existan incluso si el objeto original no las tiene\n    return {\n        nombre: truncate(candidate.Nombre, 100),\n        apellido: truncate(candidate.Apellido, 100),\n        tipo_de_documento: truncate(candidate[\"Tipo de documento\"], 50),\n        numero_de_identificacion: truncate(safeToString(candidate[\"Número de identificación\"]), 20),\n        titulo: truncate(candidate.Título, 100),\n        fecha_de_inscripcion: formatDate(candidate[\"Fecha de inscripción\"]),\n        postulante_desde: truncate(candidate[\"postulante desde\"], 100),\n        correo_electronico: truncate(candidate[\"Correo electrónico\"], 100),\n        telefono: normalizePeruvianPhone(candidate.Teléfono, candidate.Departamento, candidate.Ciudad),\n        telefono_celular: normalizePeruvianPhone(candidate[\"Teléfono celular\"], candidate.Departamento, candidate.Ciudad),\n        departamento: truncate(candidate.Departamento, 50),\n        ciudad: truncate(candidate.Ciudad, 50),\n        codigo_postal: truncate(safeToString(candidate[\"Código Postal\"] || \"\"), 20),\n        direccion: candidate.Dirección || null,\n        complemento: null,\n        numero: truncate(safeToString(candidate.Número || \"\"), 20),\n        fecha_de_nacimiento: formatDate(candidate[\"Fecha de nacimiento\"]),\n        edad: truncate(candidate.Edad, 20),\n        genero: truncate(candidate.Género, 20),\n        estado_civil: truncate(candidate[\"Estado civil\"], 20),\n        nacionalidad: truncate(candidate.Nacionalidad, 50),\n        salario_minimo: truncate(cleanupSalary(candidate[\"Salario mínimo\"]), 20),\n        salario_maximo: truncate(cleanupSalary(candidate[\"Salario máximo\"] || \"0\"), 20),\n        candidatos_cv_tags: candidate.Tags || null,\n        experiencia_profesional: candidate[\"Experiencia profesional\"] || null,\n        formacion: candidate.Formación || null,\n        idiomas: candidate.Idiomas || null,\n        origen_de_la_postulacion: truncate((candidate[\"Origen de la postulación\"] || \"\").replace('Origen: ', ''), 100),\n        historico_de_aplicacion_en_la_empresa: candidate[\"Histórico de aplicación en la empresa\"] || null,\n        test_comportamental: null,\n        job_id: truncate(safeToString(candidate.JobId || \"\"), 10),\n        apply_id: truncate(generateApplyId(), 10)\n    };\n}\n\n// Imprimir el objeto transformado para depuración\nfunction logTransformedObject(obj) {\n    console.log(\"Objeto transformado:\");\n    for (const [key, value] of Object.entries(obj)) {\n        console.log(`${key}: ${typeof value} | ${value}`);\n    }\n}\n\n// Procesar todos los candidatos\nfunction processCandidates(items) {\n    try {\n        // Transformar cada candidato\n        const transformedCandidates = items.map(item => {\n            const transformed = transformCandidateToPostgres(item.json);\n            \n            // Log para depuración\n            console.log(`Procesando candidato: ${transformed.nombre} ${transformed.apellido}`);\n            \n            return transformed;\n        });\n        \n        // Para depuración, log del primer candidato transformado\n        if (transformedCandidates.length > 0) {\n            logTransformedObject(transformedCandidates[0]);\n        }\n        \n        // Devolver los candidatos transformados\n        return transformedCandidates.map(candidate => ({\n            json: candidate\n        }));\n    } catch (error) {\n        console.error(`Error procesando candidatos: ${error.message}`);\n        return [{ \n            json: { \n                error: error.message,\n                data_original: \"Error al procesar los candidatos\"\n            } \n        }];\n    }\n}\n\n// Ejecutar la transformación\nreturn processCandidates(items);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        700
+      ],
+      "id": "9823f2a1-8097-46b8-bb12-8a3784200a2e",
+      "name": "Limpieza de datos",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Funcion autogenerar ID\n// Genera un ID único para el apply_id\nconst generateApplyId = () => {\n    const timestamp = Date.now().toString(36).substring(0, 4).toUpperCase();\n    const randomPart = Array.from({ length: 6 }, () => \n        Math.floor(Math.random() * 36).toString(36).toUpperCase()).join('');\n    return timestamp + randomPart;\n};\n\ncuando entra por wsp el agente es el encargado de generar el applyID.\ncuando viene de talento el portal es el que lo autogenera\n\n{{ Date.now().toString(36).substring(0, 4).toUpperCase() + Array.from({ length: 6 }, () => Math.floor(Math.random() * 36).toString(36).toUpperCase()).join('') }}\n",
+        "height": 360,
+        "width": 720,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        520,
+        1220
+      ],
+      "typeVersion": 1,
+      "id": "1787fa15-3377-426e-90c2-e8e314bbba4a",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsCode": "function obtenerNumeroCelular(telefono, telefono_celular = null) {\n    // Expresión regular para identificar números celulares en formato 519XXXXXXXX\n    const regexCelular = /^519\\d{8}$/;\n\n    // Si existe telefono_celular y cumple el formato, lo usamos como prioridad\n    if (telefono_celular && regexCelular.test(String(telefono_celular))) {\n        return String(telefono_celular);\n    }\n\n    // Si telefono_celular es null o no es válido, verificamos el teléfono principal\n    if (telefono && regexCelular.test(String(telefono))) {\n        return String(telefono);\n    }\n\n    // Si ninguno es válido, retornamos null\n    return null;\n}\n\n// Procesar cada item del input de n8n\nreturn $input.all().map(item => {\n    const telefono = item.json.telefono; // Tomado de PostgreSQL\n    const telefono_celular = item.json.telefono_celular || null; // Opcional\n\n    // Obtener el número celular válido\n    const celular = obtenerNumeroCelular(telefono, telefono_celular);\n\n    return {\n        json: {\n            celular: celular\n        }\n    };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        700
+      ],
+      "id": "dfe28352-4f4a-4424-9bff-2cb210ea6c22",
+      "name": "ObtieneCelular"
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('📌 Trigger - Nueva Relación').item.json.id }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "18AFTvIfNbkbaSwIAIocfCLDTpFMkivMT",
+          "mode": "list",
+          "cachedResultName": "RECLUTAMIENTO",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/18AFTvIfNbkbaSwIAIocfCLDTpFMkivMT"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -600,
+        1040
+      ],
+      "id": "4ffdd5d2-f870-4093-86d2-ce473bfe1985",
+      "name": "Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "k4De97fkoMo7qZVc",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener todos los elementos de entrada\nconst items = $('Postgres').all();\n\n// Crear un nuevo array con la estructura correcta\nconst output = [];\n\nfor (const item of items) {\n  const input = item.json; // Extraer datos de cada objeto\n\n  // Convertir la fecha de nacimiento a formato ISO (YYYY-MM-DD)\n  let fechaNacimientoISO = 'No especificado';\n  if (input.fecha_de_nacimiento) {\n    try {\n      fechaNacimientoISO = new Date(input.fecha_de_nacimiento).toISOString().split('T')[0]; // Extrae solo la parte de la fecha\n    } catch (error) {\n      fechaNacimientoISO = 'Fecha inválida';\n    }\n  }\n\n  // Construcción del texto formateado\n  const candidateInfo = `**Información personal y de contacto:**\\n` +\n  `- **Nombre completo:** ${input.nombre} ${input.apellido}\\n` +\n  `- **Correo electrónico:** ${input.correo_electronico}\\n` +\n  `- **Número de teléfono:** ${input.telefono ?? input.telefono_celular ?? 'No disponible'}\\n` +\n  `- **Ubicación geográfica:** ${input.direccion ?? 'No disponible'}, ${input.ciudad ?? 'No disponible'}, ${input.departamento ?? 'No disponible'}, ${input.nacionalidad ?? 'No disponible'}\\n\\n` +\n  `**Datos personales:**\\n` +\n  `- **Fecha de nacimiento:** ${fechaNacimientoISO}\\n` +\n  `- **Edad:** ${input.edad ?? 'No especificado'}\\n` +\n  `- **Género:** ${input.genero ?? 'No especificado'}\\n\\n` +\n  `**Resumen profesional:**\\n` +\n  `Profesional con experiencia en ${input.titulo ?? 'No especificado'}. Actualmente en búsqueda de nuevas oportunidades laborales.\\n\\n` +\n  `**Experiencia Profesional:**\\n` +\n  `${input.experiencia_profesional ?? 'No especificado'}\\n\\n` +\n  `**Educación:**\\n` +\n  `- **Título:** ${input.titulo ?? 'No especificado'}\\n- **Fecha de inscripción:** ${input.fecha_de_inscripcion ?? 'No disponible'}\\n\\n` +\n  `**Otros datos:**\\n` +\n  `- **Estado Civil:** ${input.estado_civil ?? 'No especificado'}\\n` +\n  `- **Expectativa salarial:** Min: ${input.salario_minimo ?? 'No especificado'}, Max: ${input.salario_maximo ?? 'No especificado'}\\n`;\n\n  // Obtener applyId y jobId correctamente desde input.json\n  const applyId = input.apply_id ?? \"N/A\"; // Si no existe, asignamos \"N/A\"\n  const jobId = input.job_id ?? \"N/A\";\n\n  // Agregar al array de salida con la estructura deseada\n  output.push({\n    json: {\n      candidate_info: candidateInfo,\n      applyId: applyId,\n      jobId: jobId\n    }\n  });\n}\n\n// Devolver el array con la estructura correcta\nreturn output;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        860,
+        700
+      ],
+      "id": "d1890f0f-8db7-4466-9c1c-f7e39fd5d220",
+      "name": "Code"
+    }
+  ],
+  "pinData": {
+    "📌 Trigger - Nueva Relación": [
+      {
+        "json": {
+          "kind": "drive#file",
+          "fileExtension": "xlsx",
+          "copyRequiresWriterPermission": false,
+          "md5Checksum": "bb72724d730f98e37fb45036325a57f1",
+          "writersCanShare": true,
+          "viewedByMe": true,
+          "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "parents": [
+            "1KpP4bUpe4a4DpiNvegG033eJvP5icnq-"
+          ],
+          "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBPz1SfDYbLy9BOY5ed0dlsOb1nJt-H7qSSE7tjZWq00Pzlz1-lYLw1B8CProw7Ujk1I7cOeOUP9-mYUub_YvikwqPWktxCN3OiflQwWlaWIsq0=s220",
+          "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "shared": true,
+          "lastModifyingUser": {
+            "displayName": "MIA Onbotgo",
+            "kind": "drive#user",
+            "me": true,
+            "permissionId": "02916595913416498649",
+            "emailAddress": "mia@onbotgo.com",
+            "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocLP9xUHYC1LBIJo6WepUffk3q6RErOuZPvQ_1KYQleKA_clpQ=s64"
+          },
+          "owners": [
+            {
+              "displayName": "MIA Onbotgo",
+              "kind": "drive#user",
+              "me": true,
+              "permissionId": "02916595913416498649",
+              "emailAddress": "mia@onbotgo.com",
+              "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocLP9xUHYC1LBIJo6WepUffk3q6RErOuZPvQ_1KYQleKA_clpQ=s64"
+            }
+          ],
+          "headRevisionId": "0Bzrlv5MGUpUgYnRRYXdoMHkxV3AzTlFTZ05OV2N2VWFka1V3PQ",
+          "webViewLink": "https://docs.google.com/spreadsheets/d/1Ucn3KZF-kPdq0Mt1rG4bEy_Xhrg5UiEg/edit?usp=drivesdk&ouid=117685071687240209682&rtpof=true&sd=true",
+          "webContentLink": "https://drive.google.com/uc?id=1Ucn3KZF-kPdq0Mt1rG4bEy_Xhrg5UiEg&export=download",
+          "size": "14055",
+          "viewersCanCopyContent": true,
+          "permissions": [
+            {
+              "id": "00452554856954407075",
+              "displayName": "Ricardo Reyes",
+              "type": "user",
+              "kind": "drive#permission",
+              "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocIdfLewBOgcGMCArCxZJrK0-LLEyPMY9Dw4lRIEBNL8_K0I3g=s64",
+              "emailAddress": "ricardo@onbotgo.cl",
+              "role": "writer",
+              "deleted": false,
+              "pendingOwner": false
+            },
+            {
+              "id": "00422699594516130206",
+              "displayName": "Manuel Suarez",
+              "type": "user",
+              "kind": "drive#permission",
+              "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocLePKcaeVbTPbOtEVtiXVPNS40naC1XHujlse5Iqr9bJz27Vw=s64",
+              "emailAddress": "manuel.suarez@onbotgo.pe",
+              "role": "writer",
+              "deleted": false,
+              "pendingOwner": false
+            },
+            {
+              "id": "02916595913416498649",
+              "displayName": "MIA Onbotgo",
+              "type": "user",
+              "kind": "drive#permission",
+              "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocLP9xUHYC1LBIJo6WepUffk3q6RErOuZPvQ_1KYQleKA_clpQ=s64",
+              "emailAddress": "mia@onbotgo.com",
+              "role": "owner",
+              "deleted": false,
+              "pendingOwner": false
+            }
+          ],
+          "hasThumbnail": true,
+          "spaces": [
+            "drive"
+          ],
+          "id": "1Ucn3KZF-kPdq0Mt1rG4bEy_Xhrg5UiEg",
+          "name": "Example_Excel_Apply.xlsx",
+          "starred": false,
+          "trashed": false,
+          "explicitlyTrashed": false,
+          "createdTime": "2025-03-17T19:59:24.297Z",
+          "modifiedTime": "2025-03-17T19:46:11.000Z",
+          "modifiedByMeTime": "2025-03-17T19:46:11.000Z",
+          "viewedByMeTime": "2025-03-17T19:59:24.297Z",
+          "quotaBytesUsed": "14055",
+          "version": "3",
+          "originalFilename": "Example_Excel_Apply.xlsx",
+          "ownedByMe": true,
+          "fullFileExtension": "xlsx",
+          "isAppAuthorized": false,
+          "capabilities": {
+            "canChangeViewersCanCopyContent": true,
+            "canEdit": true,
+            "canCopy": true,
+            "canComment": true,
+            "canAddChildren": false,
+            "canDelete": true,
+            "canDownload": true,
+            "canListChildren": false,
+            "canRemoveChildren": false,
+            "canRename": true,
+            "canTrash": true,
+            "canReadRevisions": true,
+            "canChangeCopyRequiresWriterPermission": true,
+            "canMoveItemIntoTeamDrive": true,
+            "canUntrash": true,
+            "canModifyContent": true,
+            "canMoveItemOutOfDrive": true,
+            "canAddMyDriveParent": false,
+            "canRemoveMyDriveParent": true,
+            "canMoveItemWithinDrive": true,
+            "canShare": true,
+            "canMoveChildrenWithinDrive": false,
+            "canModifyContentRestriction": true,
+            "canChangeSecurityUpdateEnabled": false,
+            "canAcceptOwnership": false,
+            "canReadLabels": true,
+            "canModifyLabels": true,
+            "canModifyEditorContentRestriction": true,
+            "canModifyOwnerContentRestriction": true,
+            "canRemoveContentRestriction": false,
+            "canDisableInheritedPermissions": false,
+            "canEnableInheritedPermissions": true
+          },
+          "thumbnailVersion": "1",
+          "modifiedByMe": true,
+          "permissionIds": [
+            "00452554856954407075",
+            "00422699594516130206",
+            "02916595913416498649"
+          ],
+          "linkShareMetadata": {
+            "securityUpdateEligible": false,
+            "securityUpdateEnabled": true
+          },
+          "sha1Checksum": "440548bf84589a00c9d4b870962a645a5c6b32c9",
+          "sha256Checksum": "6b483cd4d97f86691d3195c19b19ccc4b88e10f3c37e32060d9ac9b2e9032530",
+          "inheritedPermissionsDisabled": false
+        }
+      }
+    ]
+  },
+  "connections": {
+    "📌 Trigger - Nueva Relación": {
+      "main": [
+        [
+          {
+            "node": "📥 Descargar Archivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 Descargar Archivo": {
+      "main": [
+        [
+          {
+            "node": "👤 Extraer Datos de Postulantes",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "📄 Extraer Datos del Anuncio",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📄 Extraer Datos del Anuncio": {
+      "main": [
+        [
+          {
+            "node": "📄 Transformación Datos del Anuncio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "👤 Extraer Datos de Postulantes": {
+      "main": [
+        [
+          {
+            "node": "🔀 Merge Datos Anuncio y Postulantes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔀 Merge Datos Anuncio y Postulantes": {
+      "main": [
+        [
+          {
+            "node": "Limpieza de datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📄 Transformación Datos del Anuncio": {
+      "main": [
+        [
+          {
+            "node": "🔀 Merge Datos Anuncio y Postulantes",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "ObtieneCelular",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register_Apply": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limpieza de datos": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ObtieneCelular": {
+      "main": [
+        [
+          {
+            "node": "Register_Apply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "llamar a evaluador": {
+      "main": [
+        []
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "llamar a evaluador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "dfb0dc02-21f9-40b0-b928-54d7c296e2cf",
+  "meta": {
+    "instanceId": "1dae253b8ed4fa2ae6cc1a1b54e20169a0e4eef838c1eca58506dcd1699582a0"
+  },
+  "id": "chFT3XE9VUq9d8rO",
+  "tags": []
+}

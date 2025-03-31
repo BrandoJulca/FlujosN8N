@@ -1,0 +1,173 @@
+{
+  "name": "(TEST)Talento_Agentes_Flow_Responder_ADMIN_Ricardo",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b54e8f1f-085a-4cc4-ba53-52e2e218e5fc",
+              "name": "Cel_a_contactar",
+              "value": "51934474263",
+              "type": "string"
+            },
+            {
+              "id": "db251299-0f99-4933-ae88-45766d4eb8c2",
+              "name": "Nombre_a_contactar",
+              "value": "Manuel",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        100,
+        -80
+      ],
+      "id": "9fee9e17-6667-454c-808e-569a2da7204e",
+      "name": "Datos_de_Contactado",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "041203e9-0016-4701-88b5-0fb6a1de03a5",
+              "name": "Mensaje",
+              "value": "=ℹ️ **¡ATENCIÓN!** ℹ️ \n\n{{ $json.Nombre_a_contactar }}, hemos detectado que no hay slots de entrevista disponibles para los anuncios de agenda cerrada.\n\nPor favor, crea nuevos slots de entrevista lo antes posible.\n\nVolveremos a intentar en 30 minutos.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        300,
+        -80
+      ],
+      "id": "f8058e4a-ff7e-4b51-86c3-aa0f33c97329",
+      "name": "Mensaje",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "=BJ",
+        "remoteJid": "={{ $('Datos_de_Contactado').item.json.Cel_a_contactar }}",
+        "messageText": "={{ $json.Mensaje }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        500,
+        -80
+      ],
+      "id": "3e9a8128-121c-4f20-a4ae-9a529ca10593",
+      "name": "Envia_mensaje",
+      "credentials": {
+        "evolutionApi": {
+          "id": "t4TvwUFJqLA4AgmQ",
+          "name": "Evolution account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        -80
+      ],
+      "id": "58d30357-2ba1-4ebb-837c-429540483c0f",
+      "name": "Execute Workflow Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7c3cf8c8-6b6b-439e-8082-5c0042d88be6",
+              "name": "response",
+              "value": "={{ $json }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        -80
+      ],
+      "id": "f73c85c9-2093-496a-a86b-be95c7267099",
+      "name": "Response"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Datos_de_Contactado": {
+      "main": [
+        [
+          {
+            "node": "Mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje": {
+      "main": [
+        [
+          {
+            "node": "Envia_mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Datos_de_Contactado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envia_mensaje": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d682ecd5-2d34-4ad7-9b70-f102ef008cc0",
+  "meta": {
+    "instanceId": "1dae253b8ed4fa2ae6cc1a1b54e20169a0e4eef838c1eca58506dcd1699582a0"
+  },
+  "id": "uyLNveXQQl1Lc3E7",
+  "tags": []
+}
