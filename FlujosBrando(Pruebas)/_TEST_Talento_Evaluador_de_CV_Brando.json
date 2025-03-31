@@ -1,0 +1,1268 @@
+{
+  "name": "(TEST)Talento_Evaluador_de_CV_Brando",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        1000
+      ],
+      "id": "65f8a142-6343-4f39-b914-5f459647cebc",
+      "name": "Execute Workflow Trigger"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        940,
+        1000
+      ],
+      "id": "8adbed1c-a93b-4794-899c-76e51a0f3710",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Este código toma un array de objetos con estructura definida:\n// [0]: Información del trabajo\n// [1]: Información del postulante\n// [2...n]: Criterios de evaluación\n// Y genera un único prompt consolidado en formato XML-like\n\n// Obtener los datos del array de entrada\nconst items = $input.all();\n\n// Verificar que hay suficientes elementos en el array\nif (!items || items.length < 3) {\n  throw new Error('Se requieren al menos 3 elementos: trabajo, postulante y al menos un criterio');\n}\n\n// Extraer datos del trabajo (primer elemento)\nconst jobInfo = items[0].json;\n// Extraer datos del postulante (segundo elemento)\nconst candidateInfo = items[1].json;\n// Extraer criterios (elementos restantes, desde el índice 2 en adelante)\nconst criteriosArray = items.slice(2).map(item => item.json);\n\n// Extraer el ID de aplicación del candidato\nconst applyId = candidateInfo.applyId || \"\";\n// Extraer la descripción del trabajo\nlet jobDescription = jobInfo.description || \"\";\n// Extraer la información del candidato\nlet candidateInfoText = candidateInfo.candidate_info || \"\";\n\n// Crear estructura XML-like para criterios\nlet criteriosXml = \"\";\ncriteriosArray.forEach(criterio => {\n  criteriosXml += `  <criterio>\n    <criterioId>${criterio.id || \"\"}</criterioId>\n    <descripcion>${criterio.description || criterio.name || \"\"}</descripcion>\n    <cumple></cumple>\n    <justificacion></justificacion>\n  </criterio>\\n`;\n});\n\n// Crear estructura XML-like completa\nconst xmlPrompt = `<evaluacionCandidato>\n  <appID>${applyId}</appID>\n  <modalidad>Presencial</modalidad>\n  <job_description>${escapeXml(jobDescription)}</job_description>\n  <candidate_info>${escapeXml(candidateInfoText)}</candidate_info>\n  <criterios>\n${criteriosXml}  </criterios>\n</evaluacionCandidato>`;\n\n// Función para escapar caracteres especiales XML\nfunction escapeXml(unsafe) {\n  if (!unsafe) return \"\";\n  return unsafe\n    .replace(/&/g, \"&amp;\")\n    .replace(/</g, \"&lt;\")\n    .replace(/>/g, \"&gt;\")\n    .replace(/\"/g, \"&quot;\")\n    .replace(/'/g, \"&apos;\");\n}\n\n// Crear el único item con el prompt consolidado en formato XML-like\nreturn [\n  {\n    json: {\n      prompt: xmlPrompt\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        1000
+      ],
+      "id": "693181bb-4e86-4baf-ba26-056a694647e2",
+      "name": "UserPrompt"
+    },
+    {
+      "parameters": {
+        "content": "# Evaluador",
+        "height": 660,
+        "width": 2000,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -200,
+        700
+      ],
+      "typeVersion": 1,
+      "id": "bbe4ae8a-5822-491d-a552-496b71978579",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        1220
+      ],
+      "id": "9f9734fd-f978-4a6a-930d-f1d195881f0d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PeunFWePZcSKKmbB",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1964977608,
+          "mode": "list",
+          "cachedResultName": "criteria",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1964977608"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        440,
+        1160
+      ],
+      "id": "2e36121e-af2e-44bd-9baf-6c586f5fd699",
+      "name": "get criterias1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d42e4dc4-12d2-4bfe-a059-0a3277da755c",
+              "leftValue": "={{ $json }}",
+              "rightValue": "={{ $('Execute Workflow Trigger').item.json.jobId }}",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        640,
+        1160
+      ],
+      "id": "6825d121-f76c-4380-8f35-0e8c8c883bc5",
+      "name": "Obtiene Criterias1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4ffd93fd-0956-4bae-b917-fd24a33fecbe",
+              "name": "candidate_info",
+              "value": "={{ $json }}",
+              "type": "string"
+            },
+            {
+              "id": "6a3e55f6-4c5d-4b48-aab4-5567cc0e3ff7",
+              "name": "jobId",
+              "value": "={{ $json.jobId }}",
+              "type": "string"
+            },
+            {
+              "id": "83cd3dcd-e9b0-497f-865f-67d86f510e94",
+              "name": "applyId",
+              "value": "={{ $json.applyId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        540,
+        1000
+      ],
+      "id": "4d057992-daf0-4d9b-8428-24388eb2b5b0",
+      "name": "get_response2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=*Roles*: Agente de Evaluación de Candidatos para Call Center (Experto en Behavioral Event Interviewing y Método STAR).\n\n*Backstory*: Reclutador experto con 15+ años de experiencia en centros de contacto. Especialista en detección de alto rendimiento mediante análisis de competencias, indicadores predictivos de rotación y job matching. Utiliza técnicas como screening multicapa y FOCA (Fortalezas, Oportunidades, Competencias, Aspiraciones).\n\n*Scope*:\n\n*   *Entrada: JSON con los siguientes campos *obligatorios:\n    *   appID (String): ID del candidato.\n    *   nombre (String): Nombre del candidato.\n    *   telefono (String): Teléfono del candidato.\n    *   email (String): Email del candidato.\n    *   modalidad (String): Modalidad de trabajo (Remoto, Híbrido, Presencial). Si no se especifica, usar \"Presencial\". Extraer de job_description si está presente.\n    *   job_description (String): Descripción del puesto.\n    *   candidate_info (String): Resumen del CV del candidato o información relevante.\n    *   criterias (Array de Objetos): Criterios específicos de evaluación. **ATENCIÓN: SIEMPRE procesarás TODOS los criterios que aparezcan en este array, sin excepción.** Cada objeto tiene:\n        *   criterioId (String): ID único del criterio.\n        *   criterio (String): Descripción del criterio.\n        *   cumple (Boolean, Opcional):  Valor pre-asignado (true/false). Si está presente, usar este valor y solo actualizar la justificacion.\n        *   justificacion (String): Justificación del criterio.\n\n*   *Salida: JSON con la evaluación del candidato. El formato *debe seguir estrictamente este schema:\n\n    json\n    {\n      \"type\": \"object\",\n      \"required\": [\"appID\", \"nombre\", \"telefono\", \"email\", \"modalidad\", \"evaluacion\", \"nivelPerfil\", \"razonPrincipal\", \"aspectosPositivos\", \"evaluacionDetallada\"],\n      \"properties\": {\n        \"appID\": {\"type\": \"string\"},\n        \"nombre\": {\"type\": \"string\"},\n        \"telefono\": {\"type\": \"string\"},\n        \"email\": {\"type\": \"string\"},\n        \"modalidad\": {\"type\": \"string\"},\n        \"evaluacion\": {\n          \"type\": \"string\",\n          \"enum\": [\"APTO ✅\", \"NO APTO ❌\"],\n          \"description\": \"Resultado de la evaluación\"\n        },\n        \"nivelPerfil\": {\n          \"type\": \"string\",\n          \"enum\": [\"⭐\", \"⭐⭐\", \"⭐⭐⭐\", \"❌\"],\n          \"description\": \"Nivel de perfil del candidato. Usar '❌' si es NO APTO\"\n        },\n        \"razonPrincipal\": {\"type\": \"string\"},\n        \"aspectosPositivos\": {\"type\": \"string\"},\n        \"evaluacionDetallada\": {\n          \"type\": \"array\",\n          \"description\": \"***OBLIGATORIO*** incluir ***ABSOLUTAMENTE TODOS*** los criterios de `criterias`, sin excepción.\",\n          \"items\": {\n            \"type\": \"object\",\n            \"required\": [\"criterioId\", \"criterio\", \"cumple\", \"justificacion\"],\n            \"properties\": {\n              \"criterioId\": {\"type\": \"string\"},\n              \"criterio\": {\"type\": \"string\"},\n              \"cumple\": {\n                \"type\": [\"boolean\", \"null\"],\n                \"description\": \"true, false o null si no hay información suficiente\"\n              },\n              \"justificacion\": {\"type\": \"string\"}\n            }\n          }\n        }\n      }\n    }\n    \n\n*Command*:\n\n1.  *Análisis Inicial: Leer *TODOS los datos del JSON de entrada. **ATENCIÓN PRIMORDIAL** a criterias, que contiene un array de objetos que DEBES procesar completamente.\n   \n2.  *Evaluación de ABSOLUTAMENTE TODOS los Criterios (evaluacionDetallada)*:\n    * **ESENCIAL:** DEBES evaluar CADA UNO de los criterios en el array criterias. Ningún criterio puede quedar sin evaluar.\n    * **BAJO NINGUNA CIRCUNSTANCIA** debes omitir algún criterio del array original.\n    * **RECUENTO OBLIGATORIO:** Antes de continuar, cuenta exactamente cuántos criterios hay en criterias y asegúrate de que evaluacionDetallada contiene exactamente ese mismo número de criterios.\n    *   Para cada criterio en el array criterias:\n        *   Si cumple ya tiene un valor (true/false), mantener ese valor. Solo actualizar justificacion.\n        *   Si cumple no tiene valor (es null o no existe), evaluar el criterio comparando candidate_info y job_description.\n        *   Asignar cumple: true, false, o null si no hay suficiente información.\n        *   Proporcionar justificacion breve (máx. 30 palabras) con evidencia específica.\n    * **VERIFICACIÓN FINAL DE CRITERIOS:** Antes de generar la salida, verifica una última vez que TODOS los criterios del array criterias de entrada estén incluidos en evaluacionDetallada y en el MISMO ORDEN.\n\n3.  *Evaluación General (evaluacion y nivelPerfil)*:\n    *   Determinar evaluacion y nivelPerfil basándose en TODOS los criterios evaluados.\n    *   Verificar que la modalidad sea compatible con la información del candidato.\n\n4.  *Justificación (razonPrincipal)*:\n    *   Explicación breve (máx. 50 palabras) de la decisión, citando evidencia específica.\n\n5.  *Aspectos Positivos (aspectosPositivos)*:\n    *   Mencionar al menos 1-2 aspectos positivos del candidato, incluso si es \"NO APTO ❌\".\n\n6.  *Validación Final: *Verificación exhaustiva antes de generar la salida:\n    * **VERIFICACIÓN DE CRITERIOS:** ¿Se han evaluado e incluido ABSOLUTAMENTE TODOS los criterios originales en evaluacionDetallada?\n    * **CONTEO DE CRITERIOS:** ¿El número de criterios en evaluacionDetallada es EXACTAMENTE igual al número de criterios en criterias?\n    * **ORDEN DE CRITERIOS:** ¿Los criterios en evaluacionDetallada están en el MISMO ORDEN que en criterias?\n    * Validar que el JSON de salida cumpla estrictamente el formato especificado.\n    * Asegurar que todas las justificaciones sean breves y basadas en evidencia.\n    * Confirmar que no hay información inventada.\n    * Verificar que la evaluación es coherente con la información proporcionada.\n\n*Format*:\n\n*   *Salida: JSON (ver estructura arriba). *Validar cuidadosamente la sintaxis JSON antes de la salida.\n*   *Tono: Profesional, objetivo, *estrictamente basado en datos. Sin opiniones personales.\n\n*Constraints*:\n\n*   **CRÍTICO:** No inventar información. Si no hay datos, usar null en cumple.\n*   **CRÍTICO:** DEBES evaluar TODOS los criterios del array criterias. CADA UNO debe aparecer en evaluacionDetallada.\n*   **CRÍTICO:** El array evaluacionDetallada DEBE contener EXACTAMENTE los mismos criterios, con los mismos criterioId, y en el MISMO ORDEN que el array criterias original.\n*   Sin sesgos.\n*   No recomendar contratación. Solo \"APTO ✅\" o \"NO APTO ❌\".\n*   JSON absolutamente válido y con la estructura exacta.\n*   Justificaciones muy breves (ver límites de palabras).\n*   modalidad por defecto: \"Presencial\".\n*   Respetar formatos de evaluacion y nivelPerfil.\n\n*Requisitos de Modalidad* (verificar en candidate_info):\n\n*   *Remoto*: Mención explícita de equipamiento, conectividad a Internet, o experiencia previa en trabajo remoto.\n*   *Híbrido*: Disponibilidad para acudir presencialmente (mencionado explícitamente o inferido de la ubicación).\n*   *Presencial*: Ubicación compatible o disponibilidad para desplazamiento.\n\n*RECORDATORIO FINAL*: ¡DEBES evaluar TODOS Y CADA UNO de los criterios en el array criterias! Asegúrate de que evaluacionDetallada contenga TODOS los criterios originales, en el MISMO ORDEN, sin omitir ninguno."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1280,
+        1000
+      ],
+      "id": "47e24bea-e547-433d-bfa8-74540f979d67",
+      "name": "Agente Evaluador1",
+      "executeOnce": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "evalutionResult": "=Evaluacion: {{ $json.output.evaluacion }}\nNivel de Perfil:{{ $json.output.nivelPerfil }}\nRazón principal:{{ $json.output.razonPrincipal }}\nAspectos positivos:{{ $json.output.aspectosPositivos }}",
+            "applyId": "={{ $json.output.appID }}",
+            "status": "={{ $json.output.evaluacion }}"
+          },
+          "matchingColumns": [
+            "applyId"
+          ],
+          "schema": [
+            {
+              "id": "jobId",
+              "displayName": "jobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applicantName",
+              "displayName": "applicantName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentType",
+              "displayName": "documentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentNumber",
+              "displayName": "documentNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "cvUrl",
+              "displayName": "cvUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "evalutionResult",
+              "displayName": "evalutionResult",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "applyId",
+              "displayName": "applyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1780,
+        880
+      ],
+      "id": "31e32f67-d316-467f-9203-7dfbd16af707",
+      "name": "EvaluationResult1",
+      "retryOnFail": false,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1603863812,
+          "mode": "list",
+          "cachedResultName": "evaluations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1603863812"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "appID": "={{ $json.output.appID }}",
+            "applicantName": "={{ $json.output.nombre }}",
+            "phone": "={{ $json.output.telefono }}",
+            "email": "={{ $json.output.email }}",
+            "workMode": "={{ $json.output.modalidad }}",
+            "evalutionResult": "={{ $json.output.evaluacion }}",
+            "profileLevel": "={{ $json.output.nivelPerfil }}",
+            "summaries": "={{ $json.output.razonPrincipal }}",
+            "goodSide": "={{ $json.output.aspectosPositivos }}",
+            "evalID": "={{ Date.now().toString(36).substring(0, 4).toUpperCase() + Array.from({ length: 6 }, () => Math.floor(Math.random() * 36).toString(36).toUpperCase()).join('') }}\n"
+          },
+          "matchingColumns": [
+            "evalID"
+          ],
+          "schema": [
+            {
+              "id": "evalID",
+              "displayName": "evalID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appID",
+              "displayName": "appID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "applicantName",
+              "displayName": "applicantName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "workMode",
+              "displayName": "workMode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "evalutionResult",
+              "displayName": "evalutionResult",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "profileLevel",
+              "displayName": "profileLevel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summaries",
+              "displayName": "summaries",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "goodSide",
+              "displayName": "goodSide",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1780,
+        1040
+      ],
+      "id": "7a2ccbbd-84ff-4c97-9df7-8f8a3792ed1f",
+      "name": "Evaluations1",
+      "retryOnFail": false,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1126521004,
+          "mode": "list",
+          "cachedResultName": "evaluationsDetail",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1126521004"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Id": "={{ Date.now().toString(36).substring(0, 4).toUpperCase() + Array.from({ length: 6 }, () => Math.floor(Math.random() * 36).toString(36).toUpperCase()).join('') }}",
+            "appId": "={{ $json.appId }}",
+            "criteries": "={{ $json.criteries }}",
+            "compliance": "={{ $json.compliance }}",
+            "reason": "={{ $json.reason }}",
+            "criteriaId": "={{ $json.criterieId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "criteriaId",
+              "displayName": "criteriaId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appId",
+              "displayName": "appId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "criteries",
+              "displayName": "criteries",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "compliance",
+              "displayName": "compliance",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reason",
+              "displayName": "reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1780,
+        1200
+      ],
+      "id": "a5e4f766-f090-433f-ae4e-1a25e2dec2c0",
+      "name": "EvaluationsDetail1",
+      "retryOnFail": false,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recorrer cada item recibido\nreturn $input.all().flatMap(item => {\n    // Parseamos el JSON dentro del campo \"output\"\n    const data = item.json.output;\n    \n    // Obtener la lista de evaluaciones detalladas\n    const criterios = data.evaluacionDetallada;\n\n    // Generar un ID único para cada fila\n    const generateId = () => \n        Date.now().toString(36).substring(0, 4).toUpperCase() +\n        Array.from({ length: 6 }, () => Math.floor(Math.random() * 36).toString(36).toUpperCase()).join('');\n\n    // Crear una estructura para cada criterio en la evaluación\n    return criterios.map(criterio => ({\n        json: {\n            Id: generateId(),\n            appId: data.appID, // Extraer appID del JSON\n\n            criterieId: criterio.criterioId,\n            criteries: criterio.criterio, // Nombre del criterio evaluado\n            compliance: criterio.cumple, // Cumple o no cumple\n            reason: criterio.justificacion // Justificación de la evaluación\n        }\n    }));\n});\n"
+      },
+      "name": "Process Evaluation Criteria1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        1140
+      ],
+      "id": "916383d2-bc49-4251-98c1-527e437393ae"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"required\": [\"appID\", \"nombre\", \"telefono\", \"email\", \"modalidad\", \"evaluacion\", \"nivelPerfil\", \"razonPrincipal\", \"aspectosPositivos\", \"evaluacionDetallada\"],\n  \"properties\": {\n    \"appID\": {\"type\": \"string\"},\n    \"nombre\": {\"type\": \"string\"},\n    \"telefono\": {\"type\": \"string\"},\n    \"email\": {\"type\": \"string\"},\n    \"modalidad\": {\"type\": \"string\"},\n    \"evaluacion\": {\n      \"type\": \"string\",\n      \"enum\": [\"APTO ✅\", \"NO APTO ❌\"],\n      \"description\": \"Resultado de la evaluación\"\n    },\n    \"nivelPerfil\": {\n      \"type\": \"string\",\n      \"enum\": [\"⭐\", \"⭐⭐\", \"⭐⭐⭐\", \"❌\"],\n      \"description\": \"Nivel de perfil del candidato. Usar '❌' si es NO APTO\"\n    },\n    \"razonPrincipal\": {\"type\": \"string\"},\n    \"aspectosPositivos\": {\"type\": \"string\"},\n    \"evaluacionDetallada\": {\n      \"type\": \"array\",\n      \"description\": \"**OBLIGATORIO* incluir *ABSOLUTAMENTE TODOS** los criterios de criterias, sin excepción.\",\n      \"items\": {\n        \"type\": \"object\",\n        \"required\": [\"criterioId\", \"criterio\", \"cumple\", \"justificacion\"],\n        \"properties\": {\n          \"criterioId\": {\"type\": \"string\"},\n          \"criterio\": {\"type\": \"string\"},\n          \"cumple\": {\n            \"type\": [\"boolean\", \"null\"],\n            \"description\": \"true, false o null si no hay información suficiente\"\n          },\n          \"justificacion\": {\"type\": \"string\"}\n        }\n      }\n    }\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1480,
+        1220
+      ],
+      "id": "1dc25470-5bda-4715-b67a-5c6d200425d6",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d42e4dc4-12d2-4bfe-a059-0a3277da755c",
+              "leftValue": "={{ $json }}",
+              "rightValue": "={{ $('Execute Workflow Trigger').item.json.jobId }}",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        640,
+        840
+      ],
+      "id": "1c5334ea-eecd-459b-ae51-574e5f44ab70",
+      "name": "Obtiene desc job",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2129097737,
+          "mode": "list",
+          "cachedResultName": "jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=2129097737"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        440,
+        840
+      ],
+      "id": "8a75ef8e-9854-4a81-ab9b-d4ce8d868b63",
+      "name": "get jobs",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        280,
+        1000
+      ],
+      "id": "d8fc7b45-480c-4af2-9287-ab46a63e6304",
+      "name": "Wait1",
+      "webhookId": "17e2730b-bcbf-47bb-991e-96bb6c413a9f"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "applyId": "={{ $json.output.appID }}",
+            "status": "={{ $json.output.evaluacion }}"
+          },
+          "matchingColumns": [
+            "applyId"
+          ],
+          "schema": [
+            {
+              "id": "jobId",
+              "displayName": "jobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applicantName",
+              "displayName": "applicantName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentType",
+              "displayName": "documentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentNumber",
+              "displayName": "documentNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "cvUrl",
+              "displayName": "cvUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "evalutionResult",
+              "displayName": "evalutionResult",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applyId",
+              "displayName": "applyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1780,
+        720
+      ],
+      "id": "c3177906-b8d5-4cb0-9043-2ec6735d2c5a",
+      "name": "ChangeStatus1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "Pasa a ser Evaluado",
+            "applyId": "={{ $json.applyId }}"
+          },
+          "matchingColumns": [
+            "applyId"
+          ],
+          "schema": [
+            {
+              "id": "jobId",
+              "displayName": "jobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applicantName",
+              "displayName": "applicantName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentType",
+              "displayName": "documentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentNumber",
+              "displayName": "documentNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "cvUrl",
+              "displayName": "cvUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "evalutionResult",
+              "displayName": "evalutionResult",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applyId",
+              "displayName": "applyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -20,
+        1000
+      ],
+      "id": "894dbbbd-fbad-4096-aa31-a1263a3f48ef",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Execute Workflow Trigger": [
+      {
+        "json": {
+          "candidate_info": "**Información personal y de contacto:**\n- **Nombre completo:** Manuel Antonio Guillermo\n- **Correo electrónico:** antoniogts434@gmail.com\n- **Número de teléfono:** 51999222111\n- **Ubicación geográfica:** No disponible, Los Olivos, Lima, Perú\n\n**Datos personales:**\n- **Fecha de nacimiento:** 1999-12-04\n- **Edad:** 25 Años\n- **Género:** Hombre\n\n**Resumen profesional:**\nProfesional con experiencia en Administración de empresas. Actualmente en búsqueda de nuevas oportunidades laborales.\n\n**Experiencia Profesional:**\nRecursos humanos, American Industries \n10/2021-07/2022\n•  Elaboración de diagrama de flujo de cada departamento de acuerdo a sus procesos (Bizagi) y diagrama de GANT.\t•  Experiencia en Recursos Humanos 9 meses (Renovación de contratos, planilla, asistencias, clima laboral, pacíficos seguros)\t•  MOF, ROF, RIT\t•  Conocimiento en facturas, boletas, nota de crédito.\t•  Control de cuentas por cobrar y cuentas por pagar\t•  Experiencia en créditos y cobranzas con conocimiento en uso del Portal Equifax (Infocorp).\n\n---------\nCobranzas, GRUPO KOBSA\n01/2020-06/2020\n•\texperiencia en call center (cobranzas en Entel y Scotiabank\n\n---------\nAtención al cliente, COMERCIAL EL SUR SRL.\n01/2018-03/2019\n●\tProporcionar a los clientes información y soporte con relación a los productos de melamine, nordex, trupan, triplay, tapacantos y artículos de carpintería en general\t●\tVenta de los productos de la empresa antes mencionados.\t●\tRealizar llamadas a los clientes\t●\tManejo de reclamos/quejas\t●\tRealizar cualquier otra tarea afín que me sea asignada\n\n---------\nAsistente de Recursos Humanos,  PHILOMELA PE S.A.C.\n03/2023-07/2023\n•\tRenovación de contratos\t•\tPlanillas\t•\tControl de asistencia y sanciones \t•\tReclutamiento y selección (Compu trabajo, Indeep, ministerio de trabajo)\t•\tEntrevistas laborales\n\n---------\nAnalistas de reclutamiento y selección, APPLICATION CALL GROUP\n07/2024-09/2024\n.Encargado del área de reclutamiento y selección.\t.Entrevistas\n\n---------\nCajero, Apuesta Total\n01/2024-02/2024\nCajero de apuestas deportivas\n\n---------\nCajero, La granja\n11/2022-11/2023\n1 año desempeñando el cargo de atención al cliente y caja.\n\n**Educación:**\n- **Título:** Administración de empresas\n- **Fecha de inscripción:** 2025-02-25T00:00:00.000Z\n\n**Otros datos:**\n- **Estado Civil:** No especificado\n- **Expectativa salarial:** Min: 1025., Max: 0\n",
+          "applyId": "M8DISER0LV",
+          "jobId": "JOB001"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "UserPrompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UserPrompt": {
+      "main": [
+        [
+          {
+            "node": "Agente Evaluador1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Evaluador1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get criterias1": {
+      "main": [
+        [
+          {
+            "node": "Obtiene Criterias1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtiene Criterias1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "get_response2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Agente Evaluador1": {
+      "main": [
+        [
+          {
+            "node": "EvaluationResult1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Evaluations1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Process Evaluation Criteria1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ChangeStatus1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Evaluation Criteria1": {
+      "main": [
+        [
+          {
+            "node": "EvaluationsDetail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Agente Evaluador1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtiene desc job": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get jobs": {
+      "main": [
+        [
+          {
+            "node": "Obtiene desc job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "get jobs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "get criterias1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "get_response2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7ca167d0-f821-4fb9-b524-243476e9f39f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1dae253b8ed4fa2ae6cc1a1b54e20169a0e4eef838c1eca58506dcd1699582a0"
+  },
+  "id": "9BcjqjGGKsFY8zWe",
+  "tags": []
+}

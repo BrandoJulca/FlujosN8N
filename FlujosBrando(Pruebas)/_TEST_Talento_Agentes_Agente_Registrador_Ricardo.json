@@ -1,0 +1,600 @@
+{
+  "name": "(TEST)Talento_Agentes_Agente_Registrador_Ricardo",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "3ef1c811-382f-4439-8afc-63c4bcb17509",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -420,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        20,
+        220
+      ],
+      "id": "04546f99-eec4-4c5c-847f-4d90b2015274",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PeunFWePZcSKKmbB",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "32ab0507-ea3c-4f80-963c-d8e15d78da79",
+              "name": "response",
+              "value": "={{ $json.output || $json.error}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        940,
+        0
+      ],
+      "id": "636871f8-0d1c-41df-ba97-04b5730a5edf",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Call this tool to get information about the job the candidate applied for.  Use the 'jobId' from the candidate's application data to retrieve the correct job details.",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2129097737,
+          "mode": "list",
+          "cachedResultName": "jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=2129097737"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "id",
+              "lookupValue": "={{ $fromAI(\"jobId\", \"The ID of the job the candidate applied for.  This ID should be obtained from the candidate's application data (likely from the 'Obtener Datos del Postulante' tool).\", \"string\") }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        260,
+        220
+      ],
+      "id": "53806c00-4b4c-4b67-9e87-2a90be4b88be",
+      "name": "Obtener Trabajo",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Execute Workflow Trigger').item.json.query.sessionId }}",
+        "sessionTTL": 1440,
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.4,
+      "position": [
+        140,
+        220
+      ],
+      "id": "55c7638a-8b84-4d79-b4ff-54324588aa6b",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "FuTe9qrxkR9cRWmA",
+          "name": "Automation Redis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "includeInputFields": true
+        }
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        -200,
+        0
+      ],
+      "id": "113ec149-9c25-49b5-94b3-d4146e59ebf3",
+      "name": "Hora Actual"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Updates the candidate's status in the 'apply' sheet of the 'TALENTO | ANUNCIOS' Google Sheet.  Searches for the candidate by WhatsApp number (extracts the number from the sessionId, e.g., '51925797402' from '51925797402@s.whatsapp.net'). Updates the 'status' column with one of: 'scheduled', 'rescheduled', 'cancelled', 'pending', 'completed', 'error'. Also updates the 'email' column, but only if the candidate has explicitly confirmed it.",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "phone": "={{ $('Hora Actual').item.json.query.sessionId.split(\"@\")[0] }}",
+            "status": "=Registra la Aplicación",
+            "jobId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('jobId', `ID del trabajo seleccionado por el candidato`, 'string') }}",
+            "email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('email', `Email proporcionado por el candidato`, 'string') }}",
+            "applicantName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('applicantName', `Nombre completo del candidato`, 'string') }}",
+            "documentType": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('documentType', `Tipo de documento proporcionado (DNI, CE, etc.)`, 'string') }}",
+            "documentNumber": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('documentNumber', `URL del CV proporcionado por el candidato`, 'string') }}",
+            "cvUrl": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('cvUrl', `URL del CV proporcionado por el candidato`, 'string') }}",
+            "applyId": "={{ \n  new Date().getTime().toString(32) + \n  Math.random().toString(32).slice(2) + \n  Math.random().toString(32).slice(2)\n}}",
+            "source": "whatsapp"
+          },
+          "matchingColumns": [
+            "phone"
+          ],
+          "schema": [
+            {
+              "id": "jobId",
+              "displayName": "jobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "applicantName",
+              "displayName": "applicantName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "documentType",
+              "displayName": "documentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "documentNumber",
+              "displayName": "documentNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cvUrl",
+              "displayName": "cvUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "evalutionResult",
+              "displayName": "evalutionResult",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applyId",
+              "displayName": "applyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        500,
+        220
+      ],
+      "id": "8a36ba21-c34d-424e-8bf8-3c3fa6cac5b5",
+      "name": "Update Candidate Status",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Retrieves candidate data from the 'apply' sheet of the 'TALENTO | ANUNCIOS' Google Sheet. Searches by WhatsApp number (extracts the number from the sessionId, e.g., '51925797402' from '51925797402@s.whatsapp.net'). **The email returned is only a suggestion; do not use it for scheduling unless the candidate explicitly confirms they want to receive the meeting invite at that address.**",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "phone",
+              "lookupValue": "={{ $('Execute Workflow Trigger').item.json.query.sessionId.split(\"@\")[0] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        380,
+        220
+      ],
+      "id": "cfe4685c-6c14-4e92-98cc-cee1bc780432",
+      "name": "Obtener Datos del Postulante",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.toJsonString() }}",
+        "options": {
+          "systemMessage": "=## **Roles**:\n- **Orquestador del Registro**: Tu función principal es orquestar el uso de las herramientas disponibles (`Obtener Datos del Postulante`, `Obtener Trabajos Activos por Tipo`, `Get Jobs By Name`, `Obtener Trabajo`, `Update Candidate Status`) para guiar eficientemente al candidato a través del proceso de registro.\n- **Guía de Registro Adaptativo**: Ajustas la estrategia (solicitud grupal vs. individual) según la interacción del candidato.\n- **Recolector y Validador Estratégico**: Priorizas la obtención y validación del `jobId` y luego recopilas los datos restantes en secuencia lógica.\n- **Actualizador Persistente**: Aseguras que cada nueva pieza de información se guarde inmediatamente usando `Update Candidate Status`.\n\n## **Herramientas Disponibles y su Uso**:\n1.  **`Obtener Datos del Postulante`**:\n    *   **Cuándo Usar**: **SIEMPRE** al inicio de la interacción Y **ANTES** de solicitar cualquier dato o grupo de datos.\n    *   **Propósito**: Verificar si el candidato existe, obtener datos ya registrados (incluyendo `jobId`, `email` - *solo como sugerencia*), e identificar qué información falta. Usa el `phone` extraído del `sessionId` para buscar.\n2.  **`Obtener Trabajos Activos por Tipo`**:\n    *   **Cuándo Usar**: **SOLO** si el `jobId` es desconocido Y el candidato menciona un *área general* de interés (e.g., \"ventas\", \"atención al cliente\") pero no un título específico.\n    *   **Propósito**: Obtener una lista de *todos* los trabajos activos para presentar opciones iniciales amplias. Filtra por `status=Active`.\n3.  **`Get Jobs By Name`**:\n    *   **Cuándo Usar**: **CRUCIAL** para identificar el `jobId` cuando el candidato:\n        *   Menciona un **título de trabajo específico**.\n        *   Selecciona una **opción numérica** (1, 2, 3) de una lista previamente presentada (extraída de `Obtener Trabajos Activos por Tipo` o contexto).\n    *   **Propósito**: Obtener el registro completo del trabajo (incluyendo el **`jobId` único**) filtrando por `title` (que tú debes extraer del mensaje o contexto) y `status=Active`.\n4.  **`Obtener Trabajo`**:\n    *   **Cuándo Usar**: Opcionalmente, *después* de que el `jobId` ya esté identificado y guardado, si necesitas obtener nuevamente los detalles completos de ese trabajo específico usando su `jobId`. No es la herramienta principal para *encontrar* el `jobId` basado en el título.\n    *   **Propósito**: Recuperar detalles de un trabajo específico usando su `jobId`.\n5.  **`Update Candidate Status`**:\n    *   **Cuándo Usar**: **INMEDIATAMENTE DESPUÉS** de obtener y confirmar CUALQUIER nueva pieza de información (incluyendo el `jobId` inicial, `applicantName`, `email`, `documentType`, `documentNumber`, `cvUrl`).\n    *   **Propósito**: Guardar/Actualizar el perfil del candidato en la hoja 'apply'. Debes proporcionar todos los campos conocidos (`jobId`, `applicantName`, `email`, `documentType`, `documentNumber`, `cvUrl`) para la actualización. Usa el `phone` extraído del `sessionId` para buscar/identificar la fila. Establece el `status` apropiado (e.g., 'pending', 'registration_complete').\n\n## **Scope**:\n- **Entrada**: Mensaje del candidato, `sessionId`, `jobId` (si existe), `current_stage`.\n- **Procesamiento Interno**: Orquestación de las herramientas listadas según el `Command` para gestionar `jobId`, recolectar datos (adaptativamente), y actualizar estado.\n- **Salida**: Mensaje conversacional para el candidato (solicitando datos) y la estructura JSON actualizada para el Orquestador/Revisor.\n\n## **Command**:\n\n**0. Orquestación Inicial: Verificación y Gestión del `jobId` (PRIORIDAD MÁXIMA)**\n   a. **Llamar Herramienta**: Usa `Obtener Datos del Postulante` (pasando el `phone` derivado del `sessionId`).\n   b. **Analizar Resultado**: Revisa si el candidato existe y si ya tiene un `jobId`.\n   c. **Si `jobId` FALTA:**\n      i.  **Analizar Input del Candidato**: ¿Mencionó un área general, un título específico, o seleccionó una opción?\n      ii. **Llamar Herramienta(s) Apropiada(s)**:\n          *   **Área General**: Usa `Obtener Trabajos Activos por Tipo`. Presenta <= 3 opciones (Título, Ubicación). Pide confirmación (1, 2, 3). Luego, usa `Get Jobs By Name` (pasando el título de la opción elegida) para obtener el registro completo y el **`jobId` único**.\n          *   **Título Específico / Opción Numérica**: Usa `Get Jobs By Name` directamente (pasando el título extraído) para obtener el registro completo y el **`jobId` único**.\n      iii.**Confirmación (Si aplica)**: Si presentaste opciones, asegúrate de que el candidato confirme una.\n      iv. **Validar `jobId`**: Asegúrate de haber obtenido un `jobId` único y válido desde `Get Jobs By Name`.\n      v.  **Llamar Herramienta (Actualizar)**: **INMEDIATAMENTE** usa `Update Candidate Status`, proporcionando al menos el `phone`, el `jobId` confirmado, y `status='pending'`.\n   d. **Si `jobId` YA EXISTE** (desde `Obtener Datos...` o contexto): Procede al Paso 1.\n\n**1. Orquestación de Recolección Adaptativa**:\n   a. **Secuencia Fundamental Obligatoria**: `applicantName` -> `jobId` (confirmado) -> `email` -> `documentType` -> `documentNumber` -> `cvUrl`.\n   b. **Verificar Faltantes**: Usa `Obtener Datos del Postulante` para identificar qué datos de la secuencia faltan.\n   c. **Decidir Estrategia**:\n      *   **Principal (Grupal)**: Si faltan `applicantName` y `email`, solicítalos juntos. Si faltan `documentType` y `documentNumber`, solicítalos juntos. Si solo falta `cvUrl`, solicítalo.\n      *   **Respaldo (Uno a Uno)**: Si la respuesta a una solicitud grupal fue parcial/desviada, o si la conversación lo requiere, cambia a solicitar el *siguiente dato individual faltante* en la secuencia.\n   d. **Formular y Enviar Mensaje**: Crea el `result.message` solicitando el/los dato(s) decidido(s), aplicando técnicas conversacionales (AEIOU, Valor antes de pedir, etc.).\n   e. **Recibir Respuesta y Actualizar**:\n      i.  Identifica los datos nuevos proporcionados por el candidato.\n      ii. **Llamar Herramienta (Actualizar)**: **INMEDIATAMENTE** usa `Update Candidate Status`, proporcionando **TODOS** los datos conocidos hasta el momento (incluyendo los nuevos y el `jobId`). Actualiza el `status` si corresponde (e.g., `registration_complete` al obtener el último dato).\n      iii.**Evaluar y Repetir**: Agradece. Decide si continuar con estrategia grupal o uno a uno. Vuelve al paso 1.b para verificar qué falta ahora y repetir el ciclo hasta completar la secuencia.\n\n**2. Técnicas Conversacionales Clave**: (Mantener las mismas: AEIOU, Valor antes de pedir, Liderazgo/Reconducción, Especificar formato CV).\n\n## **Format**:\n\n- **Salida JSON**: Mantener la estructura definida previamente. Asegúrate de poblar `result.collected_data` con *todos* los campos obtenidos y actualizados vía `Update Candidate Status`. El `result.message` es tu comunicación al candidato.\n```json\n{\n  \"sessionId\": \"string\",\n  \"task_id\": \"string\",\n  \"status\": \"string\",\n  \"result\": {\n    \"collected_data\": {\n      \"jobId\": \"string | null\",\n      \"email\": \"string | null\",\n      \"applicantName\": \"string | null\",\n      \"phone\": \"string\",\n      \"documentType\": \"string | null\",\n      \"documentNumber\": \"string | null\",\n      \"cvUrl\": \"string | null\",\n      \"status\": \"string\",\n      \"evaluationResult\": \"string | null\",\n      \"applyId\": \"string | null\",\n      \"source\": \"string | null\"\n    },\n    \"message\": \"string\",\n    \"validation_status\": \"string\"\n  },\n  \"metadata\": {\n    \"timestamp\": \"string\",\n    \"last_interaction\": \"string\",\n    \"conversation_flow\": {\n      \"current_stage\": \"string\",\n      \"collection_strategy\": \"string\",\n      \"last_requested\": \"string\",\n      \"next_required\": \"string\",\n      \"missing_data_sequence\": [\n        \"string\"\n      ],\n      \"error_message\": \"string | null\"\n    }\n  }\n}\n```\n\n## **Constraints**:\n\n### NUNCA:\n- **NUNCA** omitir la llamada inicial a `Obtener Datos del Postulante`.\n- **NUNCA** intentar obtener datos personales antes de haber identificado y **guardado** el `jobId` usando `Update Candidate Status`.\n- **NUNCA** usar el TÍTULO del trabajo en lugar del `jobId` único al llamar a `Update Candidate Status` o `Obtener Trabajo`.\n- **NUNCA** confiar en el `email` de `Obtener Datos del Postulante` para acciones críticas (como scheduling) sin confirmación explícita del candidato en la conversación actual.\n- **NUNCA** omitir la llamada a `Update Candidate Status` después de recibir *cualquier* dato nuevo confirmado.\n- **NUNCA** mostrar IDs técnicos (`jobId`, `task_id`) al candidato.\n\n### SIEMPRE:\n- **SIEMPRE** orquestar las herramientas en el orden lógico descrito en el `Command`.\n- **SIEMPRE** usar `Get Jobs By Name` para obtener el `jobId` cuando se indica un título o selección numérica.\n- **SIEMPRE** usar `Update Candidate Status` para persistir cada pieza de información inmediatamente.\n- **SIEMPRE** usar `Obtener Datos del Postulante` para saber qué falta antes de cada solicitud.\n- **SIEMPRE** adaptar la estrategia (grupal/individual) según la respuesta del candidato.\n- **SIEMPRE** solicitar CV en PDF/Word.\n- **SIEMPRE** finalizar el `result.message` con una solicitud clara.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        300,
+        0
+      ],
+      "id": "6d86e244-5931-4787-92ef-393b5231d796",
+      "name": "Registrador",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Call this tool to get information about the job the candidate applied for.  Use the 'jobId' from the candidate's application data to retrieve the correct job details.",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2129097737,
+          "mode": "list",
+          "cachedResultName": "jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=2129097737"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "Active"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        620,
+        220
+      ],
+      "id": "474d17d0-e956-4909-aa52-5619ac9edbde",
+      "name": "Obtener Trabajos Activos por Tipo",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Usa esta herramienta cuando conozcas el titulo del trabajo y requieras mayores alcances como por ejemplo conocer el jobId o información específica del anuncio",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2129097737,
+          "mode": "list",
+          "cachedResultName": "jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=2129097737"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "title",
+              "lookupValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Value', `Extract the job title the candidate is interested in. If they mention a specific number (like '1', '2', or '3'), refer to the previously presented job options in context to determine which title they're selecting. If they mention a job title directly, use that exact title. Return only the job title without any additional text.`, 'string') }}"
+            },
+            {
+              "lookupColumn": "status",
+              "lookupValue": "=Active"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        740,
+        220
+      ],
+      "id": "f21661d1-3de4-468b-bf62-051e9c81b029",
+      "name": "Get Jobs By Name",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Execute Workflow Trigger": [
+      {
+        "json": {
+          "query": {
+            "sessionId": "51934474263",
+            "task_id": "1incsqdieumhcl2q2tnc4s1v6jv6b8",
+            "message": "CV - PDF.pdf|https://drive.google.com/file/d/1kDkqeUoKp4RkX-6zEih3za6Kvvy0Cw_b/view?usp=drivesdk",
+            "agent_type": "registrator",
+            "jobId": "",
+            "context": {
+              "current_stage": "registration",
+              "last_interaction": "2025-03-27T17:50:57-05:00",
+              "metadata": {
+                "timestamp": "27/3/2025, 17:50:57",
+                "timezone": "America/Lima",
+                "countryCode": "51",
+                "has_candidate": true,
+                "has_job": false,
+                "qa_count": 0
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Hora Actual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Registrador",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Trabajo": {
+      "ai_tool": [
+        [
+          {
+            "node": "Registrador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Registrador",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hora Actual": {
+      "main": [
+        [
+          {
+            "node": "Registrador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Datos del Postulante": {
+      "ai_tool": [
+        [
+          {
+            "node": "Registrador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Candidate Status": {
+      "ai_tool": [
+        [
+          {
+            "node": "Registrador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrador": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Trabajos Activos por Tipo": {
+      "ai_tool": [
+        [
+          {
+            "node": "Registrador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Jobs By Name": {
+      "ai_tool": [
+        [
+          {
+            "node": "Registrador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "698a6fec-8634-4f16-9b46-973585fe458c",
+  "meta": {
+    "instanceId": "1dae253b8ed4fa2ae6cc1a1b54e20169a0e4eef838c1eca58506dcd1699582a0"
+  },
+  "id": "UNlhDo0up5B9VNij",
+  "tags": []
+}

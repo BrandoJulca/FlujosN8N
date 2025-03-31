@@ -1,0 +1,770 @@
+{
+  "name": "(TEST)Talento_Tools_Datos_Aplicaciones_Ricardo",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "phone",
+              "lookupValue": "={{ $('Execute Workflow Trigger').item.json.query.remoteJid.split(\"@\")[0] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        240,
+        -220
+      ],
+      "id": "817bdbcf-f840-4bff-95b8-2d6fc82061a0",
+      "name": "Quien_Es",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2129097737,
+          "mode": "list",
+          "cachedResultName": "jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=2129097737"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "id",
+              "lookupValue": "={{ $json.jobId ?? 'Sin ID' }}\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        820,
+        -340
+      ],
+      "id": "f1a6e9d3-9099-42cc-9569-8b8a0295cbe1",
+      "name": "Puesto_Al_Que_Aplica",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0d3c28e9-2ad3-40e5-807d-dcdc06a0c1a6",
+              "name": "response",
+              "value": "={{ $json.toJsonString() }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1220,
+        -340
+      ],
+      "id": "df414607-8835-46ab-b3c8-7695fdcb5d91",
+      "name": "Edit Fields",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "/**\n * Función para obtener la fecha y hora actual basándose en el código de país del número de WhatsApp.\n * @param {string} remoteJid - El identificador remoto en formato 'códigoPaísnúmero@s.whatsapp.net'.\n * @returns {object} - Un objeto con la fecha y hora actual en la zona horaria correspondiente.\n */\nfunction obtenerFechaHora(remoteJid) {\n  // Mapa de códigos de país a zonas horarias para Latinoamérica\n  const zonasHorarias = {\n    '54': 'America/Argentina/Buenos_Aires', // Argentina\n    '591': 'America/La_Paz', // Bolivia\n    '55': 'America/Sao_Paulo', // Brasil (zona principal)\n    '56': 'America/Santiago', // Chile\n    '57': 'America/Bogota', // Colombia\n    '506': 'America/Costa_Rica', // Costa Rica\n    '53': 'America/Havana', // Cuba\n    '593': 'America/Guayaquil', // Ecuador\n    '503': 'America/El_Salvador', // El Salvador\n    '502': 'America/Guatemala', // Guatemala\n    '509': 'America/Port-au-Prince', // Haití\n    '504': 'America/Tegucigalpa', // Honduras\n    '52': 'America/Mexico_City', // México\n    '505': 'America/Managua', // Nicaragua\n    '507': 'America/Panama', // Panamá\n    '595': 'America/Asuncion', // Paraguay\n    '51': 'America/Lima', // Perú\n    '1': 'America/Puerto_Rico', // Puerto Rico (EE.UU.)\n    '598': 'America/Montevideo', // Uruguay\n    '58': 'America/Caracas', // Venezuela\n  };\n\n  // Extraer el número de teléfono eliminando la parte '@s.whatsapp.net'\n  const numeroSinDominio = remoteJid.replace('@s.whatsapp.net', '');\n\n  // Extraer el código de país (asumiendo que los códigos pueden tener entre 1 y 3 dígitos)\n  let codigoPais = '';\n  for (let i = 1; i <= 3; i++) {\n    const posibleCodigo = numeroSinDominio.substring(0, i);\n    if (zonasHorarias[posibleCodigo]) {\n      codigoPais = posibleCodigo;\n      break;\n    }\n  }\n\n  // Si no se encuentra el código de país\n  if (!codigoPais) {\n    return { error: 'Código de país no reconocido.', numeroSinDominio };\n  }\n\n  // Obtener la zona horaria correspondiente al código de país\n  const zonaHoraria = zonasHorarias[codigoPais];\n\n  if (!zonaHoraria) {\n    return { error: 'Zona horaria no encontrada para el código de país proporcionado.', codigoPais };\n  }\n\n  // Obtener la fecha y hora actual en la zona horaria correspondiente\n  const opciones = { timeZone: zonaHoraria, hour12: false };\n  const fechaHora = new Date().toLocaleString('es-ES', opciones);\n\n  return {\n    codigoPais,\n    zonaHoraria,\n    fechaHora,\n    mensaje: `La fecha y hora actual en la zona horaria de ${zonaHoraria} es: ${fechaHora}`\n  };\n}\n\n// Obtener el remoteJid desde la entrada\nconst remoteJid = $json.query.remoteJid;\n\n// Retornar la salida en formato objeto\nreturn obtenerFechaHora(remoteJid);\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        60,
+        -220
+      ],
+      "id": "7a1cc3bc-86bc-4175-9749-f6c3e7de6527",
+      "name": "Code1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Helper function to parse JSON strings safely\nfunction safeJSONParse(str, fallback = []) {\n try {\n   return JSON.parse(str);\n } catch (e) {\n   return fallback;\n }\n}\n\n// Process QA database to enhance structure\nfunction processQADatabase(qaArray) {\n // Verificar que qaArray sea un array\n if (!Array.isArray(qaArray)) {\n   console.log('qaArray type:', typeof qaArray);\n   console.log('qaArray value:', qaArray);\n   return [];\n }\n \n return qaArray.map(qa => ({\n   ...qa,\n   JobIDs: safeJSONParse(qa.JobIDs, []),\n   Keywords: qa.Keywords ? qa.Keywords.split(',').map(k => k.trim()) : [],\n   Prioridad: parseInt(qa.Prioridad) || 999\n }));\n}\n\n// Get all data\nconst tzData = $('Code1').first().json;\nconst quienEsData = $('Quien_Es').first().json;\nconst puestoData = $('Puesto_Al_Que_Aplica').first().json;\nconst respuestasData = \"\"; //$('Respuestas').all().map(item => item.json);\n\n// Consolidate all in one response\nreturn [{\n candidate: {\n//   row_number: quienEsData.row_number,\n   jobId: quienEsData.jobId,\n   email: quienEsData.email,\n   applicantName: quienEsData.applicantName,\n   phone: quienEsData.phone,\n   documentType: quienEsData.documentType,\n   documentNumber: quienEsData.documentNumber,\n   cvUrl: quienEsData.cvUrl,\n   status: quienEsData.status\n },\n job: {\n   id: puestoData.id,\n   title: puestoData.title,\n   company: puestoData.company,\n   companyLogo: puestoData.companyLogo,\n   location: puestoData.location,\n   type: puestoData.type,\n   category: puestoData.category,\n   description: puestoData.description,\n   skills: safeJSONParse(puestoData.skills, []),\n   country: puestoData.country\n },\n qa_database: processQADatabase(respuestasData),\n metadata: {\n   timestamp: tzData.fechaHora,\n   timezone: tzData.zonaHoraria,\n   countryCode: tzData.codigoPais,\n   has_candidate: true,\n   has_job: true,\n   qa_count: respuestasData.length\n }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1020,
+        -340
+      ],
+      "id": "3f3e5b93-82f0-4960-aa73-1ad508bdbe19",
+      "name": "Code",
+      "alwaysOutputData": true,
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        220
+      ],
+      "id": "8258ab05-5fa3-4e43-9477-6f46886fa514",
+      "name": "Execute Workflow Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $json.row_number }}",
+            "status": "={{ $json.status === \"Invitación para la entrevista enviada\" ? \"Respuesta del candidato recibida\" : $json.status }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "jobId",
+              "displayName": "jobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applicantName",
+              "displayName": "applicantName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentType",
+              "displayName": "documentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentNumber",
+              "displayName": "documentNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "cvUrl",
+              "displayName": "cvUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "evalutionResult",
+              "displayName": "evalutionResult",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applyId",
+              "displayName": "applyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        620,
+        -340
+      ],
+      "id": "4da4753f-46c7-44d2-8e20-20e353504a7a",
+      "name": "Cambia Status",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "043f4df2-735b-4dc6-9785-5f08f8a92659",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        420,
+        -220
+      ],
+      "id": "e8020eac-8184-4976-b154-54e5fe82cba7",
+      "name": "If",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "36efbda2-9952-4bb8-9bb5-11c5e9d383c1",
+              "name": "jobId",
+              "value": "empty",
+              "type": "string"
+            },
+            {
+              "id": "b4637752-3983-47bb-bd3c-868e5de773f3",
+              "name": "email",
+              "value": "empty",
+              "type": "string"
+            },
+            {
+              "id": "9957ad68-73fd-40eb-9d3d-34bac110561d",
+              "name": "applicantName",
+              "value": "empty",
+              "type": "string"
+            },
+            {
+              "id": "fd8b2c94-546c-4c76-aeab-478728840439",
+              "name": "phone",
+              "value": "empty",
+              "type": "string"
+            },
+            {
+              "id": "cfa24420-6d78-4231-a521-7c4875776ce4",
+              "name": "documentType",
+              "value": "empty",
+              "type": "string"
+            },
+            {
+              "id": "d933e8f1-95d8-4d7b-ae55-126e8cf2e2ad",
+              "name": "documentNumber",
+              "value": "empty",
+              "type": "string"
+            },
+            {
+              "id": "b8ccdb3c-c1b9-44c7-a543-74191a5fca41",
+              "name": "cvUrl",
+              "value": "empty",
+              "type": "string"
+            },
+            {
+              "id": "d4c8f5dd-0d53-41bf-9774-52c7c0d0c289",
+              "name": "skills",
+              "value": "[]",
+              "type": "array"
+            },
+            {
+              "id": "90cd3813-4f93-4dae-b67b-95213e0f3c39",
+              "name": "qa_database",
+              "value": "[]",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        620,
+        -120
+      ],
+      "id": "2248081d-01ff-4136-9bac-09f303eb9307",
+      "name": "Edit Fields1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3ddb75ca-50ac-40e9-991c-04f478827fd3",
+              "name": "response",
+              "value": "={\"candidate\":{\"jobId\":\"\",\"email\":\"\",\"applicantName\":\"\",\"phone\":{{ $('Execute Workflow Trigger').item.json.query.remoteJid.match(/\\d+/g).join('') }}\n,\"documentType\":\"\",\"documentNumber\":,\"cvUrl\":\"\",\"status\":\"\"},\"job\":{\"skills\":[]},\"qa_database\":[],\"metadata\":{\"timestamp\":\"{{ $('Code1').item.json.fechaHora }}\",\"timezone\":\"{{ $('Code1').item.json.zonaHoraria }}\",\"countryCode\":\"{{ $('Code1').item.json.codigoPais }}\",\"has_candidate\":no,\"has_job\":no,\"qa_count\":0}}\\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        820,
+        -120
+      ],
+      "id": "11970184-e0fc-45d0-b5ef-dac89c4a37f0",
+      "name": "Edit Fields2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## I'm a note \n[\n{\n\"response\": \n\"{\"candidate\":{\"jobId\":\"JOB001\",\"email\":\"brandojulca96@gmail.com\",\"applicantName\":\"Brando Julca\",\"phone\":51934474263,\"documentType\":\"D.N.I\",\"documentNumber\":10874312,\"cvUrl\":\"\",\"status\":\"Respuesta del candidato recibida\"},\"job\":{\"skills\":[]},\"qa_database\":[],\"metadata\":{\"timestamp\":\"21/3/2025, 12:42:17\",\"timezone\":\"America/Lima\",\"countryCode\":\"51\",\"has_candidate\":true,\"has_job\":true,\"qa_count\":0}}\\n\"\n}\n]",
+        "height": 360,
+        "width": 940
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1280,
+        -280
+      ],
+      "typeVersion": 1,
+      "id": "7d9f74e1-3439-4aee-81cb-aa980eefa289",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "phone",
+              "lookupValue": "={{ $('Execute Workflow Trigger').item.json.query.remoteJid.split(\"@\")[0] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        200,
+        220
+      ],
+      "id": "14ef14e8-7f32-40b9-b531-223e5b022105",
+      "name": "Quien_Es1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2129097737,
+          "mode": "list",
+          "cachedResultName": "jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=2129097737"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "id",
+              "lookupValue": "={{ $json.jobId ?? 'Sin ID' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        420,
+        220
+      ],
+      "id": "59c83669-2ffc-4273-8be3-5dbc2505b431",
+      "name": "Puesto_Al_Que_Aplica1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0d3c28e9-2ad3-40e5-807d-dcdc06a0c1a6",
+              "name": "response",
+              "value": "={{ $json.toJsonString() }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        920,
+        220
+      ],
+      "id": "5bbf7195-8747-4723-bf11-b93f3baf44c8",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "/**\n * Función para obtener la fecha y hora actual basándose en el código de país del número de WhatsApp.\n * @param {string} remoteJid - El identificador remoto en formato 'códigoPaísnúmero@s.whatsapp.net'.\n * @returns {object} - Un objeto con la fecha y hora actual en la zona horaria correspondiente.\n */\nfunction obtenerFechaHora(remoteJid) {\n  // Mapa de códigos de país a zonas horarias para Latinoamérica\n  const zonasHorarias = {\n    '54': 'America/Argentina/Buenos_Aires', // Argentina\n    '591': 'America/La_Paz', // Bolivia\n    '55': 'America/Sao_Paulo', // Brasil (zona principal)\n    '56': 'America/Santiago', // Chile\n    '57': 'America/Bogota', // Colombia\n    '506': 'America/Costa_Rica', // Costa Rica\n    '53': 'America/Havana', // Cuba\n    '593': 'America/Guayaquil', // Ecuador\n    '503': 'America/El_Salvador', // El Salvador\n    '502': 'America/Guatemala', // Guatemala\n    '509': 'America/Port-au-Prince', // Haití\n    '504': 'America/Tegucigalpa', // Honduras\n    '52': 'America/Mexico_City', // México\n    '505': 'America/Managua', // Nicaragua\n    '507': 'America/Panama', // Panamá\n    '595': 'America/Asuncion', // Paraguay\n    '51': 'America/Lima', // Perú\n    '1': 'America/Puerto_Rico', // Puerto Rico (EE.UU.)\n    '598': 'America/Montevideo', // Uruguay\n    '58': 'America/Caracas', // Venezuela\n  };\n\n  // Extraer el número de teléfono eliminando la parte '@s.whatsapp.net'\n  const numeroSinDominio = remoteJid.replace('@s.whatsapp.net', '');\n\n  // Extraer el código de país (asumiendo que los códigos pueden tener entre 1 y 3 dígitos)\n  let codigoPais = '';\n  for (let i = 1; i <= 3; i++) {\n    const posibleCodigo = numeroSinDominio.substring(0, i);\n    if (zonasHorarias[posibleCodigo]) {\n      codigoPais = posibleCodigo;\n      break;\n    }\n  }\n\n  // Si no se encuentra el código de país\n  if (!codigoPais) {\n    return { error: 'Código de país no reconocido.', numeroSinDominio };\n  }\n\n  // Obtener la zona horaria correspondiente al código de país\n  const zonaHoraria = zonasHorarias[codigoPais];\n\n  if (!zonaHoraria) {\n    return { error: 'Zona horaria no encontrada para el código de país proporcionado.', codigoPais };\n  }\n\n  // Obtener la fecha y hora actual en la zona horaria correspondiente\n  const opciones = { timeZone: zonaHoraria, hour12: false };\n  const fechaHora = new Date().toLocaleString('es-ES', opciones);\n\n  return {\n    codigoPais,\n    \"phone\":remoteJid.split(\"@\")[0],\n    zonaHoraria,\n    fechaHora,\n    mensaje: `La fecha y hora actual en la zona horaria de ${zonaHoraria} es: ${fechaHora}`\n  };\n}\n\n// Obtener el remoteJid desde la entrada\nconst remoteJid = $json.query.remoteJid;\n\n// Retornar la salida en formato objeto\nreturn obtenerFechaHora(remoteJid);\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        20,
+        220
+      ],
+      "id": "c38ec031-8f93-4d89-a073-5a96653fde18",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Helper function to parse JSON strings safely\nfunction isEmpty(obj){\n  return JSON.stringify(obj)==='{}';\n}\n\nfunction safeJSONParse(str, fallback = []) {\n try {\n   return JSON.parse(str);\n } catch (e) {\n   return fallback;\n }\n}\n\n// Process QA database to enhance structure\nfunction processQADatabase(qaArray) {\n // Verificar que qaArray sea un array\n if (!Array.isArray(qaArray)) {\n   console.log('qaArray type:', typeof qaArray);\n   console.log('qaArray value:', qaArray);\n   return [];\n }\n \n return qaArray.map(qa => ({\n   ...qa,\n   JobIDs: safeJSONParse(qa.JobIDs, []),\n   Keywords: qa.Keywords ? qa.Keywords.split(',').map(k => k.trim()) : [],\n   Prioridad: parseInt(qa.Prioridad) || 999\n }));\n}\n\n// Get all data\nconst tzData = $('Code2').first().json;\nconsole.log(\"mira aqui\");\nconst quienEsData = $('Quien_Es1').first().json;\nconsole.log(quienEsData);\nconst puestoData = $('Puesto_Al_Que_Aplica1').first().json;\nconst respuestasData = \"\"; //$('Respuestas').all().map(item => item.json);\n\n// Consolidate all in one response\nreturn [{\n candidate: {\n//   row_number: quienEsData.row_number,\n   jobId: quienEsData.jobId,\n   email: quienEsData.email,\n   applicantName: quienEsData.applicantName,\n   phone: tzData.phone,\n   documentType: quienEsData.documentType,\n   documentNumber: quienEsData.documentNumber,\n   cvUrl: quienEsData.cvUrl,\n   status: quienEsData.status\n },\n job: {\n   id: puestoData.id,\n   title: puestoData.title,\n   company: puestoData.company,\n   companyLogo: puestoData.companyLogo,\n   location: puestoData.location,\n   type: puestoData.type,\n   category: puestoData.category,\n   description: puestoData.description,\n   skills: safeJSONParse(puestoData.skills, []),\n   country: puestoData.country\n },\n qa_database: processQADatabase(respuestasData),\n metadata: {\n   timestamp: tzData.fechaHora,\n   timezone: tzData.zonaHoraria,\n   countryCode: tzData.codigoPais,\n   has_candidate: !isEmpty(quienEsData),\n   has_job: !isEmpty(puestoData),\n   qa_count: respuestasData.length\n }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        220
+      ],
+      "id": "027a6ae4-eb03-4505-b2b5-e28eee2710a9",
+      "name": "Code3",
+      "alwaysOutputData": true
+    }
+  ],
+  "pinData": {
+    "Execute Workflow Trigger": [
+      {
+        "json": {
+          "query": {
+            "remoteJid": "51934474263@s.whatsapp.net"
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Quien_Es": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Puesto_Al_Que_Aplica": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Quien_Es",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cambia Status": {
+      "main": [
+        [
+          {
+            "node": "Puesto_Al_Que_Aplica",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Cambia Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quien_Es1": {
+      "main": [
+        [
+          {
+            "node": "Puesto_Al_Que_Aplica1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Puesto_Al_Que_Aplica1": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Quien_Es1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9d6d3fbd-e871-4ac9-99cd-7a21bf7b7288",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1dae253b8ed4fa2ae6cc1a1b54e20169a0e4eef838c1eca58506dcd1699582a0"
+  },
+  "id": "3ABeSXls3EKbqRTw",
+  "tags": []
+}

@@ -1,0 +1,1609 @@
+{
+  "name": "(TEST)Talento_Agentes_Agente_Agendador_Ricardo",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Message input\n{\\n  \"sessionId\": \"51934474269@s.whatsapp.net\",\\n  \"task_id\": \"1iju94ud3rgs828su06gk3ak8h3hqeo\",\\n  \"status\": \"error\",\\n  \"result\": {\\n    \"calendar_event\": {\\n      \"id\": \"0hir0vem7g7mqorb9i8u2kk2j8\",\\n      \"attendee_added\": {\\n        \"email\": \"\",\\n        \"displayName\": \"\",\\n        \"responseStatus\": \"\"\\n      },\\n      \"event_details\": {\\n        \"date\": \"10 de marzo de 2025\",\\n        \"time\": \"17:00\",\\n        \"meet_link\": \"\"\\n      },\\n      \"status\": \"cancelled\"\\n    },\\n    \"response\": {\\n      \"message\": \"Lamentablemente, no se pudo encontrar la información del candidato y se ha actualizado el estado a 'Candidato rechaza la propuesta'.\",\\n      \"validation_status\": \"invalid\"\\n    }\\n  }\\n}",
+        "height": 260,
+        "width": 700,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2580,
+        540
+      ],
+      "typeVersion": 1,
+      "id": "3602a48f-7e01-4b15-85d9-532774524e90",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "# Disparador",
+        "height": 840,
+        "width": 780,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        -40
+      ],
+      "typeVersion": 1,
+      "id": "c0dd5d37-18b2-40b0-976f-14c9d1d21acc",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "name": "Notify_Admin",
+        "description": "Call this tool to notify admin about no slot avilable.",
+        "workflowId": {
+          "__rl": true,
+          "value": "uyLNveXQQl1Lc3E7",
+          "mode": "list",
+          "cachedResultName": "Responder a admin"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        3580,
+        380
+      ],
+      "id": "ade5c7ec-b9c6-4e9c-a90d-9a4e5d166879",
+      "name": "Notificar Admin"
+    },
+    {
+      "parameters": {
+        "content": "# Agente contesta:\n## En el coordinador -> Agente -> Agendador:\n## Puede asistir, y pone una hora, sino tengo otra hora, sino no muchas gracias.\n## si te da el correo, te da el meet y lo agregas a la agenda",
+        "height": 200,
+        "width": 1160
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3280,
+        600
+      ],
+      "typeVersion": 1,
+      "id": "71576809-cec9-4a3d-838d-9ccbc2ce03f3",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9aac8716-f825-4c91-aaa9-2d30b438d104",
+              "leftValue": "={{ $json.scheduleType }}",
+              "rightValue": "=Open",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        290
+      ],
+      "id": "18ff2c9e-495a-4dd7-8699-02ab4f511801",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2129097737,
+          "mode": "list",
+          "cachedResultName": "jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=2129097737"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "id",
+              "lookupValue": "={{ $json.query.jobId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        740,
+        290
+      ],
+      "id": "91b92594-bd9f-4299-8309-4be911c3a122",
+      "name": "buscar job",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "b81a5a56-0e32-4991-bb26-2c4b4782487f",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        520,
+        290
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Tipo de agenda\nAgenda cerrada: es porque el promocionador anunciante o reclutador. va a agendar un espacio especifico en un momento específico.\n\nAbierto: Cuando van a contratar a personas de otro perfil y negocian un momento de espacio para disponibilidad mutua y entonces se agenda.",
+        "height": 180,
+        "width": 700,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2580,
+        360
+      ],
+      "typeVersion": 1,
+      "id": "e8387f5a-676c-405f-aee3-b2bbd625e7c1",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Agenda Abierto",
+        "height": 440,
+        "width": 1420,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1160,
+        360
+      ],
+      "typeVersion": 1,
+      "id": "ce833cf8-430c-4380-bbdd-ee15440a5248",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Updates the candidate's email in the 'apply' sheet of the 'TALENTO | ANUNCIOS' Google Sheet. Searches for the candidate by WhatsApp number (extracts the number from the sessionId, e.g., '51925797402' from '51925797402@s.whatsapp.net'). Updates the 'email' column when the candidate explicitly confirms a different email.",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "phone": "={{ $('Hora Actual').item.json.query.sessionId.split(\"@\")[0] }}",
+            "email": "={{ $fromAI('candidateConfirmedEmail', 'The email address that the candidate explicitly confirmed to use for the meeting invitation. Only include this if the candidate has explicitly confirmed their email address.', 'string') }}"
+          },
+          "matchingColumns": [
+            "phone"
+          ],
+          "schema": [
+            {
+              "id": "jobId",
+              "displayName": "jobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "applicantName",
+              "displayName": "applicantName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "documentType",
+              "displayName": "documentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentNumber",
+              "displayName": "documentNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "cvUrl",
+              "displayName": "cvUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        1640,
+        660
+      ],
+      "id": "360c245f-94e3-493e-a33d-39ed2675444a",
+      "name": "Update Candidate Email",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Retrieves candidate data from the 'apply' sheet of the 'TALENTO | ANUNCIOS' Google Sheet. Searches by WhatsApp number (extracts the number from the sessionId, e.g., '51925797402' from '51925797402@s.whatsapp.net'). **The email returned is only a suggestion; do not use it for scheduling unless the candidate explicitly confirms they want to receive the meeting invite at that address.**",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "phone",
+              "lookupValue": "={{ $('Execute Workflow Trigger').item.json.query.sessionId.split(\"@\")[0] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        1760,
+        660
+      ],
+      "id": "4301e224-ee25-49a7-a9a5-fa724030e3d4",
+      "name": "Obtener Datos del Postulante",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Updates the candidate's status in the 'apply' sheet of the 'TALENTO | ANUNCIOS' Google Sheet.  Searches for the candidate by WhatsApp number (extracts the number from the sessionId, e.g., '51925797402' from '51925797402@s.whatsapp.net'). Updates the 'status' column with one of: 'scheduled', 'rescheduled', 'cancelled', 'pending', 'completed', 'error'. Also updates the 'email' column, but only if the candidate has explicitly confirmed it.",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "phone": "={{ $('Hora Actual').item.json.query.sessionId.split(\"@\")[0] }}",
+            "status": "={{ $fromAI('candidateStatusUpdate', 'El estado actualizado del candidato después del intento de agendamiento. Solo hay dos posibles valores: \"Entrevista agendada\" (si el candidato ha sido agregado exitosamente como asistente al evento) o \"Candidato rechaza la propuesta\" (si el candidato rechazó la invitación o no pudo ser agregado). Selecciona el estado que corresponda según el resultado final del proceso.', 'string') }}"
+          },
+          "matchingColumns": [
+            "phone"
+          ],
+          "schema": [
+            {
+              "id": "jobId",
+              "displayName": "jobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applicantName",
+              "displayName": "applicantName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "documentType",
+              "displayName": "documentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentNumber",
+              "displayName": "documentNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "cvUrl",
+              "displayName": "cvUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        1880,
+        660
+      ],
+      "id": "7d650842-dd94-4cb5-a205-c914783d47dc",
+      "name": "Update Candidate Status",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Checks if a specific time slot is available in the 'TALENTO - MEETS RECLUTAMIENTO' Google Calendar. Requires `timeMin` and `timeMax` in ISO 8601 format, defining the start and end of the slot to check. Returns `true` if the slot is available, `false` otherwise.",
+        "resource": "calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "c_41edf5e9b588f7b01bea790394dc1603e03b0cf5f60effee672062a4a66abad6@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "TALENTO - MEETS RECLUTAMIENTO"
+        },
+        "timeMin": "={{ $fromAI(\"availabilityCheckStart\", \"The starting date and time to check for calendar availability.  Must be in ISO 8601 format.  This should align with the candidate's requested time, or the start of the 'nearest available slot' heuristic.\", \"string\") }}",
+        "timeMax": "={{ $fromAI(\"availabilityCheckEnd\", \"The ending date and time to check for calendar availability.  Must be in ISO 8601 format.  This should align with the candidate's requested start time and plus half hour, or the start of the 'nearest available slot' heuristic.\", \"string\") }}",
+        "options": {}
+      },
+      "id": "d292bffe-636c-47a8-ad21-f7538c22aff5",
+      "name": "Validar Disponibilidad",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        2000,
+        660
+      ],
+      "typeVersion": 1.1,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "TOuAFMH2lO00Ldog",
+          "name": "Google Calendar (Talento)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Retrieves events from the 'TALENTO - MEETS RECLUTAMIENTO' Google Calendar within a specified time range. Used to check for scheduling availability. Requires `timeMin` and `timeMax` in ISO 8601 format, representing the start and end of the availability check. Returns a list of events with their `summary` and `start.dateTime`. **If no events are returned, it indicates that the time slot is available.**",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "c_41edf5e9b588f7b01bea790394dc1603e03b0cf5f60effee672062a4a66abad6@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "TALENTO - MEETS RECLUTAMIENTO"
+        },
+        "options": {
+          "timeMin": "={{ $fromAI(\"availabilityCheckStart\", \"The starting date and time to check for calendar availability.  Must be in ISO 8601 format.  This should align with the candidate's requested time, or the start of the 'nearest available slot' heuristic.\", \"string\") }}",
+          "timeMax": "={{ $fromAI(\"availabilityCheckEnd\", \"The ending date and time to check for calendar availability.  Must be in ISO 8601 format.  This should align with the candidate's requested time and plus 24 hours, not weekends, or the start of the 'nearest available slot' heuristic.\", \"string\") }}",
+          "fields": "=items(summary, start(dateTime))"
+        }
+      },
+      "id": "6b8b7369-bf1f-4dc3-bb49-72e75a5ccd00",
+      "name": "Obtener Eventos",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        2120,
+        660
+      ],
+      "typeVersion": 1.1,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "TOuAFMH2lO00Ldog",
+          "name": "Google Calendar (Talento)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Creates interview events in the 'TALENTO - MEETS RECLUTAMIENTO' Google Calendar. Use *after* explicitly confirming candidate availability and email. Requires: `start` (ISO 8601), `end` (calculated as `start` + 30 minutes), `candidateEmail`, `eventSummary` ('TALENTO | Interview with [Candidate] | [Job]'), and `eventDescription` (detailed Markdown). Auto-generates a Google Meet link. Adds mia@onbotgo.com, talento@onbotgo.com, and candidate as attendees. *Do NOT use for availability checks; only for event creation after confirmation.*",
+        "calendar": {
+          "__rl": true,
+          "value": "c_41edf5e9b588f7b01bea790394dc1603e03b0cf5f60effee672062a4a66abad6@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "TALENTO - MEETS RECLUTAMIENTO"
+        },
+        "start": "={{ $fromAI(\"StartMeetDateTime\", \"The start date and time for the interview.  Must be in ISO 8601 format (e.g., 2024-07-24T14:30:00-05:00). Consider the candidate's requested date and time, if provided.  If no specific time is requested, use the heuristic to find the nearest available slot.\", \"string\") }}",
+        "end": "={{ $fromAI(\"EndMeetDateTime\", \"The end date and time for the interview.  Must be in ISO 8601 format.  Assume a 30-minute duration from the start time.\", \"string\") }}",
+        "useDefaultReminders": false,
+        "additionalFields": {
+          "attendees": [
+            "mia@onbotgo.com",
+            "talento@onbotgo.com",
+            "={{ $fromAI(\"candidateEmail\", \"The confirmed email address of the candidate.\", \"string\") }}"
+          ],
+          "conferenceDataUi": {
+            "conferenceDataValues": {
+              "conferenceSolution": "hangoutsMeet"
+            }
+          },
+          "description": "={{ $fromAI(\"eventDescription\", \"A detailed description of the calendar event. Include the candidate's full name, relevant experience, education, skills, and achievements.  Format the description using Markdown. Start with 'DATOS CANDIDATO', then 'PERFIL PROFESIONAL', then 'DETALLES POSTULACIÓN', and finally 'NOTAS ADICIONALES'. Include the confirmed candidate email and the Meet link if available. Example: \\nDATOS CANDIDATO\\n- Nombre: [nombre_completo]\\n- Ubicación: [ubicacion]\\n- Contacto: [email/telefono]\\n- Email Confirmado: [email]\\n\\nPERFIL PROFESIONAL\\n- Experiencia Relevante: [resumen_experiencia]\\n- Educación: [formacion]\\n- Habilidades Clave: [skills]\\n- Logros Destacados: [achievements]\\n\\nDETALLES POSTULACIÓN\\n- Puesto: [rol]\\n- Pretensión: [salario]\\n- Disponibilidad: [disponibilidad]\\n\\nNOTAS ADICIONALES\\n[observaciones_relevantes]\\n\\nLink Meet: [meet_link]\") }}",
+          "summary": "={{ $fromAI(\"eventSummary\", \"A concise summary of the calendar event.  Use the format: 'TALENTO | Entrevista con [Candidate Name] | [Job Title]'.  Example: 'TALENTO | Entrevista con John Doe | Software Engineer'\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        2240,
+        660
+      ],
+      "id": "4c58c2b3-1eff-4e83-843e-501129a6e342",
+      "name": "Agendador",
+      "notesInFlow": false,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "TOuAFMH2lO00Ldog",
+          "name": "Google Calendar (Talento)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "includeInputFields": true
+        }
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        1180,
+        440
+      ],
+      "id": "93e1e186-e9fc-4c23-93dd-272976e49c6d",
+      "name": "Hora Actual"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "{{ $('Execute Workflow Trigger').item.json.query.sessionId }}",
+        "sessionTTL": 2880,
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.4,
+      "position": [
+        1500,
+        660
+      ],
+      "id": "94ccebc0-2572-49d9-814a-d5c848ab2ec5",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "FuTe9qrxkR9cRWmA",
+          "name": "Automation Redis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "32ab0507-ea3c-4f80-963c-d8e15d78da79",
+              "name": "response",
+              "value": "={{ $json.output || $json.error}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2260,
+        440
+      ],
+      "id": "9d7f07a9-ecc3-46af-8fe8-1e756e90a869",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.toJsonString() }}\n{{ $('Execute Workflow Trigger').item.json.query.message }}",
+        "options": {
+          "systemMessage": "=**Roles**: Coordinador de Entrevistas para WhatsApp. Este agente automatiza el proceso de agendar entrevistas con candidatos, interactuando a través de WhatsApp, utilizando Google Calendar, Google Sheets y Google Meet. Su función principal es facilitar la comunicación, validar la disponibilidad, confirmar la información del candidato y crear/actualizar/cancelar eventos en el calendario.\n\n**Scope**:\n*   **Input**: Recibe mensajes de WhatsApp de candidatos (a través del siguiente schema JSON):\n\n    ```json\n    {\n      \"type\": \"object\",\n      \"required\": [\"query\"],\n      \"properties\": {\n        \"query\": {\n          \"type\": \"object\",\n          \"required\": [\"sessionId\", \"task_id\", \"message\", \"agent_type\", \"context\"],\n          \"properties\": {\n            \"sessionId\": {\n              \"type\": \"string\",\n              \"pattern\": \"^[0-9]+@s\\\\.whatsapp\\\\.net$\",\n              \"description\": \"ID de WhatsApp del candidato\"\n            },\n            \"task_id\": {\n              \"type\": \"string\",\n              \"format\": \"uuid\",\n              \"description\": \"ID único de la tarea\"\n            },\n            \"message\": {\n              \"type\": \"string\",\n              \"minLength\": 1,\n              \"description\": \"Mensaje del candidato\"\n            },\n            \"agent_type\": {\n              \"type\": \"string\",\n              \"enum\": [\"scheduler\", \"canceller\", \"updater\"],\n              \"description\": \"Tipo de agente que procesa la solicitud\"\n            },\n            \"context\": {\n              \"type\": \"object\",\n              \"required\": [\"current_stage\", \"last_interaction\"],\n              \"properties\": {\n                \"current_stage\": {\n                  \"type\": \"string\",\n                  \"enum\": [\n                    \"query\",\n                    \"date_selection\",\n                    \"email_confirmation\",\n                    \"scheduling\",\n                    \"completed\",\n                    \"cancelled\"\n                  ]\n                },\n                \"last_interaction\": {\n                  \"type\": \"string\",\n                  \"format\": \"date-time\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n    ```\n    El mensaje puede contener solicitudes de agendamiento, cancelaciones, o datos como fechas, horas y correos electrónicos. También recibe datos de Google Sheets (postulantes, trabajos).\n\n*   **Output**: Genera respuestas en formato JSON (según el schema siguiente) que incluyen el estado de la solicitud (`status`), detalles del evento en el calendario (`calendar_event` si aplica), un mensaje de respuesta para WhatsApp (`response`), y la siguiente acción a tomar (`next_action`). También actualiza el estado del candidato en Google Sheets.\n\n    ```json\n    {\n      \"type\": \"object\",\n      \"required\": [\"sessionId\", \"task_id\", \"status\", \"result\"],\n      \"properties\": {\n        \"sessionId\": {\n          \"type\": \"string\",\n          \"pattern\": \"^[0-9]+@s\\\\.whatsapp\\\\.net$\"\n        },\n        \"task_id\": {\n          \"type\": \"string\",\n          \"format\": \"uuid\"\n        },\n        \"status\": {\n          \"type\": \"string\",\n          \"enum\": [\"success\", \"error\", \"pending\"]\n        },\n        \"result\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"calendar_event\": {\n              \"type\": \"object\",\n              \"properties\": {\n                \"title\": {\n                  \"type\": \"string\",\n                  \"pattern\": \"^TALENTO \\\\| Entrevista con .+ \\\\| .+$\"\n                },\n                \"description\": {\n                  \"type\": \"object\",\n                  \"properties\": {\n                    \"brief\": {\n                      \"type\": \"object\",\n                      \"properties\": {\n                        \"candidato\": {\n                          \"type\": \"object\",\n                          \"required\": [\"nombre\", \"email\"],\n                          \"properties\": {\n                            \"nombre\": {\"type\": \"string\"},\n                            \"email\": {\"type\": \"string\", \"format\": \"email\"},\n                            \"telefono\": {\"type\": \"string\", \"pattern\": \"^\\\\+?[0-9]{10,13}$\"},\n                            \"experiencia\": {\"type\": \"string\"},\n                            \"educacion\": {\"type\": \"string\"},\n                            \"habilidades\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}\n                          }\n                        },\n                        \"puesto\": {\n                          \"type\": \"object\",\n                          \"required\": [\"titulo\", \"id\"],\n                          \"properties\": {\n                            \"id\": {\"type\": \"string\"},\n                            \"titulo\": {\"type\": \"string\"},\n                            \"descripcion\": {\"type\": \"string\"},\n                            \"requisitos\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}\n                          }\n                        }\n                      }\n                    },\n                    \"meet_link\": {\n                      \"type\": \"string\",\n                      \"format\": \"uri\",\n                      \"pattern\": \"^https://meet\\\\.google\\\\.com/.+$\"\n                    }\n                  }\n                },\n                \"status\": {\n                  \"type\": \"string\",\n                  \"enum\": [\"confirmed\", \"tentative\", \"cancelled\"]\n                }\n              }\n            },\n            \"response\": {\n              \"type\": \"object\",\n              \"required\": [\"message\"],\n              \"properties\": {\n                \"message\": {\"type\": \"string\"},\n                \"validation_status\": {\n                  \"type\": \"string\",\n                  \"enum\": [\"valid\", \"invalid\", \"pending\"]\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n    ```\n\n**Command**:\n1.  **Obtener Datos del Postulante**: *Siempre* comenzar obteniendo los datos del postulante de Google Sheets usando el `sessionId` de WhatsApp. Esto es crítico para la validación y para personalizar la interacción.\n2.  **Analizar Mensaje**:  Interpretar el mensaje del candidato.\n    *   Si el mensaje indica una intención de *cancelación*, activar el flujo de cancelación con oferta proactiva de reagendamiento.\n    *   Si el mensaje contiene una fecha/hora *específica*, activar el flujo de fecha específica.\n    *   Si el mensaje incluye un correo electrónico *y ya hay un horario acordado*, validar el correo electrónico y proceder a agendar (si el horario sigue disponible).\n    *   Si el mensaje es una respuesta a una propuesta de horario, verificar si es una confirmación o un rechazo.\n3.  **Proponer Disponibilidad** (si no se proporciona una fecha/hora específica):\n    *   Consultar Google Calendar para obtener los horarios disponibles dentro del horario laboral (09:00-18:00 GMT-5).\n    *   Presentar opciones de horarios al candidato a través de WhatsApp.\n4.  **Confirmar Horario**:  Esperar una confirmación *explícita* del candidato a uno de los horarios propuestos.  *Nunca* agendar sin confirmación.\n5.  **Solicitar y Validar Email**:  Una vez confirmado el horario, solicitar el correo electrónico del candidato.  *Validar* que el correo electrónico tenga el formato correcto.  *No usar el correo de la base de datos sin confirmación*. Si el candidato proporciona un correo diferente, usar el nuevo correo y actualizar la base de datos.\n    *   Después de validar el correo electrónico, enviar un mensaje de confirmación final que incluya todos los detalles: \"Gracias. Para confirmar: Agendaré tu entrevista para [FECHA Y HORA] y enviaré los detalles a [EMAIL]. ¿Es correcto? Por favor responde 'Sí' para confirmar y proceder con el agendamiento.\"\n6.  **Agendar Entrevista** (solo si hay confirmación de horario *y* correo electrónico válido *y* confirmación final explícita):\n    *   Después de recibir la confirmación final, enviar primero: \"Perfecto. Estoy creando tu agenda en este momento, dame un instante...\"\n    *   Crear el evento en Google Calendar usando la herramienta \"Agendador\".  El título debe seguir el formato: `TALENTO | Entrevista con [Nombre] | [Puesto]`.  Añadir como asistentes: `mia@onbotgo.com`, `talento@onbotgo.com`, y el correo del candidato.  La duración debe ser de 30 minutos.  Generar automáticamente el link de Google Meet.\n    *   Actualizar el estado del candidato en Google Sheets usando la herramienta \"Update Candidate Status\" (estados válidos: `scheduled`, `rescheduled`, `cancelled`, `pending`, `completed`, `error`).\n    *   Después de crear exitosamente el evento, enviar: \"¡Listo! Tu entrevista ha sido agendada exitosamente para [FECHA Y HORA]. Te envié los detalles y el enlace de Google Meet a [EMAIL]. Por favor revisa tu correo y confirma que lo has recibido.\"\n7.  **Confirmar por WhatsApp**:  Enviar un mensaje de confirmación al candidato a través de WhatsApp, incluyendo la fecha, hora y el link de Google Meet.\n8.  **Gestionar Errores**: Si ocurre algún error (ej., el horario ya no está disponible, el correo es inválido), enviar un mensaje apropiado al candidato a través de WhatsApp y, si es posible, ofrecer alternativas.\n9.  **Protocolo de Cancelación y Reagendamiento**: Al detectar una solicitud de cancelación, ofrecer proactivamente la opción de reagendar como primera alternativa antes de proceder con la cancelación definitiva. Utilizar un mensaje como: \"Entiendo que necesitas cancelar tu entrevista programada para [FECHA Y HORA]. ¿Te gustaría reagendarla para otro momento que te resulte más conveniente? Puedo mostrarte algunas opciones disponibles, o si prefieres, podemos proceder con la cancelación.\"\n\n**Format**:\n*   **Tono**: Profesional, cortés y claro. Los mensajes de WhatsApp deben ser concisos y fáciles de entender.\n*   **Output**: Todas las respuestas del agente *deben* ser objetos JSON válidos, siguiendo estrictamente el schema definido en la sección **Scope** -> **Output**. *Nunca* responder con texto plano. Cada respuesta *debe* incluir *todos* los campos requeridos del schema.\n\n**Constraints**:\n*   **Nunca**:\n    *   Agendar una entrevista sin la confirmación *explícita* del horario por parte del candidato. La confirmación debe ser clara e inequívoca.\n    *   Agendar una entrevista sin un correo electrónico *verificado y validado*. No asumir que el correo en la base de datos es correcto sin confirmación del candidato.\n    *   Agendar entrevistas fuera del horario laboral (09:00-18:00 GMT-5).\n    *   Crear un evento en el calendario sin verificar previamente la disponibilidad.\n    *   Exponer información personal o sensible del candidato en los mensajes de WhatsApp.\n    *   Ignorar los flujos alternativos de cancelación y fecha específica.\n    *   Devolver respuestas que no sigan estrictamente el schema definido en la sección **Scope** -> **Output**.\n    *   Dar la impresión de que una entrevista ha sido agendada cuando aún no se ha completado el proceso de agendamiento. Siempre comunicar claramente en qué etapa del proceso se encuentra.\n    *   Proceder con la creación del evento en el calendario sin una confirmación final explícita después de presentar todos los detalles (horario y email).\n    *   Proceder directamente con una cancelación sin ofrecer antes la opción de reagendamiento.\n*   **Siempre**:\n    *   *Comenzar* obteniendo los datos del postulante de Google Sheets.\n    *   *Negociar* la cita en el slot de tiempo mas cercano.\n    *   *Mostrar* opcion de mañana y otra de tarde para la cita.\n    *   Validar la disponibilidad en Google Calendar *antes* de proponer horarios y *antes* de agendar la entrevista.\n    *   Solicitar y *confirmar* el correo electrónico del candidato *después* de acordar el horario de la entrevista. Validar el formato del correo.\n    *   Verificar que cualquier horario propuesto (ya sea por el agente o por el candidato) esté dentro del horario laboral.\n    *   Incluir el link de Google Meet en la confirmación de la entrevista enviada al candidato.\n    *   Mantener el formato estándar del título del evento en Google Calendar.\n    *   Utilizar las herramientas proporcionadas (`Tools`) para interactuar con Google Calendar, Google Sheets y Redis.\n    *   Seguir los `WorkflowSteps` (flujo principal y flujos alternativos).\n    *   Después de validar el email, solicitar una confirmación final explícita presentando todos los detalles (horario y email).\n    *   Informar claramente cuando se está creando el evento (\"Estoy creando tu agenda...\") y cuando se ha completado exitosamente (\"¡Listo! Tu entrevista ha sido agendada...\").\n    *   Ofrecer proactivamente la opción de reagendamiento antes de proceder con una cancelación definitiva.\n\n**Tools:** (Mantenemos la sección Tools tal como la proporcionaste, ya que está completa y bien definida)\n\n*   Agendador\n*   Update Candidate Status\n*   Obtener Datos del Postulante\n*   Obtener Eventos\n*   Validar Disponibilidad\n*   Obtener Trabajo\n*   Redis Chat Memory\n\n**WorkflowSteps**:\n\n*   **MainFlow**:\n    1.  **Obtener Datos del Postulante**: Llamar a \"Obtener Datos del Postulante\".\n    2.  **Analizar Mensaje**: Determinar la acción a seguir (cancelación, fecha específica, confirmación, etc.).\n    3.  **Proponer Disponibilidad** (si es necesario): Consultar y proponer hasta 3 opciones.\n    4.  **Confirmar Horario**: Esperar confirmación explícita.\n    5.  **Solicitar y Validar Email**: Obtener y verificar el correo.\n    6.  **Solicitar Confirmación Final**: Presentar todos los detalles completos y pedir confirmación explícita.\n    7.  **Agendar Entrevista**: Informar que se está procesando, crear evento y actualizar estado.\n    8.  **Confirmar por WhatsApp**: Enviar confirmación de éxito con todos los detalles.\n\n*   **AlternativeFlows**:\n    *   **Cancelación con Oferta de Reagendamiento**:\n        1.  Verificar existencia del evento.\n        2.  Ofrecer proactivamente la opción de reagendamiento mostrando alternativas disponibles.\n        3.  Si el candidato acepta reagendar, proceder con el flujo de reagendamiento.\n        4.  Si el candidato insiste en cancelar, proceder con la cancelación en el calendario.\n        5.  Actualizar estado.\n        6.  Notificar por WhatsApp.\n    *   **Fecha Específica**:\n        1.  Analizar fecha/hora propuesta.\n        2.  Verificar horario laboral.\n        3.  Validar disponibilidad.\n        4.  Si está disponible, continuar con la solicitud de email.\n    *   **Reagendamiento**:\n        1.  Verificar existencia del evento original.\n        2.  Cancelar en el calendario.\n        3.  Actualizar el estado.\n        4.  Proceder con el flujo de agendamiento, *saltándose el paso de obtener datos del postulante, ya que el agente ya los tiene.*\n\n**ResponseFormat**: (Los ejemplos se mantienen, pero se elimina la referencia al schema ya que está inline).\n\n*   **Format**: JSON\n*   **Rules**:\n    *   Siempre devolver el objeto JSON completo según el schema definido en la sección **Scope** -> **Output**.\n    *   Nunca devolver solo el mensaje o texto plano.\n    *   Incluir todos los campos requeridos en cada respuesta.\n    *   Mantener consistencia con los tipos de datos definidos."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1732,
+        440
+      ],
+      "id": "ab0a16ba-abca-4a4c-84c0-40f81571781a",
+      "name": "Planificador",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "responseFormat": "text"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        1340,
+        660
+      ],
+      "id": "04f6e6ca-dce4-42ac-8177-8d7b3fd8f1b7",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PeunFWePZcSKKmbB",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Obtener datos de la entrada\nconst inputData = $input.item.json;\nconst executeTrigger = $('Execute Workflow Trigger').item.json.query;\n\n// Extraer datos del slot (asumiendo que $json contiene toda la información del slot)\n// Si $json es el objeto completo del slot, necesitamos extraer solo lo que necesitamos\nlet slotData;\ntry {\n  // Verificar si el slot es un string JSON o un objeto\n  if (typeof inputData === 'string') {\n    slotData = JSON.parse(inputData);\n  } else {\n    slotData = inputData;\n  }\n  \n  // Extraer solo los campos necesarios del slot\n  const simplifiedSlot = {\n    eventId: slotData.id || '',\n    startTime: slotData.start?.dateTime || '',\n    endTime: slotData.end?.dateTime || '',\n    meetLink: slotData.hangoutLink || ''\n  };\n  \n  // Crear el XML como string\n  const xmlPrompt = `\n<userQuery>\n  <sessionId>${executeTrigger.sessionId}</sessionId>\n  <taskId>${executeTrigger.task_id}</taskId>\n  <message>${executeTrigger.message}</message>\n  <agentType>${executeTrigger.agent_type}</agentType>\n  <jobId>${executeTrigger.jobId}</jobId>\n  <slot>\n    <eventId>${simplifiedSlot.eventId}</eventId>\n    <startTime>${simplifiedSlot.startTime}</startTime>\n    <endTime>${simplifiedSlot.endTime}</endTime>\n    <meetLink>${simplifiedSlot.meetLink}</meetLink>\n  </slot>\n  <context>\n    <currentStage>${executeTrigger.context.current_stage}</currentStage>\n    <lastInteraction>${executeTrigger.context.last_interaction}</lastInteraction>\n  </context>\n  <currentDate>${new Date().toISOString()}</currentDate>\n</userQuery>\n`;\n\n  // Devolver el XML como resultado\n  return {\n    json: {\n      xmlPrompt: xmlPrompt\n    }\n  };\n  \n} catch (error) {\n  // Manejar errores\n  return {\n    json: {\n      error: true,\n      message: 'Error al procesar los datos: ${error.message}',\n      originalData: inputData\n    }\n  };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2580,
+        140
+      ],
+      "id": "7e4a50ee-f476-45d7-b5c1-d02010f4fbd3",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "79818c76-a126-4203-9b7a-dde270243ae1",
+              "leftValue": "={{ $('If').item.json.id }}",
+              "rightValue": "={{ $json.summary }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1460,
+        140
+      ],
+      "id": "5aaa85e5-3641-421c-8eb7-77da5bf9f84e",
+      "name": "Filter1",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Adds candidates as attendees to existing interview slots in the 'TALENTO - MEETS RECLUTAMIENTO' Google Calendar. Use after explicitly confirming candidate participation and validating their email. Requires: eventId (from the existing slot), candidateEmail (validated format), and candidateName. Maintains the existing Google Meet link generated for the slot. Updates the event by adding the candidate as an attendee alongside the existing attendees (mia@onbotgo.com and talento@onbotgo.com). Do NOT use for availability checks; only for adding attendees after explicit confirmation. Returns updated event details including the Google Meet link that should be shared with the candidate.",
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "c_41edf5e9b588f7b01bea790394dc1603e03b0cf5f60effee672062a4a66abad6@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "TALENTO - MEETS RECLUTAMIENTO"
+        },
+        "eventId": "={{ $fromAI(\"slotId\") }}",
+        "useDefaultReminders": false,
+        "updateFields": {
+          "attendeesUi": {
+            "values": {
+              "attendees": [
+                "={{ $fromAI(\"candidateEmail\", \"The confirmed email address of the candidate.\", \"string\") }}"
+              ]
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        3700,
+        480
+      ],
+      "id": "ce3d00a9-8a4a-405d-aace-f18c34d30d39",
+      "name": "Agendador1",
+      "notesInFlow": false,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "TOuAFMH2lO00Ldog",
+          "name": "Google Calendar (Talento)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseFormat": "text"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        3320,
+        360
+      ],
+      "id": "53b1e9f2-31ad-436d-9de5-7b728ded6d69",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "OCSh6LOFwE2dci45",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "c_41edf5e9b588f7b01bea790394dc1603e03b0cf5f60effee672062a4a66abad6@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "TALENTO - MEETS RECLUTAMIENTO"
+        },
+        "returnAll": true,
+        "options": {
+          "timeMin": "={{ $now.plus(1,'hour') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.2,
+      "position": [
+        1180,
+        140
+      ],
+      "id": "19f11590-f54a-4513-af6c-f63229ac21eb",
+      "name": "Obtiene_Si_Hay_Calendario",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "TOuAFMH2lO00Ldog",
+          "name": "Google Calendar (Talento)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Agenda Cerrado\n",
+        "height": 640,
+        "width": 3280,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1150,
+        -40
+      ],
+      "typeVersion": 1,
+      "id": "c5c700ca-2000-4189-829d-62c87fbd9603",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        2180,
+        140
+      ],
+      "id": "5c79053d-97ef-4182-a531-2e4064568a7f",
+      "name": "Limita_a_1_evento"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "start.dateTime"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        1780,
+        140
+      ],
+      "id": "1ba50596-a4f3-4bb0-a657-1570a9abdbde",
+      "name": "Ordena_El_Más_Próximo",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Updates the candidate's email in the 'apply' sheet of the 'TALENTO | ANUNCIOS' Google Sheet. Searches for the candidate by WhatsApp number (extracts the number from the sessionId, e.g., '51925797402' from '51925797402@s.whatsapp.net'). Updates the 'email' column when the candidate explicitly confirms a different email.",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "phone": "={{ $('Hora Actual1').item.json.query.sessionId.split(\"@\")[0] }}",
+            "email": "={{ $fromAI('candidateConfirmedEmail', 'The email address that the candidate explicitly confirmed to use for the meeting invitation. Only include this if the candidate has explicitly confirmed their email address.', 'string') }}"
+          },
+          "matchingColumns": [
+            "phone"
+          ],
+          "schema": [
+            {
+              "id": "jobId",
+              "displayName": "jobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "applicantName",
+              "displayName": "applicantName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "documentType",
+              "displayName": "documentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentNumber",
+              "displayName": "documentNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "cvUrl",
+              "displayName": "cvUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        3820,
+        360
+      ],
+      "id": "95cf372e-04a2-4e35-bb5b-ac559acb8b60",
+      "name": "Update Candidate Email1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Retrieves candidate data from the 'apply' sheet of the 'TALENTO | ANUNCIOS' Google Sheet. Searches by WhatsApp number (extracts the number from the sessionId, e.g., '51925797402' from '51925797402@s.whatsapp.net'). **The email returned is only a suggestion; do not use it for scheduling unless the candidate explicitly confirms they want to receive the meeting invite at that address.**",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "phone",
+              "lookupValue": "={{ $('Execute Workflow Trigger').item.json.query.sessionId.split(\"@\")[0] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        3980,
+        460
+      ],
+      "id": "b1b429a6-9b4a-40f9-8232-0d56756f805f",
+      "name": "Obtener Datos del Postulante1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Updates the candidate's status in the 'apply' sheet of the 'TALENTO | ANUNCIOS' Google Sheet.  Searches for the candidate by WhatsApp number (extracts the number from the sessionId, e.g., '51925797402' from '51925797402@s.whatsapp.net'). Updates the 'status' column. Also updates the 'email' column, but only if the candidate has explicitly confirmed it.",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y",
+          "mode": "list",
+          "cachedResultName": "TALENTO | ANUNCIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1351684538,
+          "mode": "list",
+          "cachedResultName": "apply",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eWoRhXJ_fLkJ0qRzrx37f7CRcjXzt3HPfQKVL3vwV7Y/edit#gid=1351684538"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "phone": "={{ $('Execute Workflow Trigger').item.json.query.sessionId.split(\"@\")[0] }}",
+            "status": "={{ $fromAI('candidateStatusUpdate', 'El estado actualizado del candidato después del intento de agendamiento. Solo hay dos posibles valores: \"Entrevista agendada\" (si el candidato ha sido agregado exitosamente como asistente al evento) o \"Candidato rechaza la propuesta\" (si el candidato rechazó la invitación o no pudo ser agregado). Selecciona el estado que corresponda según el resultado final del proceso.', 'string') }}"
+          },
+          "matchingColumns": [
+            "phone"
+          ],
+          "schema": [
+            {
+              "id": "jobId",
+              "displayName": "jobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "applicantName",
+              "displayName": "applicantName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "documentType",
+              "displayName": "documentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "documentNumber",
+              "displayName": "documentNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "cvUrl",
+              "displayName": "cvUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        4100,
+        360
+      ],
+      "id": "39b4fd4a-8a7b-4381-ac96-42444d86175f",
+      "name": "Update Candidate Status1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvndgwuBWhe4OoHy",
+          "name": "Google sheet Mia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "includeInputFields": true
+        }
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        3100,
+        140
+      ],
+      "id": "af4aafee-fb7b-4d59-acfb-810c2d0e16a1",
+      "name": "Hora Actual1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "{{ $('Execute Workflow Trigger').item.json.query.sessionId }}",
+        "sessionTTL": 2880,
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.4,
+      "position": [
+        3460,
+        460
+      ],
+      "id": "c0064ef7-2aee-4f9f-bc66-018c2156a8d4",
+      "name": "Redis Chat Memory1",
+      "credentials": {
+        "redis": {
+          "id": "FuTe9qrxkR9cRWmA",
+          "name": "Automation Redis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "32ab0507-ea3c-4f80-963c-d8e15d78da79",
+              "name": "response",
+              "value": "={{ $json.output || $json.error}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4240,
+        140
+      ],
+      "id": "4430461b-c077-4948-9d32-dab627d03a1c",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.toJsonString() }}",
+        "options": {
+          "systemMessage": "=# Sistema Prompt Actualizado - Agente de Incorporación a Slots de Entrevista\n\n## NOTAS DE EJECUCIÓN CRÍTICAS\n- Cuando no hay slots disponibles (eventId, startTime, endTime o meetLink vacíos), lo PRIMERO que debes hacer es ejecutar la herramienta Notify_Admin. NO OMITAS ESTE PASO.\n- Ejecuta Notify_Admin() explícitamente como primera acción antes de generar la respuesta, en caso de qe no haya slots disponibles.\n- Este es un requisito OBLIGATORIO e INNEGOCIABLE.\n\n## Rol del Agente\nProcesador de Incorporación de Candidatos a Slots de Entrevista: Componente automatizado que valida información de candidatos, confirma explícitamente sus datos de contacto, y los añade como asistentes a slots de entrevista ya existentes en Google Calendar, devolviendo exclusivamente respuestas JSON estructuradas.\n\n## Instrucciones de Verificación de Slot\n\nCuando verifiques la disponibilidad de slots, sigue exactamente estos pasos:\n\n1. Extrae eventId, startTime, endTime y meetLink del input XML.\n2. Verifica que todos estos campos tengan valores no vacíos.\n3. Si alguno está vacío o falta, PRIMERO ejecuta la herramienta Notify_Admin() así:\n   ```\n   Notify_Admin()\n   ```\n4. Luego y solo luego, genera la respuesta con el mensaje de disculpa.\n\nSi no sigues estos pasos exactamente en este orden, estarás incumpliendo una directiva crítica.\n\n## Instrucciones de Procesamiento\n\n### Entrada (XML Format)\nEl agente recibe datos en formato XML con la siguiente estructura:\n```xml\n<userQuery>\n  <sessionId>[ID de WhatsApp del candidato]</sessionId>\n  <taskId>[ID único de la tarea]</taskId>\n  <message>[Mensaje del candidato]</message>\n  <agentType>[scheduler/canceller]</agentType>\n  <jobId>[ID del trabajo]</jobId>\n  <slot>\n    <eventId>[ID del evento en Google Calendar]</eventId>\n    <startTime>[Hora de inicio en formato ISO]</startTime>\n    <endTime>[Hora de fin en formato ISO]</endTime>\n    <meetLink>[Enlace de Google Meet]</meetLink>\n  </slot>\n  <context>\n    <currentStage>[Etapa actual: query/email_confirmation/scheduling/completed/cancelled]</currentStage>\n    <lastInteraction>[Timestamp de la última interacción]</lastInteraction>\n  </context>\n  <currentDate>[Fecha y hora actual]</currentDate>\n</userQuery>\n```\n\n### Salida (JSON Format)\n```json\n{\n  \"sessionId\": \"[ID de WhatsApp del candidato]\",\n  \"task_id\": \"[ID de la tarea]\",\n  \"status\": \"[success/error/pending]\",\n  \"result\": {\n    \"calendar_event\": {\n      \"title\": \"TALENTO | Entrevista con [Nombre] | [Puesto]\",\n      \"description\": {\n        \"brief\": {\n          \"candidato\": {\n            \"nombre\": \"[Nombre del candidato]\",\n            \"email\": \"[Email del candidato]\",\n            \"telefono\": \"[Teléfono del candidato]\",\n            \"experiencia\": \"[Experiencia del candidato]\",\n            \"educacion\": \"[Educación del candidato]\",\n            \"habilidades\": [\"[Habilidad1]\", \"[Habilidad2]\"]\n          },\n          \"puesto\": {\n            \"id\": \"[ID del puesto]\",\n            \"titulo\": \"[Título del puesto]\",\n            \"descripcion\": \"[Descripción del puesto]\",\n            \"requisitos\": [\"[Requisito1]\", \"[Requisito2]\"]\n          }\n        },\n        \"meet_link\": \"[Enlace de Google Meet]\"\n      },\n      \"status\": \"[confirmed/tentative/cancelled]\"\n    },\n    \"response\": {\n      \"message\": \"[Mensaje detallado para el candidato]\",\n      \"validation_status\": \"[valid/invalid/pending]\"\n    }\n  }\n}\n```\n\n## Flujo de Trabajo\n\n1. **Obtener Datos del Postulante**: Usar \"Obtener Datos del Postulante1\" con el sessionId.\n\n2. **Verificar Disponibilidad de Slot**: \n   - Comprobar si los datos del slot (eventId, startTime, endTime, meetLink) están presentes.\n   - Si alguno de estos campos está vacío:\n     - **PRIMERA ACCIÓN OBLIGATORIA**: EJECUTAR INMEDIATAMENTE la herramienta **Notify_Admin**. Esto NO ES OPCIONAL. Debes ejecutar `Notify_Admin()` antes de cualquier otra acción o respuesta. Esta herramienta alerta al administrador sobre la falta de slots disponibles.\n     - La ejecución debe ser así:\n       ```\n       Notify_Admin()\n       ```\n     - Después de ejecutar Notify_Admin (y solo después), responder con un mensaje de disculpa: \"Lo siento, actualmente no hay horarios disponibles para agendar tu entrevista. Por favor, intenta nuevamente en 30 minutos. Estamos trabajando para habilitar nuevos horarios.\"\n     - Establecer status como \"error\" y validation_status como \"invalid\".\n\n3. **Procesar según Etapa Actual**:\n   \n   - Si `currentStage` es \"query\":\n     - Formatear startTime y endTime para presentarlos de manera amigable.\n     - Solicitar confirmación explícita: \"¿Te interesa participar en esta entrevista para [FECHA] a las [HORA]? Por favor confirma con un 'Sí'.\"\n     - Mencionar que \"recibirá el enlace de acceso una vez confirme su participación y correo electrónico\".\n     - Si rechaza, actualizar estado a \"Candidato rechaza la propuesta\" con \"Update Candidate Status1\".\n   \n   - Si `currentStage` es \"email_confirmation\":\n     - Verificar si el mensaje contiene un correo electrónico. Si lo contiene, validar su formato.\n     - Si no contiene un correo, solicitar explícitamente: \"Por favor, comparte tu correo electrónico para enviarte la invitación.\"\n     - Si hay un correo válido, usar \"Update Candidate Email1\" para actualizarlo.\n     - Solicitar confirmación final: \"Confirmo que te agregaré a la entrevista para [FECHA] a las [HORA]. La invitación se enviará a [EMAIL]. ¿Es correcto? Por favor responde 'Sí' para confirmar.\"\n     - Mencionar que \"recibirá el enlace de acceso una vez confirme esta información\".\n   \n   - Si `currentStage` es \"scheduling\" y hay confirmación:\n     - Enviar primero: \"Perfecto. Estoy agregándote a la entrevista en este momento, dame un instante...\"\n     - Usar \"Agendador1\" para agregar al candidato como asistente, proporcionando eventId y correo confirmado.\n     - Actualizar estado a \"Invitación para la entrevista enviada\" con \"Update Candidate Status1\".\n     - **SOLO AHORA** generar mensaje de confirmación incluyendo fecha, hora y link de Meet.\n\n4. **En caso de Cancelación** (cuando agentType es \"canceller\"):\n   - Actualizar estado a \"Candidato rechaza la propuesta\" con \"Update Candidate Status1\".\n   - Generar mensaje de confirmación de cancelación.\n\n## Estados de Candidato\n- **Invitación para la entrevista enviada**: El candidato ha sido agregado exitosamente como asistente al evento.\n- **Candidato rechaza la propuesta**: El candidato ha rechazado la invitación o no ha podido ser agregado.\n\n## Herramientas Disponibles\n\n1. **Obtener Datos del Postulante1**: Obtiene información del candidato usando el sessionId (número de WhatsApp).\n\n2. **Update Candidate Status1**: Actualiza el estado del candidato en Google Sheets con los valores: \"Invitación para la entrevista enviada\" o \"Candidato rechaza la propuesta\", dependiendo del resultado final del proceso.\n\n3. **Update Candidate Email1**: Actualiza el correo del candidato en Google Sheets.\n\n4. **Agendador1**: Agrega candidatos como asistentes a eventos existentes en Google Calendar.\n\n5. **Redis Chat Memory1**: Mantiene el estado de la conversación.\n\n6. **Obtener Trabajo1**: Obtiene información del puesto utilizando el jobId.\n\n7. **Notify_Admin**: Notifica al administrador cuando no hay slots disponibles. Esta herramienta debe ser llamada OBLIGATORIAMENTE cuando se detecte que faltan datos en el slot (eventId, startTime, endTime o meetLink vacíos). Esta herramienta no requiere parámetros de entrada y debe ser ejecutada antes de enviar cualquier respuesta al usuario en caso de falta de slots disponibles.\n\n## Reglas Críticas\n\n### Nunca\n- Agregar un candidato sin validación explícita del correo electrónico.\n- Agregar un candidato sin confirmación explícita final.\n- Omitir detalles del evento en la respuesta final.\n- Devolver respuestas que no sigan el formato JSON requerido.\n- Eliminar o cambiar el formato del objeto JSON de respuesta.\n- Asumir que el correo electrónico en la base de datos es correcto sin confirmación.\n- Intentar agendar cuando no hay información del slot (eventId, startTime, endTime o meetLink vacíos).\n- NUNCA OMITIR LA EJECUCIÓN DE NOTIFY_ADMIN CUANDO NO HAY SLOTS DISPONIBLES. Esta es una regla absoluta sin excepciones.\n\n### Siempre\n- Formatear fechas/horas ISO a un formato amigable (ejemplo: \"8 de marzo de 2025 a las 13:00\").\n- Validar explícitamente el correo electrónico antes de agregarlo como asistente.\n- Incluir todos los detalles (fecha, hora, link de Meet, correo) en mensajes de confirmación.\n- Seguir el flujo: query → email_confirmation → scheduling → completed.\n- Usar la herramienta correcta para cada operación según lo especificado.\n- Actualizar correctamente el estado del candidato en cada etapa del proceso.\n- Usar el formato exacto del JSON de respuesta según lo especificado.\n- Informar claramente cuando se está agregando al candidato a la entrevista (\"Estoy agregándote...\") y cuando se ha completado exitosamente.\n- Verificar que los datos del slot estén completos antes de proceder con cualquier operación.\n- Informar adecuadamente cuando no hay slots disponibles y sugerir intentar nuevamente en 30 minutos.\n- Notificar al administrador usando Notify_Admin cuando no hay slots disponibles.\n\n### Mensaje de Confirmación Final Exitosa\n\"¡Listo! Has sido agregado a la entrevista para [FECHA] a las [HORA]. Te envié los detalles y el enlace de Google Meet ([MEET_LINK]) a tu correo [EMAIL]. Por favor revisa tu correo y confirma que lo has recibido.\"\n\n---\n\n## Notas sobre el Formato de Respuesta JSON\n\n- Es CRÍTICO que todas las respuestas sigan exactamente el formato JSON especificado en la sección \"Salida\".\n- La estructura exacta del objeto JSON debe ser respetada en todos los casos.\n- Los nombres de los campos y su anidación deben seguirse al pie de la letra.\n- El título del evento debe seguir el formato: \"TALENTO | Entrevista con [Nombre] | [Puesto]\".\n- La sección \"brief\" debe contener información completa del candidato y del puesto, obtenida de las herramientas disponibles.\n- El campo \"meet_link\" debe contener el enlace de Google Meet proporcionado en el slot.\n- El campo \"status\" debe actualizarse según corresponda: \"confirmed\" (candidato agregado), \"tentative\" (en proceso) o \"cancelled\" (rechazado).\n\n## Manejo de Notificaciones Administrativas\n\nEs CRÍTICO recordar que cuando no hay slots disponibles (campos eventId, startTime, endTime o meetLink vacíos), se debe ejecutar la herramienta Notify_Admin ANTES de generar la respuesta al usuario. Esto es necesario para que el equipo administrativo sea notificado inmediatamente sobre la falta de slots y pueda tomar medidas correctivas.\n\nEjemplo de secuencia:\n1. Se detecta que no hay slots (eventId está vacío)\n2. Ejecutar: `Notify_Admin()`\n3. Generar respuesta al usuario con mensaje de disculpa\n4. Establecer status como \"error\"\n\nNota: Este agente es un componente de procesamiento dentro de un sistema multiagente. No envía mensajes directamente a WhatsApp, sino que genera respuestas JSON estructuradas que serán manejadas por otros componentes."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        3600,
+        140
+      ],
+      "id": "006fba67-de65-459e-901b-d549279102c2",
+      "name": "Planificador1",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {
+    "Execute Workflow Trigger": [
+      {
+        "json": {
+          "query": {
+            "sessionId": "51934474263@s.whatsapp.net",
+            "task_id": "1im67to9lnavujpos3jgi80j20vve4g",
+            "jobId": "JOB001",
+            "message": "si a esa hora puedo",
+            "agent_type": "scheduler",
+            "context": {
+              "current_stage": "scheduling",
+              "last_interaction": "2025-03-12T17:38:02-05:00"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "buscar job": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "buscar job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Obtiene_Si_Hay_Calendario",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hora Actual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hora Actual": {
+      "main": [
+        [
+          {
+            "node": "Planificador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Candidate Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "Planificador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Datos del Postulante": {
+      "ai_tool": [
+        [
+          {
+            "node": "Planificador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Candidate Status": {
+      "ai_tool": [
+        [
+          {
+            "node": "Planificador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar Disponibilidad": {
+      "ai_tool": [
+        [
+          {
+            "node": "Planificador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Eventos": {
+      "ai_tool": [
+        [
+          {
+            "node": "Planificador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agendador": {
+      "ai_tool": [
+        [
+          {
+            "node": "Planificador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Planificador",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Planificador": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Planificador",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter1": {
+      "main": [
+        [
+          {
+            "node": "Ordena_El_Más_Próximo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtiene_Si_Hay_Calendario": {
+      "main": [
+        [
+          {
+            "node": "Filter1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limita_a_1_evento": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ordena_El_Más_Próximo": {
+      "main": [
+        [
+          {
+            "node": "Limita_a_1_evento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Hora Actual1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hora Actual1": {
+      "main": [
+        [
+          {
+            "node": "Planificador1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notificar Admin": {
+      "ai_tool": [
+        [
+          {
+            "node": "Planificador1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agendador1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Planificador1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Planificador1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Candidate Email1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Planificador1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Datos del Postulante1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Planificador1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Candidate Status1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Planificador1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Planificador1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Planificador1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "eddecfcd-ae56-4a08-9a8c-ef80177137a5",
+  "meta": {
+    "instanceId": "1dae253b8ed4fa2ae6cc1a1b54e20169a0e4eef838c1eca58506dcd1699582a0"
+  },
+  "id": "hqoA4ltAMlP2ndUV",
+  "tags": []
+}
